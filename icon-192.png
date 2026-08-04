@@ -1,0 +1,73 @@
+
+// Google Apps Script - حطه في Extensions > Apps Script في الشيت بتاعك
+// الشيت لازم يكون فيه 4 صفحات بأسماء: مصروفاتي, ديوني, الحضور, ملاحظاتي
+
+function doPost(e){
+  try{
+    let data = JSON.parse(e.postData.contents);
+    let ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    // مصروفاتي
+    if(data.expenses){
+      let sh = ss.getSheetByName('مصروفاتي') || ss.insertSheet('مصروفاتي');
+      sh.clear();
+      if(data.expenses.length>0){
+        sh.getRange(1,1,1,Object.keys(data.expenses[0]).length).setValues([Object.keys(data.expenses[0])]);
+        let rows = data.expenses.map(o=>Object.values(o));
+        sh.getRange(2,1,rows.length, rows[0].length).setValues(rows);
+      }
+    }
+    // ديوني
+    if(data.debts){
+      let sh = ss.getSheetByName('ديوني') || ss.insertSheet('ديوني');
+      sh.clear();
+      if(data.debts.length>0){
+        sh.getRange(1,1,1,Object.keys(data.debts[0]).length).setValues([Object.keys(data.debts[0])]);
+        let rows = data.debts.map(o=>Object.values(o));
+        sh.getRange(2,1,rows.length, rows[0].length).setValues(rows);
+      }
+    }
+    // الحضور
+    if(data.attendance){
+      let sh = ss.getSheetByName('الحضور') || ss.insertSheet('الحضور');
+      sh.clear();
+      if(data.attendance.length>0){
+        sh.getRange(1,1,1,Object.keys(data.attendance[0]).length).setValues([Object.keys(data.attendance[0])]);
+        let rows = data.attendance.map(o=>Object.values(o));
+        sh.getRange(2,1,rows.length, rows[0].length).setValues(rows);
+      }
+    }
+    // ملاحظاتي
+    if(data.notes){
+      let sh = ss.getSheetByName('ملاحظاتي') || ss.insertSheet('ملاحظاتي');
+      sh.clear();
+      if(data.notes.length>0){
+        sh.getRange(1,1,1,Object.keys(data.notes[0]).length).setValues([Object.keys(data.notes[0])]);
+        let rows = data.notes.map(o=>Object.values(o));
+        sh.getRange(2,1,rows.length, rows[0].length).setValues(rows);
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);
+  }catch(err){
+    return ContentService.createTextOutput(JSON.stringify({error:err.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(){
+  let ss = SpreadsheetApp.getActiveSpreadsheet();
+  let result={};
+  ['مصروفاتي','ديوني','الحضور','ملاحظاتي'].forEach(name=>{
+    let sh = ss.getSheetByName(name);
+    if(sh){
+      let values = sh.getDataRange().getValues();
+      if(values.length>1){
+        let headers=values[0];
+        let rows=values.slice(1);
+        result[name==='مصروفاتي'?'expenses':name==='ديوني'?'debts':name==='الحضور'?'attendance':'notes'] = rows.map(r=>{
+          let obj={}; headers.forEach((h,i)=>obj[h]=r[i]); return obj;
+        });
+      }
+    }
+  });
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}

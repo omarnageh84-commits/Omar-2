@@ -1,0 +1,56 @@
+
+// ==== Google Sheets Linking ====
+// 1. انسخ كود apps-script/Code.gs الى Google Sheets > Extensions > Apps Script
+// 2. Deploy > New Deployment > Web App > Anyone with link
+// 3. خد اللينك وحطه هنا:
+
+const GOOGLE_SCRIPT_URL = localStorage.getItem('gs_url') || ''; // حط اللينك هنا او سيبه فاضي وهيطلب منك
+
+async function syncToGoogleSheet() {
+  if(!GOOGLE_SCRIPT_URL){ 
+    let url=prompt('حط لينك Google Apps Script Web App هنا:');
+    if(url){localStorage.setItem('gs_url',url); location.reload();}
+    return;
+  }
+  let payload={
+    expenses: APP.get('expenses',[]),
+    debts: APP.get('debts',[]),
+    attendance: APP.get('attendance',[]),
+    notes: APP.get('notes',[]),
+    timestamp: new Date().toISOString()
+  };
+  try{
+    toast('⏳ جاري الرفع لـ Google Sheets...');
+    await fetch(GOOGLE_SCRIPT_URL, {method:'POST', mode:'no-cors', body: JSON.stringify(payload)});
+    toast('✅ اترفع لـ Google Sheets');
+  }catch(e){ toast('❌ فشل الرفع: '+e.message); }
+}
+
+async function loadFromGoogleSheet(){
+  if(!GOOGLE_SCRIPT_URL){ toast('حط لينك الشيت أولاً'); return; }
+  try{
+    toast('⏳ جاري التحميل من الشيت...');
+    let res=await fetch(GOOGLE_SCRIPT_URL);
+    let data=await res.json();
+    if(data.expenses) APP.set('expenses', data.expenses);
+    if(data.debts) APP.set('debts', data.debts);
+    if(data.attendance) APP.set('attendance', data.attendance);
+    if(data.notes) APP.set('notes', data.notes);
+    toast('✅ تم التحميل');
+    setTimeout(()=>location.reload(),800);
+  }catch(e){ toast('❌ فشل التحميل'); }
+}
+
+// Excel export fallback
+async function exportAllExcel(){
+  let script=document.createElement('script');
+  if(!window.XLSX){
+    await new Promise(r=>{script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';script.onload=r;document.head.appendChild(script)});
+  }
+  let wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(APP.get('expenses',[])), 'مصروفاتي');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(APP.get('debts',[])), 'ديوني');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(APP.get('attendance',[])), 'الحضور');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(APP.get('notes',[])), 'ملاحظاتي');
+  XLSX.writeFile(wb, 'مشروعي_مرتبط_بالشيت.xlsx');
+}
