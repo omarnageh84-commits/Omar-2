@@ -1,1 +1,217 @@
-<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=index.html#expenses"></head><body>Redirecting to مصروفاتي...</body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مشروعي الخاص</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{font-family:'Cairo',sans-serif}
+body{background:#121212;color:#fff}
+.card{background:#1E1E1E;border:1px solid #2A2A2A;border-radius:16px}
+.active-top{border-bottom:3px solid #fff;color:#fff!important;font-weight:700}
+.active-bottom{color:#0F7A3D!important}
+.plus{width:56px;height:56px;border-radius:50%;background:#3F3B6B;margin-top:-28px;box-shadow:0 4px 20px #0008}
+</style>
+</head>
+<body class="pb-">
+<!-- Header -->
+<div class="bg-[#0F7A3D] px-4 pt-3 pb-0 sticky top-0 z-20">
+  <div class="flex justify-between items-center">
+    <div class="flex gap-4 text-white">🔒 ⚙️ ⋮</div>
+    <div class="text-white text-sm">الجنيه المصري ▼</div>
+  </div>
+  <div id="topTabs" class="flex mt-3">
+    <a data-tab="expenses" class="top-tab flex-1 text-center py-2.5 text-white/60 text- active-top">مصروفاتي</a>
+    <a data-tab="debts" class="top-tab flex-1 text-center py-2.5 text-white/60 text-">ديوني</a>
+    <a data-tab="attendance" class="top-tab flex-1 text-center py-2.5 text-white/60 text-">الحضور</a>
+    <a data-tab="notes" class="top-tab flex-1 text-center py-2.5 text-white/60 text-">ملاحظاتي</a>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="p-3">
+  <!-- Stats like video -->
+  <div class="card p-3 flex gap-3">
+    <div class="flex-1">
+      <div class="w-24 h-24 rounded-full border-8 border-[#4DD0E1] mx-auto grid place-items-center text-xs">300 ج</div>
+    </div>
+    <div class="flex-1 text- space-y-2">
+      <div class="flex justify-between"><span>الرصيد الابتدائي</span><span id="totalStart">300 ج</span></div>
+      <div class="flex justify-between"><span>المصاريف</span><span id="totalExp">0 ج</span></div>
+      <div class="flex justify-between"><span>الدخل</span><span id="totalInc">0 ج</span></div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex gap-2 my-3">
+    <button onclick="syncToGoogleSheet()" class="flex-1 h-10 rounded-xl bg-[#0F7A3D] text-white text- font-bold">☁️ رفع للشيت</button>
+    <button onclick="loadFromGoogleSheet()" class="flex-1 h-10 rounded-xl bg-[#2A2A2A] border border-[#333] text-">⬇️ تحميل من الشيت</button>
+    <button onclick="exportAllExcel()" class="flex-1 h-10 rounded-xl bg-[#2A2A2A] border border-[#333] text-">💾 Excel</button>
+  </div>
+
+  <!-- List -->
+  <div id="mainList"></div>
+</div>
+
+<!-- Bottom Nav Dynamic -->
+<div id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-[#1E1E1E] border-t border-[#2A2A2A] h- flex justify-around items-center z-30"></div>
+
+<!-- Add Modal -->
+<div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden place-items-center p-4">
+  <div class="card w-full max-w- p-4">
+    <h3 id="modalTitle" class="font-bold mb-3">إضافة جديد</h3>
+    <div id="modalFields"></div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveModal()" class="flex-1 h-11 rounded-xl bg-[#0F7A3D] text-white font-bold">حفظ</button>
+      <button onclick="closeModal()" class="flex-1 h-11 rounded-xl bg-[#2A2A2A] border border-[#333]">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/sheets.js"></script>
+<script>
+// ===== التبويبات الديناميكية =====
+const SUB_TABS = {
+  expenses: [
+    {id:'outcome', label:'مصروف', icon:'💸'},
+    {id:'income', label:'مدخلات', icon:'💰'},
+    {id:'net', label:'الصافي', icon:'📊'},
+    {id:'all', label:'الكل', icon:'📋'}
+  ],
+  debts: [
+    {id:'lena', label:'لنا', icon:'⬆️'},
+    {id:'alayna', label:'علينا', icon:'⬇️'},
+    {id:'net', label:'الصافي', icon:'⚖️'},
+    {id:'all', label:'الكل', icon:'📋'}
+  ],
+  attendance: [
+    {id:'hader', label:'حاضر', icon:'✅'},
+    {id:'mot2kher', label:'متأخر', icon:'⏰'},
+    {id:'ghaeb', label:'غائب', icon:'❌'},
+    {id:'all', label:'الكل', icon:'📅'}
+  ],
+  notes: [
+    {id:'pinned', label:'مثبتة', icon:'📌'},
+    {id:'general', label:'عامة', icon:'📝'},
+    {id:'tags', label:'وسوم', icon:'#️⃣'},
+    {id:'all', label:'الكل', icon:'📋'}
+  ]
+};
+
+let activeTop = localStorage.getItem('activeTop') || 'expenses';
+let activeBottom = localStorage.getItem('activeBottom') || 'all';
+let editingId = null;
+
+function renderTopTabs(){
+  document.querySelectorAll('.top-tab').forEach(t=>{
+    t.classList.toggle('active-top', t.dataset.tab===activeTop);
+  });
+  renderBottomNav();
+  renderList();
+}
+
+function renderBottomNav(){
+  const subs = SUB_TABS[activeTop];
+  const nav = document.getElementById('bottomNav');
+  // نقسم لـ 2 قبل و 2 بعد الـ +
+  nav.innerHTML = `
+    <a onclick="setBottom('${subs[0].id}')" class="flex flex-col items-center text- ${activeBottom===subs[0].id?'active-bottom':''}"><span>${subs[0].icon}</span><span>${subs[0].label}</span></a>
+    <a onclick="setBottom('${subs[1].id}')" class="flex flex-col items-center text- ${activeBottom===subs[1].id?'active-bottom':''}"><span>${subs[1].icon}</span><span>${subs[1].label}</span></a>
+    <div onclick="openModal()" class="plus grid place-items-center text-2xl text-white cursor-pointer">+</div>
+    <a onclick="setBottom('${subs[2].id}')" class="flex flex-col items-center text- ${activeBottom===subs[2].id?'active-bottom':''}"><span>${subs[2].icon}</span><span>${subs[2].label}</span></a>
+    <a onclick="setBottom('${subs[3].id}')" class="flex flex-col items-center text- ${activeBottom===subs[3].id?'active-bottom':''}"><span>${subs[3].icon}</span><span>${subs[3].label}</span></a>
+  `;
+}
+
+function setBottom(id){ activeBottom=id; localStorage.setItem('activeBottom',id); renderBottomNav(); renderList(); }
+
+function renderList(){
+  const list = document.getElementById('mainList');
+  let html = '';
+  if(activeTop==='expenses'){
+    let data = APP.get('expenses',[]);
+    if(activeBottom==='outcome') data=data.filter(d=>d.type==='outcome');
+    if(activeBottom==='income') data=data.filter(d=>d.type==='income');
+    html = data.map(e=>`
+      <div class="card p-3 flex justify-between items-center mb-2">
+        <div><div class="font-bold">${e.amount} ج - ${e.desc}</div><div class="text- text-white/50">${e.category} | ${e.date}</div></div>
+        <div class="flex gap-2"><button onclick="editItem('expenses','${e.id}')">✏️</button><button onclick="deleteItem('expenses','${e.id}')">🗑️</button></div>
+      </div>`).join('') || '<div class="text-center text-white/40 py-10">لا يوجد بيانات</div>';
+  }
+  if(activeTop==='debts'){
+    let data = APP.get('debts',[]);
+    if(activeBottom==='lena') data=data.filter(d=>d.type==='لنا');
+    if(activeBottom==='alayna') data=data.filter(d=>d.type==='علينا');
+    html = data.map(d=>`
+      <div class="card p-3 flex justify-between items-center mb-2">
+        <div><div class="font-bold">${d.person} - ${d.amount} ج</div><div class="text- ${d.type==='لنا'?'text-green-400':'text-red-400'}">${d.type}</div></div>
+        <div class="flex gap-2"><button onclick="editItem('debts','${d.id}')">✏️</button><button onclick="deleteItem('debts','${d.id}')">🗑️</button></div>
+      </div>`).join('') || '<div class="text-center text-white/40 py-10">لا يوجد ديون</div>';
+  }
+  if(activeTop==='attendance'){
+    let data = APP.get('attendance',[]);
+    if(activeBottom!=='all') data=data.filter(d=>d.status===activeBottom);
+    html = data.map(a=>`<div class="card p-3 flex justify-between mb-2"><span>${a.date} - ${a.checkIn||''}</span><span class="text-xs px-2 py-1 rounded bg-[#0F7A3D]">${a.status}</span></div>`).join('') || '<div class="text-center text-white/40 py-10">لا يوجد حضور</div>';
+  }
+  if(activeTop==='notes'){
+    let data = APP.get('notes',[]);
+    html = data.map(n=>`<div class="card p-3 mb-2"><div class="font-bold">${n.title}</div><div class="text- text-white/60">${n.content}</div></div>`).join('') || '<div class="text-center text-white/40 py-10">لا يوجد ملاحظات</div>';
+  }
+  list.innerHTML = html;
+}
+
+// Top tab click
+document.querySelectorAll('.top-tab').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    activeTop=el.dataset.tab;
+    activeBottom='all';
+    localStorage.setItem('activeTop',activeTop);
+    localStorage.setItem('activeBottom','all');
+    renderTopTabs();
+  });
+});
+
+function openModal(){
+  let fields='';
+  if(activeTop==='expenses'){
+    fields=`<input id="f_amount" class="w-full h-11 bg-[#121212] border border-[#333] rounded-xl px-3 mb-2" placeholder="المبلغ">
+            <input id="f_desc" class="w-full h-11 bg-[#121212] border border-[#333] rounded-xl px-3 mb-2" placeholder="الوصف">
+            <select id="f_type" class="w-full h-11 bg-[#121212] border border-[#333] rounded-xl px-3 mb-2"><option value="outcome">مصروف</option><option value="income">مدخلات</option></select>`;
+  }
+  if(activeTop==='debts'){
+    let def = activeBottom==='lena'? 'لنا' : activeBottom==='alayna'? 'علينا' : 'لنا';
+    fields=`<input id="f_person" class="w-full h-11 bg-[#121212] border border-[#333] rounded-xl px-3 mb-2" placeholder="اسم الشخص">
+            <input id="f_amount" class="w-full h-11 bg-[#121212] border border-[#333] rounded-xl px-3 mb-2" placeholder="المبلغ">
+            <select id="f_type" class="w-full h-11 bg-[#121212] border border-[#333] rounded-xl px-3 mb-2"><option ${def==='لنا'?'selected':''}>لنا</option><option ${def==='علينا'?'selected':''}>علينا</option></select>`;
+  }
+  document.getElementById('modalFields').innerHTML=fields;
+  document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('grid');
+}
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('grid'); editingId=null; }
+function saveModal(){
+  let id = editingId || uid();
+  if(activeTop==='expenses'){
+    let arr=APP.get('expenses',[]);
+    let obj={id, amount:document.getElementById('f_amount').value, desc:document.getElementById('f_desc').value, type:document.getElementById('f_type').value, category:'عام', date:new Date().toLocaleDateString('ar-EG')};
+    if(editingId) arr=arr.map(x=>x.id===id?obj:x); else arr.push(obj);
+    APP.set('expenses',arr);
+  }
+  if(activeTop==='debts'){
+    let arr=APP.get('debts',[]);
+    let obj={id, person:document.getElementById('f_person').value, amount:document.getElementById('f_amount').value, type:document.getElementById('f_type').value};
+    if(editingId) arr=arr.map(x=>x.id===id?obj:x); else arr.push(obj);
+    APP.set('debts',arr);
+  }
+  closeModal(); renderList();
+}
+function deleteItem(key,id){ if(confirm('مسح؟')){ APP.set(key, APP.get(key,[]).filter(x=>x.id!==id)); renderList(); } }
+function editItem(key,id){ editingId=id; openModal(); }
+
+renderTopTabs();
+</script>
+</body>
+</html>
