@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>OMAR - المصروفات</title>
+<title>OMAR PRO - FIXED</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{font-family:'Cairo';box-sizing:border-box;margin:0;padding:0}
@@ -11,21 +11,23 @@ body{background:#0E0E0E;color:#fff;padding-bottom:80px}
 .h{background:#121212;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;position:sticky;top:0;z-index:10}
 .card{background:#1A1A1A;border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid #222}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #222;height:70px;display:flex;justify-content:space-around;align-items:center;z-index:99}
-.bottom a{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.bottom a{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer}
 .bottom a.on{color:#0F7A3D}
-.plus{width:54px;height:54px;border-radius:50%;background:#0F7A3D;margin-top:-30px;display:grid;place-items:center;font-size:26px;color:#fff}
+.plus{width:54px;height:54px;border-radius:50%;background:#0F7A3D;margin-top:-30px;display:grid;place-items:center;font-size:26px;color:#fff;cursor:pointer}
 .modal{position:fixed;inset:0;background:#0E0E0E;z-index:200;display:none;flex-direction:column}
 .modal.show{display:flex}
 .topBar{height:52px;background:#121212;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #222}
 .inpAmount{width:100%;background:transparent;border:0;border-bottom:2px solid #0F7A3D;color:#fff;font-size:28px;font-weight:800;padding:10px 0;outline:none;text-align:right}
-.row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1E1E1E;font-size:13px}
-.row.left{opacity:.5;font-size:12px}
-.switch{width:38px;height:22px;background:#333;border-radius:20px;position:relative;cursor:pointer;transition:.2s}
+.row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #1E1E1E;font-size:13px;cursor:pointer}
+.switch{width:42px;height:24px;background:#333;border-radius:20px;position:relative;cursor:pointer;transition:.2s}
 .switch.on{background:#0F7A3D}
-.switch::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;right:3px;transition:.2s}
-.switch.on::after{right:19px}
-.btnGreen{width:100%;height:52px;background:#0F7A3D;border:0;border-radius:12px;color:#fff;font-weight:800;font-size:14px;margin-top:auto}
-.smallIcon{width:32px;height:32px;border-radius:8px;background:#1E1E1E;display:grid;place-items:center}
+.switch::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;right:3px;transition:.2s}
+.switch.on::after{right:21px}
+.btnGreen{height:52px;background:#0F7A3D;border:0;border-radius:14px;color:#fff;font-weight:800;font-size:15px;width:calc(100% - 24px);margin:12px auto;display:block}
+.subModal{position:fixed;inset:0;background:#0E0E0E;z-index:300;display:none;flex-direction:column}
+.subModal.show{display:flex}
+.catItem{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #1E1E1E}
+.inp{width:100%;height:44px;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:10px;color:#fff;padding:0 12px;outline:none}
 </style>
 </head>
 <body>
@@ -33,145 +35,177 @@ body{background:#0E0E0E;color:#fff;padding-bottom:80px}
 <div style="display:flex;gap:10px;align-items:center"><span style="font-size:11px">▼ الجنيه المصري</span><b id="totalBal">EGP 6,280</b></div>
 <div style="font-weight:800">OMAR</div>
 </div>
-
 <div style="padding:12px" id="main"></div>
-
 <div class="bottom">
-<a class="on" onclick="setPage('expenses')"><span>💰</span><span>المصروفات</span></a>
-<a onclick="setPage('debts')"><span>📕</span><span>الديون</span></a>
+<a class="on"><span>💰</span><span>المصروفات</span></a>
+<a><span>📕</span><span>الديون</span></a>
 <div class="plus" onclick="openAdd()">+</div>
-<a onclick="setPage('attendance')"><span>⏰</span><span>الحضور</span></a>
-<a onclick="setPage('more')"><span>☰</span><span>أكثر</span></a>
+<a><span>⏰</span><span>الحضور</span></a>
+<a><span>☰</span><span>أكثر</span></a>
 </div>
 
-<!-- شاشة الإضافة زي الفيديو بالظبط -->
+<!-- شاشة الإضافة -->
 <div id="addModal" class="modal">
 <div class="topBar">
-<span onclick="closeAdd()" style="font-size:20px;cursor:pointer">←</span>
+<span onclick="closeAdd()" style="font-size:22px;cursor:pointer">←</span>
 <b>إضافة معاملة</b>
-<span>⚙️</span>
+<span onclick="openCatManager()" style="cursor:pointer">⚙️</span>
 </div>
 <div style="padding:16px;overflow:auto;flex:1">
 <div style="display:flex;gap:8px;align-items:center">
 <div style="background:#1A1A1A;border:1px solid #333;border-radius:8px;padding:6px 10px;font-size:12px">د.م</div>
-<input id="f_amount" class="inpAmount" type="number" placeholder="المبلغ" style="flex:1">
+<input id="f_amount" class="inpAmount" type="number" placeholder="المبلغ">
 </div>
-
-<div class="row" onclick="openSelect('lena')">
-<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#3B82F622">👥</div><span>لنا</span></div>
-<span class="left">›</span>
+<div class="row" onclick="toggleLana()">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#3B82F622;padding:8px;border-radius:10px">👥</div><span id="lanaText">لنا</span></div>
+<span>‹</span>
 </div>
-<div class="row" onclick="openSelect('wallet')">
-<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#0F7A3D22">💼</div><div><div>آل عمر</div><div style="font-size:11px;opacity:.5">6,280 م.ج</div></div></div>
-<span class="left">›</span>
+<div class="row" onclick="openWallets()">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#0F7A3D22;padding:8px;border-radius:10px">💼</div><div><div id="walletName">آل عمر</div><div style="font-size:11px;opacity:.5" id="walletBal">6,280 م.ج</div></div></div>
+<span>‹</span>
 </div>
-
-<div style="padding:12px 0;border-bottom:1px solid #1E1E1E">
-<input id="f_note" style="width:100%;background:transparent;border:0;color:#888;font-size:13px;outline:none" placeholder="الملاحظات">
+<div style="padding:14px 0;border-bottom:1px solid #1E1E1E">
+<input id="f_note" style="width:100%;background:transparent;border:0;color:#fff;font-size:13px;outline:none" placeholder="الملاحظات">
 </div>
-
-<div class="row">
-<div style="display:flex;gap:14px;align-items:center">
-<span style="font-size:12px">12:43 PM</span>
-<span style="font-size:12px">05/08/2026</span>
-<span>تاريخ المعاملة</span>
+<div class="row" onclick="pickDate()">
+<div style="display:flex;gap:8px;align-items:center"><span>🖼️</span><span>📷</span><span>📅</span></div>
+<div style="display:flex;gap:12px"><span>PM 12:43</span><span id="dateText">05/08/2026</span><span>تاريخ المعاملة</span></div>
 </div>
-<div style="display:flex;gap:10px"><span>🖼️</span><span>📷</span><span>📅</span></div>
-</div>
-
-<div class="row">
+<div class="row" style="cursor:default">
 <span>تكرار المعاملة</span>
 <div class="switch" id="sw_repeat" onclick="this.classList.toggle('on')"></div>
 </div>
-
-<div class="row" onclick="openSelect('group')">
-<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon">⭐</div><span>المجموعة</span></div>
-<span class="left" id="val_group">›</span>
+<div class="row" onclick="openGroups()">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#F59E0B22;padding:8px;border-radius:10px">⭐</div><span>المجموعة</span></div>
+<div style="display:flex;gap:8px;align-items:center"><span id="groupVal" style="opacity:.5">اختر</span><span>‹</span></div>
 </div>
-
-<div class="row" onclick="openSelect('contact')">
-<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#F59E0B22">📁</div><span>جهة الاتصال</span></div>
-<span class="left" id="val_contact">›</span>
+<div class="row" onclick="openContacts()">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#F59E0B22;padding:8px;border-radius:10px">📁</div><span>جهة الاتصال</span></div>
+<div style="display:flex;gap:8px;align-items:center"><span id="contactVal" style="opacity:.5">اختر</span><span>‹</span></div>
 </div>
-
 <div class="row">
-<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#3B82F622">📅</div><span>تاريخ البدء</span></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#3B82F622;padding:8px;border-radius:10px">📅</div><span>تاريخ البدء</span></div>
 <span>05/08/2026</span>
 </div>
-
 <div class="row">
-<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#EF444422">📅</div><span>تاريخ الانتهاء</span></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#EF444422;padding:8px;border-radius:10px">📅</div><span>تاريخ الانتهاء</span></div>
 <span>05/08/2026</span>
 </div>
+<div class="row" style="align-items:flex-start;cursor:default">
+<div><div>عدم التأثير على الرصيد</div><div style="font-size:10px;opacity:.5;margin-top:4px">عند تفعيلها سيتم تجاهل هذه المعاملة من رصيد المحفظة المحددة</div></div>
+<div class="switch" id="sw_balance" onclick="this.classList.toggle('on')"></div>
+</div>
+</div>
+<button class="btnGreen" onclick="saveTrans()">إضافة معاملة</button>
+</div>
 
-<div class="row" style="align-items:flex-start">
-<div>
-<div>عدم التأثير على الرصيد</div>
-<div style="font-size:10px;opacity:.5;margin-top:4px">عند تفعيلها سيتم تجاهل هذه المعاملة من رصيد المحفظة المحددة</div>
+<!-- المجموعات -->
+<div id="groupModal" class="subModal">
+<div class="topBar"><span onclick="closeGroups()" style="font-size:20px">←</span><b>المجموعة</b><span onclick="addNewGroup()" style="color:#0F7A3D;cursor:pointer">+ إضافة</span></div>
+<div style="padding:12px;overflow:auto;flex:1">
+<div style="display:flex;gap:8px;margin-bottom:12px"><input id="newGroupInput" class="inp" placeholder="اسم مجموعة جديدة" style="flex:1"><button onclick="addNewGroup()" style="background:#0F7A3D;border:0;border-radius:10px;color:#fff;padding:0 16px">إضافة</button></div>
+<div id="groupList"></div>
 </div>
-<div class="switch" onclick="this.classList.toggle('on')"></div>
 </div>
 
+<!-- جهات الاتصال -->
+<div id="contactModal" class="subModal">
+<div class="topBar"><span onclick="closeContacts()" style="font-size:20px">←</span><b>جهة الاتصال</b><span onclick="addNewContact()" style="color:#0F7A3D;cursor:pointer">+ إضافة</span></div>
+<div style="padding:12px;overflow:auto;flex:1">
+<div style="display:flex;gap:8px;margin-bottom:12px"><input id="newContactInput" class="inp" placeholder="اسم جهة جديدة" style="flex:1"><button onclick="addNewContact()" style="background:#0F7A3D;border:0;border-radius:10px;color:#fff;padding:0 16px">إضافة</button></div>
+<div id="contactList"></div>
 </div>
-<button class="btnGreen" onclick="saveTrans()" style="margin:12px">إضافة معاملة</button>
+</div>
+
+<!-- المحافظ -->
+<div id="walletModal" class="subModal">
+<div class="topBar"><span onclick="closeWallets()" style="font-size:20px">←</span><b>اختر المحفظة</b><span></span></div>
+<div style="padding:12px;overflow:auto;flex:1" id="walletList"></div>
 </div>
 
 <script>
 const APP={get:function(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v!==null?v:d}catch(e){return d}},set:function(k,v){localStorage.setItem(k,JSON.stringify(v))}}
 if(!localStorage.getItem('transactions')) APP.set('transactions',[])
-let page='expenses'
-function setPage(p){page=p;render()}
+if(!localStorage.getItem('groups')) APP.set('groups',['المواصلات','ترفيهي','أكل','إيجار','راتب','مبيعات'])
+if(!localStorage.getItem('contacts')) APP.set('contacts',['ياسمين','حسين','إسلام وليد','من كازاك سالم'])
+if(!localStorage.getItem('wallets')) APP.set('wallets',[{id:'w1',name:'آل عمر',bal:6280},{id:'w2',name:'ديدي',bal:0},{id:'w3',name:'أمانات',bal:15000}])
+let selectedGroup='', selectedContact='', selectedWallet=APP.get('wallets',[])[0], lana='لنا'
 function render(){
 let trans=APP.get('transactions',[])
-let total=trans.reduce(function(s,t){return t.type==='income'?s+Number(t.amount):s-Number(t.amount)},6280)
-document.getElementById('totalBal').innerText='EGP '+total.toLocaleString('en-US')
+let total=APP.get('wallets',[]).reduce(function(s,w){return s+Number(w.bal)},0) + trans.reduce(function(s,t){return t.type==='income'?s+Number(t.amount):s-Number(t.amount)},0) - 6280
+document.getElementById('totalBal').innerText='EGP '+total.toLocaleString()
 let html=''
-if(page==='expenses'){
-if(trans.length===0) html='<div style="text-align:center;padding:80px 20px;opacity:.4"><div style="font-size:40px">💸</div><div style="margin-top:10px">لا يوجد معاملات</div><div style="font-size:11px;margin-top:4px">اضغط + لإضافة أول معاملة</div></div>'
+if(trans.length===0) html='<div style="text-align:center;padding:80px 20px;opacity:.4"><div style="font-size:40px">💸</div><div>لا يوجد معاملات</div><div style="font-size:11px;margin-top:4px">اضغط + لإضافة</div></div>'
 else{
-let groups={}
-trans.forEach(function(t){let d=t.date||'05/08/2026'; if(!groups[d]) groups[d]=[]; groups[d].push(t)})
-Object.keys(groups).reverse().forEach(function(d){
-html+='<div style="font-size:11px;opacity:.4;margin:14px 4px">'+d+'</div>'
-groups[d].forEach(function(t){
-html+='<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:10px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:'+(t.type==='outcome'?'#EF444422':'#22C55E22')+';display:grid;place-items:center">'+(t.type==='outcome'?'💸':'💰')+'</div><div><b style="font-size:12px">'+(t.cat||'مصروف')+'</b><div style="font-size:10px;opacity:.5">'+(t.note||'آل عمر')+'</div></div></div><div style="text-align:left"><b style="color:'+(t.type==='outcome'?'#EF4444':'#22C55E')+'">'+(t.type==='outcome'?'-':'+')+Number(t.amount).toLocaleString()+'</b><div style="font-size:10px;opacity:.4" onclick="delTrans(\''+t.id+'\')">🗑️</div></div></div>'
-})
+trans.slice().reverse().forEach(function(t){
+html+='<div class="card" style="display:flex;justify-content:space-between"><div><b>'+t.cat+' - '+Number(t.amount).toLocaleString()+' م.ج</b><div style="font-size:11px;opacity:.5">'+t.note+' | '+t.contact+' | '+t.wallet+'</div></div><span onclick="delTrans(\''+t.id+'\')" style="color:#EF4444;cursor:pointer">🗑️</span></div>'
 })
 }
-}
-if(page==='debts') html='<div style="text-align:center;padding:60px;opacity:.4">تبويب الديون - هنظبطه بعد المصروفات</div>'
-if(page==='attendance') html='<div style="text-align:center;padding:60px;opacity:.4">تبويب الحضور والانصراف - الخطوة الجاية</div>'
-if(page==='more') html='<div class="card"><div style="padding:12px;border-bottom:1px solid #222" onclick="setPage(\'notes\')">📝 الملاحظات</div><div style="padding:12px" onclick="setPage(\'tasks\')">✅ المهام اليومية</div></div>'
 document.getElementById('main').innerHTML=html
+document.getElementById('walletName').innerText=selectedWallet.name
+document.getElementById('walletBal').innerText=selectedWallet.bal.toLocaleString()+' م.ج'
 }
 function openAdd(){document.getElementById('addModal').classList.add('show')}
 function closeAdd(){document.getElementById('addModal').classList.remove('show')}
-function openSelect(type){
-if(type==='group'){
-let g=prompt('اختر المجموعة:\n1- المصروف\n2- الدخل\n3- الديون')
-if(g==='1') document.getElementById('val_group').innerText='المصروف'
-if(g==='2') document.getElementById('val_group').innerText='الدخل'
+function toggleLana(){lana=lana==='لنا'?'علينا':'لنا'; document.getElementById('lanaText').innerText=lana}
+function openGroups(){renderGroups(); document.getElementById('groupModal').classList.add('show')}
+function closeGroups(){document.getElementById('groupModal').classList.remove('show')}
+function renderGroups(){
+let groups=APP.get('groups',[])
+document.getElementById('groupList').innerHTML=groups.map(function(g,i){return '<div class="catItem"><span onclick="selectGroup(\''+g+'\')" style="flex:1;cursor:pointer">'+g+'</span><div style="display:flex;gap:12px"><span onclick="editGroup('+i+')" style="cursor:pointer">✏️</span><span onclick="delGroup('+i+')" style="color:#EF4444;cursor:pointer">🗑️</span></div></div>'}).join('')
 }
-if(type==='contact'){
-let c=prompt('اسم جهة الاتصال:')
-if(c) document.getElementById('val_contact').innerText=c
+function selectGroup(g){selectedGroup=g; document.getElementById('groupVal').innerText=g; document.getElementById('groupVal').style.opacity='1'; closeGroups()}
+function addNewGroup(){
+let v=document.getElementById('newGroupInput').value.trim()||prompt('اسم المجموعة:')
+if(!v) return
+let a=APP.get('groups',[]); a.push(v); APP.set('groups',a); document.getElementById('newGroupInput').value=''; renderGroups()
 }
+function editGroup(i){let a=APP.get('groups',[]); let nv=prompt('تعديل الاسم:',a[i]); if(!nv) return; a[i]=nv; APP.set('groups',a); renderGroups()}
+function delGroup(i){if(!confirm('مسح المجموعة؟')) return; let a=APP.get('groups',[]); a.splice(i,1); APP.set('groups',a); renderGroups()}
+
+function openContacts(){renderContacts(); document.getElementById('contactModal').classList.add('show')}
+function closeContacts(){document.getElementById('contactModal').classList.remove('show')}
+function renderContacts(){
+let cs=APP.get('contacts',[])
+document.getElementById('contactList').innerHTML=cs.map(function(c,i){return '<div class="catItem"><span onclick="selectContact(\''+c+'\')" style="flex:1;cursor:pointer">'+c+'</span><div style="display:flex;gap:12px"><span onclick="editContact('+i+')" style="cursor:pointer">✏️</span><span onclick="delContact('+i+')" style="color:#EF4444;cursor:pointer">🗑️</span></div></div>'}).join('')
 }
+function selectContact(c){selectedContact=c; document.getElementById('contactVal').innerText=c; document.getElementById('contactVal').style.opacity='1'; closeContacts()}
+function addNewContact(){
+let v=document.getElementById('newContactInput').value.trim()||prompt('اسم جهة الاتصال:')
+if(!v) return
+let a=APP.get('contacts',[]); a.push(v); APP.set('contacts',a); document.getElementById('newContactInput').value=''; renderContacts()
+}
+function editContact(i){let a=APP.get('contacts',[]); let nv=prompt('تعديل:',a[i]); if(!nv) return; a[i]=nv; APP.set('contacts',a); renderContacts()}
+function delContact(i){if(!confirm('مسح؟')) return; let a=APP.get('contacts',[]); a.splice(i,1); APP.set('contacts',a); renderContacts()}
+
+function openWallets(){renderWallets(); document.getElementById('walletModal').classList.add('show')}
+function closeWallets(){document.getElementById('walletModal').classList.remove('show')}
+function renderWallets(){
+let ws=APP.get('wallets',[])
+document.getElementById('walletList').innerHTML=ws.map(function(w){return '<div class="catItem" onclick="selectWallet(\''+w.id+'\')" style="cursor:pointer"><div><b>'+w.name+'</b><div style="font-size:11px;opacity:.5">'+w.bal.toLocaleString()+' م.ج</div></div><span>›</span></div>'}).join('')
+}
+function selectWallet(id){selectedWallet=APP.get('wallets',[]).find(function(w){return w.id===id}); render(); closeWallets()}
+
+function pickDate(){let d=prompt('تاريخ المعاملة (05/08/2026):','05/08/2026'); if(d) document.getElementById('dateText').innerText=d}
+
 function saveTrans(){
 let amount=Number(document.getElementById('f_amount').value||0)
 if(!amount) return alert('اكتب المبلغ')
+if(!selectedGroup) return alert('اختر المجموعة')
 let note=document.getElementById('f_note').value
-let cat=document.getElementById('val_group').innerText==='›'?'المواصلات':document.getElementById('val_group').innerText
-let type=cat==='الدخل'?'income':'outcome'
+let noEffect=document.getElementById('sw_balance').classList.contains('on')
 let trans=APP.get('transactions',[])
-trans.push({id:Math.random().toString(36).slice(2,7),amount:amount,note:note,cat:cat,type:type,date:'05/08/2026'})
+trans.push({id:Math.random().toString(36).slice(2,7),amount:amount,cat:selectedGroup,note:note,contact:selectedContact||'',wallet:selectedWallet.name,type:lana==='لنا'?'income':'outcome',date:document.getElementById('dateText').innerText,lana:lana,noEffect:noEffect})
 APP.set('transactions',trans)
-document.getElementById('f_amount').value=''
-document.getElementById('f_note').value=''
+if(!noEffect){
+let ws=APP.get('wallets',[]); let w=ws.find(function(x){return x.id===selectedWallet.id}); if(w){ if(lana==='لنا') w.bal+=amount; else w.bal-=amount; APP.set('wallets',ws)}
+}
+document.getElementById('f_amount').value=''; document.getElementById('f_note').value=''; selectedGroup=''; selectedContact=''; document.getElementById('groupVal').innerText='اختر'; document.getElementById('contactVal').innerText='اختر'
 closeAdd()
 render()
+alert('✅ تمت إضافة المعاملة')
 }
-function delTrans(id){if(confirm('مسح؟')){APP.set('transactions',APP.get('transactions',[]).filter(function(x){return x.id!==id})); render()}}
+function delTrans(id){if(confirm('مسح المعاملة؟')){APP.set('transactions',APP.get('transactions',[]).filter(function(x){return x.id!==id})); render()}}
 render()
 </script>
 </body>
