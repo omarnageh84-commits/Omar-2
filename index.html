@@ -3,30 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>مشروعي</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<title>مشروعي - إدارة احترافية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{font-family:'Cairo';box-sizing:border-box;margin:0}
 body{background:#121212;color:#fff;padding-bottom:90px}
-.h{background:#0F7A3D;padding:12px 16px 0;position:sticky;top:0;z-index:10}
+.h{background:#0F7A3D;padding:10px 14px 0;position:sticky;top:0;z-index:10}
+.topHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.btnSmall{height:26px;padding:0 10px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px}
+.btnSmall.green{background:#fff;color:#0F7A3D;border:0}
 .top{display:flex}
 .top a{flex:1;text-align:center;padding:10px 2px;color:#ffffff99;border-bottom:3px solid transparent;font-size:13px;cursor:pointer}
 .top a.on{border-color:#fff;color:#fff;font-weight:700}
-.card{background:#1E1E1E;border:1px solid #2A2A2A;border-radius:16px;padding:12px;margin-bottom:10px}
+.card{background:#1E1E1E;border:1px solid #2A2A2A;border-radius:16px;padding:14px;margin-bottom:10px}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:#1E1E1E;border-top:1px solid #2A2A2A;height:72px;display:flex;justify-content:space-around;align-items:center;z-index:9999}
 .bottom a{color:#888;font-size:11px;display:flex;flex-direction:column;align-items:center;flex:1;cursor:pointer;text-decoration:none}
 .bottom a.on{color:#0F7A3D}
-.plus{width:56px;height:56px;border-radius:50%;background:#3F3B6B;margin-top:-28px;display:grid;place-items:center;font-size:26px;color:#fff;cursor:pointer}
+.plus{width:56px;height:56px;border-radius:50%;background:#3F3B6B;margin-top:-28px;display:grid;place-items:center;font-size:26px;color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .modal{position:fixed;inset:0;background:#0008;backdrop-filter:blur(6px);z-index:99;display:none;place-items:center;padding:16px}
 .modal.show{display:grid}
-.box{background:#1E1E1E;border:1px solid #333;border-radius:20px;padding:16px;width:100%;max-width:400px}
+.box{background:#1E1E1E;border:1px solid #333;border-radius:20px;padding:16px;width:100%;max-width:420px;max-height:90vh;overflow:auto}
 .inp{width:100%;height:44px;background:#121212;border:1px solid #333;border-radius:12px;padding:0 12px;color:#fff;margin-top:8px;outline:none}
+.label{font-size:11px;opacity:.6;margin-top:10px;display:block}
+.badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.present{background:#0F7A3D22;color:#4ade80;border:1px solid #0F7A3D44}
+.badge.absent{background:#EF444422;color:#f87171;border:1px solid #EF444444}
+.badge.late{background:#F59E0B22;color:#fbbf24;border:1px solid #F59E0B44}
 </style>
 </head>
 <body>
 <div class="h">
-<div style="display:flex;justify-content:space-between;font-size:14px"><span>🔒 OMAR</span><span>الجنيه المصري ▼</span></div>
+<div class="topHead">
+<div style="font-size:11px;opacity:.9">▼ الجنيه المصري</div>
+<div style="display:flex;gap:6px;align-items:center">
+<button class="btnSmall" onclick="exportExcel()">Excel</button>
+<button class="btnSmall green" onclick="syncSheet()">☁️ رفع الشيت</button>
+<div style="margin-left:8px;font-weight:800">OMAR 🔒</div>
+</div>
+</div>
 <div class="top" id="topTabs">
 <a data-t="expenses" class="on" onclick="setTop('expenses')">مصروفاتي</a>
 <a data-t="debts" onclick="setTop('debts')">ديوني</a>
@@ -36,89 +51,85 @@ body{background:#121212;color:#fff;padding-bottom:90px}
 </div>
 <div style="padding:12px">
 <div id="summaryCard" class="card" style="display:flex;gap:12px;align-items:center"></div>
-<div style="display:flex;gap:8px;margin:12px 0">
-<button onclick="syncSheet()" style="flex:1;height:40px;border-radius:12px;background:#0F7A3D;color:#fff;border:0">☁️ رفع للشيت</button>
-<button onclick="exportExcel()" style="flex:1;height:40px;border-radius:12px;background:#2A2A2A;color:#fff;border:1px solid #333">💾 Excel</button>
-</div>
 <div id="list"></div>
 </div>
 <div class="bottom" id="bottomNav"></div>
-<div id="modal" class="modal"><div class="box"><h3 id="mTitle">إضافة</h3><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:12px"><button onclick="saveItem()" style="flex:1;height:42px;border-radius:12px;background:#0F7A3D;color:#fff;border:0">إضافة الآن</button><button onclick="closeM()" style="flex:1;height:42px;border-radius:12px;background:#222;color:#fff;border:1px solid #333">إلغاء</button></div></div></div>
+<div id="modal" class="modal"><div class="box"><h3 id="mTitle">إضافة</h3><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:16px"><button onclick="saveItem()" style="flex:1;height:46px;border-radius:12px;background:#0F7A3D;color:#fff;border:0;font-weight:700">حفظ</button><button onclick="closeM()" style="flex:1;height:46px;border-radius:12px;background:#222;color:#fff;border:1px solid #333">إلغاء</button></div></div></div>
 <script>
-const APP={get:function(k,d){try{var v=JSON.parse(localStorage.getItem(k)); return Array.isArray(v)?v:d;}catch(e){return d}},set:function(k,v){localStorage.setItem(k,JSON.stringify(v)); if(localStorage.getItem('gs_url')){clearTimeout(window._syncT); window._syncT=setTimeout(function(){syncSheetSilent()},1500);}}};
+function fmt(n){return Number(n||0).toLocaleString('en-US');}
+const APP={get:function(k,d){try{var v=JSON.parse(localStorage.getItem(k)); return Array.isArray(v)?v:d;}catch(e){return d}},set:function(k,v){localStorage.setItem(k,JSON.stringify(v));}};
 const uid=function(){return Math.random().toString(36).slice(2,7);};
 const SUBS={expenses:[{id:'outcome',l:'مصروف',i:'💸'},{id:'income',l:'مدخلات',i:'💰'},{id:'net',l:'الصافي',i:'📊'},{id:'all',l:'الكل',i:'📋'}],debts:[{id:'lena',l:'لنا',i:'⬆️'},{id:'alayna',l:'علينا',i:'⬇️'},{id:'net',l:'الصافي',i:'⚖️'},{id:'all',l:'الكل',i:'📋'}],attendance:[{id:'hader',l:'حاضر',i:'✅'},{id:'ghaeb',l:'غائب',i:'❌'},{id:'mot',l:'متأخر',i:'⏰'},{id:'all',l:'الكل',i:'📅'}],notes:[{id:'pinned',l:'مثبتة',i:'📌'},{id:'general',l:'عامة',i:'📝'},{id:'all',l:'الكل',i:'📋'}]};
 let topT=localStorage.getItem('topT')||'expenses', bottomT='all';
 function setTop(t){topT=t;bottomT='all';localStorage.setItem('topT',t);render();}
 function setBottom(b){bottomT=b;render();}
+function calcHours(cin,cout){try{if(!cin||!cout) return '-'; var a=cin.split(':').map(Number); var b=cout.split(':').map(Number); var diff=(b[0]*60+b[1])-(a[0]*60+a[1]); if(diff<0) diff+=1440; return Math.floor(diff/60)+'س '+(diff%60)+'د';}catch(e){return '-';}}
 function render(){
  document.querySelectorAll('.top a').forEach(function(a){a.classList.toggle('on',a.dataset.t===topT)});
- let subs=SUBS[topT];
- let id3 = subs[3]? subs[3].id : 'all';
- let i3 = subs[3]? (subs[3].i||'📋') : '📋';
- let l3 = subs[3]? (subs[3].l||'الكل') : 'الكل';
+ var subs=SUBS[topT];
+ var id3 = subs[3]? subs[3].id : 'all';
+ var i3 = subs[3]? subs[3].i : '📋';
+ var l3 = subs[3]? subs[3].l : 'الكل';
  document.getElementById('bottomNav').innerHTML='<a class="'+(bottomT===subs[0].id?'on':'')+'" onclick="setBottom(\''+subs[0].id+'\')"><span>'+subs[0].i+'</span><span>'+subs[0].l+'</span></a><a class="'+(bottomT===subs[1].id?'on':'')+'" onclick="setBottom(\''+subs[1].id+'\')"><span>'+subs[1].i+'</span><span>'+subs[1].l+'</span></a><div class="plus" onclick="openM()">+</div><a class="'+(bottomT===subs[2].id?'on':'')+'" onclick="setBottom(\''+subs[2].id+'\')"><span>'+subs[2].i+'</span><span>'+subs[2].l+'</span></a><a class="'+(bottomT===id3?'on':'')+'" onclick="setBottom(\''+id3+'\')"><span>'+i3+'</span><span>'+l3+'</span></a>';
- let expenses=APP.get('expenses',[]);
- let debts=APP.get('debts',[]);
- let atts=APP.get('attendance',[]);
- let notes=APP.get('notes',[]);
- let sumOut=0; expenses.forEach(function(x){if(x.type==='outcome') sumOut+= (Number(x.amount)||0);});
- let sumIn=0; expenses.forEach(function(x){if(x.type==='income') sumIn+= (Number(x.amount)||0);});
- let net=sumIn-sumOut;
- let summaryHTML='';
- if(topT==='expenses') summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid '+(net>=0?'#0F7A3D':'#EF4444')+';display:grid;place-items:center;font-weight:700">'+net+'ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>المصاريف: '+sumOut+'ج</div><div>المدخلات: '+sumIn+'ج</div><div>الصافي: '+net+'ج</div></div>';
- if(topT==='debts'){let lena=0, alayna=0; debts.forEach(function(x){if(x.type==='لنا') lena+= (Number(x.amount)||0); else alayna+= (Number(x.amount)||0);}); summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid #4DD0E1;display:grid;place-items:center;font-weight:700">'+(lena-alayna)+'ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>لنا: '+lena+'ج</div><div>علينا: '+alayna+'ج</div><div>الصافي: '+(lena-alayna)+'ج</div></div>';}
- if(topT==='attendance'){let h=0,g=0,m=0; atts.forEach(function(x){if(x.status==='حاضر') h++; else if(x.status==='غائب') g++; else if(x.status==='متأخر') m++;}); summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid #0F7A3D;display:grid;place-items:center;font-weight:700">'+atts.length+'</div><div style="flex:1;font-size:12px;line-height:22px"><div>حاضر: '+h+'</div><div>غائب: '+g+'</div><div>متأخر: '+m+'</div></div>';}
- if(topT==='notes') summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid #3F3B6B;display:grid;place-items:center;font-weight:700">'+notes.length+'</div><div style="flex:1;font-size:12px"><div>إجمالي الملاحظات: '+notes.length+'</div></div>';
+ var expenses=APP.get('expenses',[]), debts=APP.get('debts',[]), atts=APP.get('attendance',[]), notes=APP.get('notes',[]);
+ var sumOut=0, sumIn=0; expenses.forEach(function(x){if(x.type==='outcome') sumOut+=Number(x.amount||0); else if(x.type==='income') sumIn+=Number(x.amount||0);});
+ var net=sumIn-sumOut;
+ var summaryHTML='';
+ if(topT==='expenses') summaryHTML='<div style="width:84px;height:84px;border-radius:50%;border:6px solid '+(net>=0?'#0F7A3D':'#EF4444')+';display:grid;place-items:center;font-weight:800;font-size:13px">'+fmt(net)+'ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>المصاريف: '+fmt(sumOut)+'ج</div><div>المدخلات: '+fmt(sumIn)+'ج</div><div>الصافي: <b>'+fmt(net)+'ج</b></div></div>';
+ if(topT==='debts'){var lena=0, alayna=0; debts.forEach(function(x){if(x.type==='لنا') lena+=Number(x.amount||0); else alayna+=Number(x.amount||0);}); summaryHTML='<div style="width:84px;height:84px;border-radius:50%;border:6px solid #4DD0E1;display:grid;place-items:center;font-weight:800">'+fmt(lena-alayna)+'ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>لنا: '+fmt(lena)+'ج</div><div>علينا: '+fmt(alayna)+'ج</div><div>الصافي: '+fmt(lena-alayna)+'ج</div></div>';}
+ if(topT==='attendance'){var h=0,g=0,m=0; atts.forEach(function(x){if(x.status==='حاضر') h++; else if(x.status==='غائب') g++; else m++;}); var rate=atts.length? Math.round(h/atts.length*100):0; summaryHTML='<div style="width:84px;height:84px;border-radius:50%;border:6px solid #0F7A3D;display:grid;place-items:center;text-align:center"><div style="font-size:18px;font-weight:800">'+rate+'%</div><div style="font-size:10px;opacity:.6">التزام</div></div><div style="flex:1;font-size:12px;line-height:22px"><div>✅ حاضر: '+h+' يوم</div><div>❌ غائب: '+g+' يوم</div><div>⏰ متأخر: '+m+' يوم</div></div>';}
+ if(topT==='notes') summaryHTML='<div style="width:84px;height:84px;border-radius:50%;border:6px solid #3F3B6B;display:grid;place-items:center;font-weight:800">'+notes.length+'</div><div style="flex:1;font-size:12px"><div>إجمالي الملاحظات: '+notes.length+'</div></div>';
  document.getElementById('summaryCard').innerHTML=summaryHTML;
- let html='', data=[];
+ var html='', data=[];
  if(topT==='expenses'){
    data=APP.get('expenses',[]);
    if(bottomT==='outcome') data=data.filter(function(x){return x.type==='outcome'});
    if(bottomT==='income') data=data.filter(function(x){return x.type==='income'});
    if(bottomT==='net') data=[];
-   html=data.map(function(e){return '<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><b>'+e.amount+'ج - '+(e.desc||'بدون وصف')+'</b><div style="font-size:11px;opacity:.6">'+(e.type==='outcome'?'مصروف':'دخل')+' - '+(e.date||'')+'</div></div><div><span style="cursor:pointer" onclick="delItem(\'expenses\',\''+e.id+'\')">🗑️</span></div></div>'}).join('');
+   html=data.map(function(e){return '<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><b>'+fmt(e.amount)+'ج - '+(e.desc||'')+'</b><div style="font-size:11px;opacity:.6">'+(e.type==='outcome'?'مصروف':'دخل')+' - '+(e.date||'')+'</div></div><span style="cursor:pointer" onclick="delItem(\'expenses\',\''+e.id+'\')">🗑️</span></div>'}).join('');
  }
  if(topT==='debts'){
    data=APP.get('debts',[]);
    if(bottomT==='lena') data=data.filter(function(x){return x.type==='لنا'});
    if(bottomT==='alayna') data=data.filter(function(x){return x.type==='علينا'});
-   html=data.map(function(d){return '<div class="card" style="display:flex;justify-content:space-between"><div><b>'+d.person+' - '+d.amount+'ج</b><div style="color:'+(d.type==='لنا'?'#4caf50':'#f44336')+';font-size:12px">'+d.type+'</div></div><div><span style="cursor:pointer" onclick="delItem(\'debts\',\''+d.id+'\')">🗑️</span></div></div>'}).join('');
+   html=data.map(function(d){return '<div class="card" style="display:flex;justify-content:space-between"><div><b>'+d.person+' - '+fmt(d.amount)+'ج</b><div style="font-size:12px;color:'+(d.type==='لنا'?'#4caf50':'#f44336')+'">'+d.type+'</div></div><span style="cursor:pointer" onclick="delItem(\'debts\',\''+d.id+'\')">🗑️</span></div>'}).join('');
  }
  if(topT==='attendance'){
-   data=APP.get('attendance',[]);
+   data=APP.get('attendance',[]).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
    if(bottomT==='hader') data=data.filter(function(x){return x.status==='حاضر'});
    if(bottomT==='ghaeb') data=data.filter(function(x){return x.status==='غائب'});
    if(bottomT==='mot') data=data.filter(function(x){return x.status==='متأخر'});
-   html=data.map(function(a){return '<div class="card" style="display:flex;justify-content:space-between"><div><b>'+(a.date||'')+' - '+a.status+'</b><div style="font-size:11px;opacity:.6">'+(a.checkIn||'')+' - '+(a.checkOut||'')+'</div></div><div><span style="cursor:pointer" onclick="delItem(\'attendance\',\''+a.id+'\')">🗑️</span></div></div>'}).join('');
+   html=data.map(function(a){var badge=a.status==='حاضر'?'present':a.status==='غائب'?'absent':'late'; return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>'+a.date+'</b> <span class="badge '+badge+'">'+a.status+'</span></div><span onclick="delItem(\'attendance\',\''+a.id+'\')" style="cursor:pointer">🗑️</span></div><div style="display:flex;gap:16px;margin-top:8px;font-size:12px"><div>دخول: <b style="direction:ltr">'+(a.checkIn||'-')+'</b></div><div>خروج: <b style="direction:ltr">'+(a.checkOut||'-')+'</b></div><div style="color:#4ade80">⏱ '+calcHours(a.checkIn,a.checkOut)+'</div></div>'+(a.note?'<div style="font-size:11px;opacity:.6;margin-top:6px">📝 '+a.note+'</div>':'')+'</div>';}).join('');
  }
  if(topT==='notes'){
    data=APP.get('notes',[]);
-   html=data.map(function(n){return '<div class="card"><b>'+(n.title||'بدون عنوان')+'</b><div style="font-size:12px;opacity:.8">'+(n.content||'')+'</div><div style="text-align:left"><span style="cursor:pointer" onclick="delItem(\'notes\',\''+n.id+'\')">🗑️</span></div></div>'}).join('');
+   html=data.map(function(n){return '<div class="card"><b>'+(n.title||'')+'</b><div style="font-size:12px;opacity:.8">'+(n.content||'')+'</div><div style="text-align:left"><span style="cursor:pointer" onclick="delItem(\'notes\',\''+n.id+'\')">🗑️</span></div></div>'}).join('');
  }
- document.getElementById('list').innerHTML=html||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد بيانات - دوس + للإضافة</div>';
+ document.getElementById('list').innerHTML=html||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد بيانات</div>';
 }
 function openM(){
- let f='';
- if(topT==='expenses') f='<input id="f_a" class="inp" placeholder="المبلغ" type="number"><input id="f_d" class="inp" placeholder="الوصف"><select id="f_t" class="inp"><option value="outcome">مصروف</option><option value="income">مدخلات</option></select><input id="f_date" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'">';
- if(topT==='debts'){let def=bottomT==='lena'?'لنا':bottomT==='alayna'?'علينا':'لنا'; f='<input id="f_p" class="inp" placeholder="اسم الشخص"><input id="f_a" class="inp" placeholder="المبلغ" type="number"><select id="f_t" class="inp"><option '+(def==='لنا'?'selected':'')+'>لنا</option><option '+(def==='علينا'?'selected':'')+'>علينا</option></select><input id="f_note" class="inp" placeholder="ملاحظة">';}
- if(topT==='attendance') f='<input id="f_date" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'"><input id="f_in" class="inp" type="time" value="09:00"><input id="f_out" class="inp" type="time" value="17:00"><select id="f_st" class="inp"><option>حاضر</option><option>غائب</option><option>متأخر</option></select>';
- if(topT==='notes') f='<input id="f_ti" class="inp" placeholder="عنوان"><input id="f_c" class="inp" placeholder="محتوى">';
+ var today=new Date().toISOString().slice(0,10);
+ var f='';
+ document.getElementById('mTitle').innerText = topT==='attendance'? 'تسجيل حضور احترافي' : 'إضافة جديد';
+ if(topT==='expenses') f='<label class="label">المبلغ</label><input id="f_a" class="inp" type="number" placeholder="10000"><label class="label">الوصف</label><input id="f_d" class="inp" placeholder="الوصف"><select id="f_t" class="inp"><option value="outcome">مصروف</option><option value="income">مدخلات</option></select><input id="f_date" class="inp" type="date" value="'+today+'">';
+ if(topT==='debts'){var def=bottomT==='lena'?'لنا':bottomT==='alayna'?'علينا':'لنا'; f='<label class="label">اسم الشخص</label><input id="f_p" class="inp"><label class="label">المبلغ</label><input id="f_a" class="inp" type="number"><select id="f_t" class="inp"><option '+(def==='لنا'?'selected':'')+'>لنا</option><option '+(def==='علينا'?'selected':'')+'>علينا</option></select><input id="f_note" class="inp" placeholder="ملاحظة">';}
+ if(topT==='attendance') f='<label class="label">📅 التاريخ</label><input id="f_date" class="inp" type="date" value="'+today+'"><div style="display:flex;gap:8px"><div style="flex:1"><label class="label">⏰ دخول</label><input id="f_in" class="inp" type="time" value="09:00"></div><div style="flex:1"><label class="label">🏁 خروج</label><input id="f_out" class="inp" type="time" value="17:00"></div></div><label class="label">📌 الحالة</label><select id="f_st" class="inp" style="height:48px"><option value="حاضر">✅ حاضر - في الموعد</option><option value="متأخر">⏰ متأخر - بعذر</option><option value="غائب">❌ غائب</option></select><label class="label">📝 ملاحظة</label><input id="f_note_att" class="inp" placeholder="مثال: اجتماع مهم"><div style="background:#0F7A3D11;border:1px solid #0F7A3D33;border-radius:12px;padding:10px;margin-top:12px;font-size:11px">💡 سيتم حساب ساعات العمل تلقائيا</div>';
+ if(topT==='notes') f='<input id="f_ti" class="inp" placeholder="عنوان"><textarea id="f_c" class="inp" style="height:80px;padding-top:10px" placeholder="المحتوى"></textarea>';
  document.getElementById('mFields').innerHTML=f;
  document.getElementById('modal').classList.add('show');
 }
 function closeM(){document.getElementById('modal').classList.remove('show');}
 function saveItem(){
- let id=uid();
- if(topT==='expenses'){let a=APP.get('expenses',[]); a.push({id:id,amount:Number(document.getElementById('f_a').value)||0,desc:document.getElementById('f_d').value,type:document.getElementById('f_t').value,date:document.getElementById('f_date').value}); APP.set('expenses',a);}
- if(topT==='debts'){let a=APP.get('debts',[]); a.push({id:id,person:document.getElementById('f_p').value,amount:Number(document.getElementById('f_a').value)||0,type:document.getElementById('f_t').value,note:document.getElementById('f_note').value,date:new Date().toISOString().slice(0,10)}); APP.set('debts',a);}
- if(topT==='attendance'){let a=APP.get('attendance',[]); a.push({id:id,date:document.getElementById('f_date').value,checkIn:document.getElementById('f_in').value,checkOut:document.getElementById('f_out').value,status:document.getElementById('f_st').value}); APP.set('attendance',a);}
- if(topT==='notes'){let a=APP.get('notes',[]); a.push({id:id,title:document.getElementById('f_ti').value,content:document.getElementById('f_c').value,date:new Date().toISOString().slice(0,10)}); APP.set('notes',a);}
+ var id=uid();
+ if(topT==='expenses'){var a=APP.get('expenses',[]); a.push({id:id,amount:Number(document.getElementById('f_a').value)||0,desc:document.getElementById('f_d').value,type:document.getElementById('f_t').value,date:document.getElementById('f_date').value}); APP.set('expenses',a);}
+ if(topT==='debts'){var a=APP.get('debts',[]); a.push({id:id,person:document.getElementById('f_p').value,amount:Number(document.getElementById('f_a').value)||0,type:document.getElementById('f_t').value,note:document.getElementById('f_note').value,date:new Date().toISOString().slice(0,10)}); APP.set('debts',a);}
+ if(topT==='attendance'){var a=APP.get('attendance',[]); a.push({id:id,date:document.getElementById('f_date').value,checkIn:document.getElementById('f_in').value,checkOut:document.getElementById('f_out').value,status:document.getElementById('f_st').value,note:document.getElementById('f_note_att')?document.getElementById('f_note_att').value:''}); APP.set('attendance',a);}
+ if(topT==='notes'){var a=APP.get('notes',[]); a.push({id:id,title:document.getElementById('f_ti').value,content:document.getElementById('f_c').value,date:new Date().toISOString().slice(0,10)}); APP.set('notes',a);}
  closeM(); render();
 }
 function delItem(k,id){if(confirm('مسح؟')){APP.set(k,APP.get(k,[]).filter(function(x){return x.id!==id})); render();}}
 function exportExcel(){
- let wb=XLSX.utils.book_new();
+ var wb=XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('expenses',[])),'مصروفاتي');
  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('debts',[])),'ديوني');
  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('attendance',[])),'الحضور');
@@ -126,16 +137,10 @@ function exportExcel(){
  XLSX.writeFile(wb,'مشروعي.xlsx');
 }
 async function syncSheet(){
- let url=localStorage.getItem('gs_url')||prompt('لينك Google Apps Script:');
- if(!url) return;
- localStorage.setItem('gs_url',url);
- let payload={expenses:APP.get('expenses',[]),debts:APP.get('debts',[]),attendance:APP.get('attendance',[]),notes:APP.get('notes',[])};
- try{await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}); alert('✅ اترفع للشيت');}catch(e){alert('❌ فشل');}
-}
-async function syncSheetSilent(){
- let url=localStorage.getItem('gs_url'); if(!url) return;
- let payload={expenses:APP.get('expenses',[]),debts:APP.get('debts',[]),attendance:APP.get('attendance',[]),notes:APP.get('notes',[])};
- try{await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)});}catch(e){}
+ var url=localStorage.getItem('gs_url')||prompt('لينك Google Apps Script:');
+ if(!url) return; localStorage.setItem('gs_url',url);
+ var payload={expenses:APP.get('expenses',[]),debts:APP.get('debts',[]),attendance:APP.get('attendance',[]),notes:APP.get('notes',[])};
+ try{await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}); alert('✅ اترفع');}catch(e){alert('❌ فشل');}
 }
 render();
 </script>
