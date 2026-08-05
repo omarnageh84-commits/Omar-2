@@ -9,56 +9,88 @@
 *{font-family:'Cairo';box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;background:#000}
 body{display:flex;flex-direction:column;color:#fff}
-.h{height:52px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 12px;flex-shrink:0}
-.topMain{height:50px;background:#111;display:flex;flex-shrink:0;border-bottom:1px solid #222}
-.topMain button{flex:1;background:transparent;border:0;color:#666;font-size:11px;font-weight:600;border-bottom:3px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.topMain button.on{color:#fff;border-color:#fff;background:#1E1E1E}
-.topMain button span:first-child{font-size:14px}
-.content{flex:1;overflow:auto;background:#080808;padding:12px}
+.h{height:56px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 14px;flex-shrink:0}
+.page{flex:1;overflow:auto;background:#080808;padding:12px;display:none}
+.page.show{display:flex;flex-direction:column}
 .card{background:#1E1E1E;border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px}
-.bottom{height:70px;background:#111;border-top:1px solid #222;display:flex;justify-content:space-around;align-items:center;flex-shrink:0}
-.bItem{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+
+/* البنر اللي تحت - زي صورتك بالظبط */
+.bottom{
+  height:72px;
+  background:#151515;
+  border-top:1px solid #222;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  flex-shrink:0;
+  position:relative;
+}
+.bItem{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  color:#666;
+  font-size:11px;
+  cursor:pointer;
+}
 .bItem.on{color:#15803D}
-.plus{width:60px;height:60px;border-radius:50%;background:#15803D;display:grid;place-items:center;font-size:30px;color:#fff;margin-top:-30px}
-.page{display:none}.page.show{display:block}
+.bItem span:first-child{font-size:18px}
+.plusWrap{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  position:relative;
+}
+.plus{
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  background:#15803D;
+  display:grid;
+  place-items:center;
+  font-size:32px;
+  color:#fff;
+  margin-top:-38px;
+  box-shadow:0 0 20px rgba(21,128,61,.6);
+  border:4px solid #000;
+}
 </style>
 </head>
 <body>
+
 <div class="h">
-<div><b>🔒 OMAR</b> <span style="font-size:12px">EGP 0</span></div>
-<div style="font-size:11px">الجنيه المصري ▼</div>
+<div style="font-size:13px">▼ الجنيه المصري</div>
+<div><b>OMAR 🔒</b> <span style="font-size:12px">EGP 0</span></div>
 </div>
 
-<div class="topMain">
-<button id="b1" class="on" onclick="go('income')"><span>💰</span><span>الدخل</span></button>
-<button id="b2" onclick="go('outcome')"><span>💸</span><span>المصروف</span></button>
-<button id="b3" onclick="go('debts')"><span>📒</span><span>الديون</span></button>
-<button id="b4" onclick="go('att')"><span>⏰</span><span>الحضور</span></button>
-<button id="b5" onclick="go('notes')"><span>📋</span><span>اليومية</span></button>
-</div>
+<div id="p-income" class="page show"><div class="card">💰 الدخل: 0ج</div><div style="text-align:center;padding:50px;opacity:.4">لا يوجد دخل</div></div>
+<div id="p-outcome" class="page"><div class="card">💸 المصروف: 0ج</div><div style="text-align:center;padding:50px;opacity:.4">لا يوجد مصروفات<br>ابدأ بالإدخال</div></div>
+<div id="p-debts" class="page"><div class="card">📒 الديون: 0ج</div><div style="text-align:center;padding:50px;opacity:.4">لا يوجد ديون</div></div>
+<div id="p-att" class="page"><div class="card">⏰ الحضور والانصراف</div><div style="text-align:center;padding:50px;opacity:.4">لا يوجد حضور</div></div>
+<div id="p-notes" class="page"><div class="card">📋 الملاحظات واليومية</div><div style="text-align:center;padding:50px;opacity:.4">لا يوجد ملاحظات</div></div>
 
-<div id="p-income" class="page show" style="flex:1;overflow:auto;padding:12px"><div class="card">الدخل: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد دخل</div></div>
-<div id="p-outcome" class="page" style="flex:1;overflow:auto;padding:12px"><div class="card">المصروف: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد مصروفات<br>ابدأ بالإدخال</div></div>
-<div id="p-debts" class="page" style="flex:1;overflow:auto;padding:12px"><div class="card">لنا: 0ج - علينا: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد ديون</div></div>
-<div id="p-att" class="page" style="flex:1;overflow:auto;padding:12px"><div style="text-align:center;padding:40px;opacity:.4">الحضور والانصراف</div></div>
-<div id="p-notes" class="page" style="flex:1;overflow:auto;padding:12px"><div class="card">اليومية: 0 ملاحظة</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد ملاحظات</div></div>
-
+<!-- البنر تحت - 5 تبويبات + زرار + -->
 <div class="bottom">
-<div class="bItem" id="bb1" onclick="go('notes')"><span>📋</span><span>اليومية</span></div>
-<div class="bItem" id="bb2" onclick="go('att')"><span>⏰</span><span>الحضور</span></div>
-<div class="plus" onclick="go('income')">+</div>
-<div class="bItem" id="bb3" onclick="go('outcome')"><span>💸</span><span>المصروف</span></div>
-<div class="bItem on" id="bb4" onclick="go('income')"><span>💰</span><span>الدخل</span></div>
+<div class="bItem on" id="bt-income" onclick="go('income')"><span>💰</span><span>الدخل</span></div>
+<div class="bItem" id="bt-outcome" onclick="go('outcome')"><span>💸</span><span>المصروف</span></div>
+<div class="plusWrap"><div class="plus" onclick="openAdd()">+</div></div>
+<div class="bItem" id="bt-debts" onclick="go('debts')"><span>📒</span><span>الديون</span></div>
+<div class="bItem" id="bt-att" onclick="go('att')"><span>⏰</span><span>الحضور</span></div>
+<div class="bItem" id="bt-notes" onclick="go('notes')"><span>📋</span><span>اليومية</span></div>
 </div>
 
 <script>
+if(screen.orientation&&screen.orientation.lock){try{screen.orientation.lock('portrait')}catch(e){}}
 function go(t){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'))
  document.getElementById('p-'+t).classList.add('show')
- document.querySelectorAll('.topMain button').forEach(b=>b.classList.remove('on'))
- let map={income:'b1',outcome:'b2',debts:'b3',att:'b4',notes:'b5'}
- document.getElementById(map[t]).classList.add('on')
+ document.querySelectorAll('.bItem').forEach(b=>b.classList.remove('on'))
+ document.getElementById('bt-'+t).classList.add('on')
 }
+function openAdd(){alert('إضافة: '+document.querySelector('.bItem.on span:last-child').innerText)}
 </script>
 </body>
 </html>
