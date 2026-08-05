@@ -3,258 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>OMAR - FIX WALLET + LAST CAT</title>
+<title>OMAR PRO - PRO DROPDOWN</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{font-family:'Cairo';box-sizing:border-box;margin:0;padding:0}
 body{background:#0E0E0E;color:#fff;padding-bottom:80px}
-.h{background:#121212;height:52px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;position:sticky;top:0;z-index:10;border-bottom:1px solid #222}
-.card{background:#1A1A1A;border:1px solid #222;border-radius:16px;padding:12px;margin:10px}
+.h{background:#0F7A3D;padding:10px 14px;position:sticky;top:0;z-index:10}
+.topTabs{display:flex;gap:2px;margin-top:8px}
+.topTabs a{flex:1;text-align:center;padding:10px 2px;color:#ffffff88;border-bottom:3px solid transparent;font-size:12px}
+.topTabs a.on{color:#fff;border-color:#fff;font-weight:700}
+.card{background:#1A1A1A;border:1px solid #23232F;border-radius:16px;padding:12px;margin-bottom:10px}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #222;height:70px;display:flex;justify-content:space-around;align-items:center;z-index:99}
+.bottom a{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer}
+.bottom a.on{color:#0F7A3D}
 .plus{width:56px;height:56px;border-radius:50%;background:#0F7A3D;margin-top:-32px;display:grid;place-items:center;font-size:26px;color:#fff;cursor:pointer}
 .modal{position:fixed;inset:0;background:#0E0E0E;z-index:200;display:none;flex-direction:column}
 .modal.show{display:flex}
-.topBar{height:52px;background:#121212;display:flex;justify-content:space-between;align-items:center;padding:0 14px;border-bottom:1px solid #222}
-.inpAmount{width:100%;background:transparent;border:0;border-bottom:2px solid #0F7A3D;color:#fff;font-size:26px;font-weight:800;padding:10px 0;outline:none;text-align:right}
-.row{padding:18px 14px;border-bottom:1px solid #1E1E1E;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.btnGreen{height:52px;background:#0F7A3D;border:0;border-radius:14px;color:#fff;font-weight:800;width:calc(100% - 24px);margin:12px auto;display:block}
-.sheet{position:fixed;bottom:0;left:0;right:0;background:#1E1E1E;border-radius:22px 22px 0 0;z-index:500;display:none;flex-direction:column;max-height:85vh}
-.sheet.show{display:flex}
-.sheetHead{padding:16px;display:flex;justify-content:space-between;border-bottom:1px solid #2A2A2A;align-items:center}
-.item{padding:14px 16px;display:flex;justify-content:space-between;border-bottom:1px solid #222;align-items:center}
-.searchBox{margin:12px;background:#0E0E0E;border:1px solid #2A2A2A;border-radius:12px;padding:0 12px;height:42px;display:flex}
+.topBar{height:52px;background:#121212;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #222}
+.inpAmount{width:100%;background:transparent;border:0;border-bottom:2px solid #0F7A3D;color:#fff;font-size:26px;font-weight:800;padding:10px 0;outline:none}
+.row{padding:16px 0;border-bottom:1px solid #1E1E1E;display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer}
+.btnGreen{height:52px;background:#0F7A3D;border:0;border-radius:14px;color:#fff;font-weight:800;font-size:15px;width:calc(100% - 24px);margin:12px auto;display:block;cursor:pointer}
+
+/* الشيت الاحترافي زي الصور */
+.sheet{position:fixed;bottom:0;left:0;right:0;background:#1A1A1A;border-radius:22px 22px 0 0;z-index:500;display:none;flex-direction:column;max-height:85vh;box-shadow:0 -10px 40px #000}
+.sheet.show{display:flex;animation:up.25s}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheetHead{padding:16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222}
+.sheetHead b{font-size:16px}
+.sheetHead.addBtn{color:#22C55E;font-size:14px;cursor:pointer}
+.searchBox{margin:14px;background:#0E0E0E;border:1px solid #2A2A2A;border-radius:14px;padding:0 14px;height:44px;display:flex;align-items:center}
 .searchBox input{flex:1;background:transparent;border:0;color:#fff;outline:none;text-align:right}
+.item{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1E1E1E}
+.item.name{flex:1;text-align:right;font-size:14px}
+.item.icons{display:flex;gap:14px}
+.iconBtn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:#0E0E0E;cursor:pointer}
 .overlay{position:fixed;inset:0;background:#0008;z-index:400;display:none}
 .overlay.show{display:block}
-.editBox{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#2A2A2A;border-radius:18px;padding:18px;width:92%;max-width:360px;z-index:900;display:none}
+
+/* بوكس التعديل الاحترافي */
+.editBox{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1E1E1E;border:1px solid #333;border-radius:16px;padding:16px;width:90%;max-width:340px;z-index:600;display:none}
 .editBox.show{display:block}
-.editBox input{width:100%;height:48px;background:#0E0E0E;border:1px solid #444;border-radius:12px;color:#fff;padding:0 14px;margin-top:12px;outline:none}
+.editBox input{width:100%;height:44px;background:#0E0E0E;border:1px solid #2A2A2A;border-radius:10px;color:#fff;padding:0 12px;margin-top:12px;outline:none}
 .editActions{display:flex;gap:10px;margin-top:14px}
-.editActions button{flex:1;height:44px;border-radius:12px;border:0;font-weight:800}
-.btnSave{background:#15803D;color:#fff}
-.btnCancel{background:#3A3A3A;color:#fff}
-.catsPage{position:fixed;inset:0;background:#0E0E0E;z-index:600;display:none;flex-direction:column}
-.catsPage.show{display:flex}
-.tabs{display:flex;background:#2C2C2E;height:44px}
-.tabs div{flex:1;display:grid;place-items:center;font-size:14px;color:#999;cursor:pointer;border-bottom:3px solid transparent}
-.tabs div.on{color:#fff;border-color:#0F7A3D;background:#3A3A3C}
-.typeItem{padding:18px 16px;display:flex;justify-content:flex-end;gap:12px;border-bottom:1px solid #222;cursor:pointer}
+.editActions button{flex:1;height:40px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+.btnSave{background:#0F7A3D;color:#fff}
+.btnCancel{background:#2A2A2A;color:#fff}
+
+/* المحفظة شيت */
+.walletItem{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1E1E1E;cursor:pointer}
+.walletItem.left{text-align:left}
+.walletItem b{font-size:14px}
+.walletItem small{opacity:.5;font-size:12px}
+.redBtn{background:#EF4444;color:#fff;height:48px;border:0;border-radius:12px;font-weight:800;width:100%;margin-top:10px;cursor:pointer}
 </style>
 </head>
 <body>
-<div class="h"><b id="totalTop">OMAR - EGP 6,280</b><span>⚙️</span></div>
-<div id="main" style="padding:0"></div>
-<div class="bottom"><a style="color:#0F7A3D"><span>💰</span><span>المصروفات</span></a><a><span>📕</span><span>الديون</span></a><div class="plus" onclick="openAdd()">+</div><a><span>⏰</span><span>الحضور</span></a><a><span>☰</span><span>أكثر</span></a></div>
+<div class="h">
+<div style="display:flex;justify-content:space-between"><span>▼ الجنيه المصري - <b id="totalTop">EGP 6,280</b></span><b>OMAR</b></div>
+<div class="topTabs"><a class="on">الكل</a><a>مصروف</a><a>دخل</a></div>
+</div>
+<div style="padding:12px" id="main"></div>
+<div class="bottom"><a class="on"><span>💰</span><span>المصروفات</span></a><a><span>📕</span><span>الديون</span></a><div class="plus" onclick="openAdd()">+</div><a><span>⏰</span><span>الحضور</span></a><a><span>☰</span><span>أكثر</span></a></div>
 
 <div id="addModal" class="modal">
 <div class="topBar"><span onclick="closeAdd()" style="font-size:22px;cursor:pointer">←</span><b>إضافة معاملة</b><span>⚙️</span></div>
-<div style="padding:0 14px;flex:1;overflow:auto">
-<div style="display:flex;gap:10px;align-items:center;margin-top:10px"><div style="border:1px solid #333;border-radius:8px;padding:6px 12px">د.م</div><input class="inpAmount" id="f_amount" type="number" placeholder="المبلغ"></div>
-<div class="row" onclick="openType()"><div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:#0F2E3A;display:grid;place-items:center">👥</div><span id="f_lana">لنا</span></div><span>›</span></div>
-<div class="row" onclick="openSheet('walletSheet')"><div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:#1A3A2A;display:grid;place-items:center">💼</div><div><div id="f_wallet">آل عمر</div><div style="font-size:11px;opacity:.5" id="f_walletBal">6,280 ج.م</div></div></div><span>›</span></div>
+<div style="padding:16px;overflow:auto;flex:1">
+<div style="display:flex;gap:8px;align-items:center"><div style="background:#1A1A1A;border:1px solid #333;border-radius:8px;padding:6px 10px;font-size:12px">د.م</div><input id="f_amount" class="inpAmount" type="number" placeholder="المبلغ"></div>
+<div class="row" onclick="openSheet('typeSheet')"><div style="display:flex;gap:10px;align-items:center"><span style="background:#3B82F622;padding:8px;border-radius:10px">👥</span><span id="f_lana">لنا</span></div><span>‹</span></div>
+<div class="row" onclick="openSheet('walletSheet')"><div style="display:flex;gap:10px;align-items:center"><span style="background:#0F7A3D22;padding:8px;border-radius:10px">💼</span><div><div id="f_wallet">آل عمر</div><div style="font-size:11px;opacity:.5" id="f_walletBal">6,280 م.ج</div></div></div><span>‹</span></div>
 <div style="padding:14px 0;border-bottom:1px solid #1E1E1E"><input id="f_note" style="width:100%;background:transparent;border:0;color:#fff;outline:none" placeholder="الملاحظات"></div>
-<div class="row" onclick="openCats()"><div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:#3A2E0A;display:grid;place-items:center">⭐</div><span>المجموعة</span></div><div style="display:flex;gap:8px;opacity:.8"><span id="f_group">اختر التصنيف</span><span>›</span></div></div>
-<div class="row" onclick="openSheet('contactSheet')"><div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:#3A2E0A;display:grid;place-items:center">📁</div><span>جهة الاتصال</span></div><div style="display:flex;gap:8px;opacity:.8"><span id="f_contact">اختر</span><span>›</span></div></div>
+<div class="row" onclick="openSheet('groupSheet')"><div style="display:flex;gap:10px;align-items:center"><span style="background:#F59E0B22;padding:8px;border-radius:10px">⭐</span><span>المجموعة</span></div><div style="display:flex;gap:8px"><span id="f_group" style="opacity:.5">اختر التصنيف</span><span>‹</span></div></div>
+<div class="row" onclick="openSheet('contactSheet')"><div style="display:flex;gap:10px;align-items:center"><span style="background:#F59E0B22;padding:8px;border-radius:10px">📁</span><span>جهة الاتصال</span></div><div style="display:flex;gap:8px"><span id="f_contact" style="opacity:.5">اختر</span><span>‹</span></div></div>
 </div>
 <button class="btnGreen" onclick="saveTrans()">إضافة معاملة</button>
 </div>
 
 <div id="overlay" class="overlay" onclick="closeAll()"></div>
 
+<!-- نوع -->
 <div id="typeSheet" class="sheet">
-<div class="sheetHead"><span onclick="closeAll()" style="font-size:22px">✕</span><b>اختر النوع</b></div>
-<div class="typeItem" onclick="selectType('لنا')"><span>لنا (دخل) 💰</span></div>
-<div class="typeItem" onclick="selectType('علينا')"><span>علينا (مصروف) 💸</span></div>
+<div class="sheetHead"><b>اختر النوع</b><span onclick="closeAll()">✕</span></div>
+<div class="item" onclick="selectLana('لنا')"><span class="name">لنا (دخل)</span><span>💰</span></div>
+<div class="item" onclick="selectLana('علينا')"><span class="name">علينا (مصروف)</span><span>💸</span></div>
 </div>
 
+<!-- محافظ -->
 <div id="walletSheet" class="sheet">
 <div class="sheetHead"><b>اختر المحفظة</b><span onclick="closeAll()">✕</span></div>
-<div id="walletList" style="flex:1;overflow:auto"></div>
-<button style="margin:12px;height:52px;background:#EF4444;border:0;border-radius:14px;color:#fff;font-weight:800;width:calc(100% - 24px)" onclick="openEditBox('wallet','')">+ إضافة محفظة</button>
+<div id="walletList" style="overflow:auto;flex:1"></div>
+<button class="redBtn" style="margin:12px" onclick="openEditBox('wallet')">إضافة محفظة</button>
 </div>
 
-<div id="groupSheet" class="sheet"><div class="sheetHead"><b>المجموعة</b><span style="color:#22C55E;font-weight:700;cursor:pointer" onclick="openEditBox('group','')">+ إضافة</span></div><div class="searchBox"><input id="searchGroup" placeholder="بحث..." oninput="renderGroups()"></div><div id="groupList" style="flex:1;overflow:auto"></div></div>
-<div id="contactSheet" class="sheet"><div class="sheetHead"><b>جهة الاتصال</b><span style="color:#22C55E;font-weight:700;cursor:pointer" onclick="openEditBox('contact','')">+ إضافة</span></div><div class="searchBox"><input id="searchContact" placeholder="بحث..." oninput="renderContacts()"></div><div id="contactList" style="flex:1;overflow:auto"></div></div>
-
-<div id="catsPage" class="catsPage">
-<div style="height:52px;background:#3A3A3C;display:flex;align-items:center;justify-content:space-between;padding:0 14px"><span onclick="closeCats()" style="font-size:22px;cursor:pointer">←</span><b>الأقسام</b><span>🔄</span></div>
-<div class="tabs"><div id="tabDeyon" onclick="setTab('deyon')">الديون</div><div id="tabMasrof" onclick="setTab('masrof')">المصروف</div><div id="tabDakhl" class="on" onclick="setTab('dakhl')">الدخل</div></div>
-<div id="catsList" style="flex:1;overflow:auto"></div>
-<div style="position:fixed;bottom:20px;left:20px;width:56px;height:56px;border-radius:50%;background:#15803D;display:grid;place-items:center;font-size:28px;color:#fff;cursor:pointer" onclick="openEditBox(currentTab==='dakhl'?'group':'group','')">+</div>
+<!-- مجموعات -->
+<div id="groupSheet" class="sheet">
+<div class="sheetHead"><b>المجموعة</b><span class="addBtn" onclick="openEditBox('group')">+ إضافة</span></div>
+<div class="searchBox"><input id="searchGroup" placeholder="بحث..." oninput="renderGroups()"></div>
+<div id="groupList" style="overflow:auto;flex:1"></div>
 </div>
 
+<!-- جهات -->
+<div id="contactSheet" class="sheet">
+<div class="sheetHead"><b>جهة الاتصال</b><span class="addBtn" onclick="openEditBox('contact')">+ إضافة</span></div>
+<div class="searchBox"><input id="searchContact" placeholder="بحث..." oninput="renderContacts()"></div>
+<div id="contactList" style="overflow:auto;flex:1"></div>
+<div style="display:flex;gap:10px;padding:12px">
+<button style="flex:1;height:48px;background:#166534;border:0;border-radius:12px;color:#fff;font-weight:700">جهات الاتصال</button>
+<button style="flex:1;height:48px;background:#DC2626;border:0;border-radius:12px;color:#fff;font-weight:700" onclick="openEditBox('contact')">إضافة</button>
+</div>
+</div>
+
+<!-- بوكس تعديل احترافي -->
 <div id="editBox" class="editBox">
-<b id="editTitle">إضافة محفظة</b>
-<input id="editInput" placeholder="مثل: انستا">
-<div class="editActions"><button class="btnCancel" onclick="closeEditBox()">إلغاء</button><button class="btnSave" onclick="doSave()">حفظ</button></div>
+<b id="editTitle">تعديل</b>
+<input id="editInput" placeholder="الاسم">
+<div class="editActions"><button class="btnCancel" onclick="closeEditBox()">إلغاء</button><button class="btnSave" onclick="saveEdit()">حفظ</button></div>
 </div>
 
 <script>
-var store={
- get:function(k,d){try{var v=localStorage.getItem(k); return v?JSON.parse(v):d}catch(e){return d}},
- set:function(k,v){localStorage.setItem(k,JSON.stringify(v))}
-}
-if(!localStorage.getItem('wallets')) store.set('wallets', [{id:'w1',name:'آل عمر',bal:6280},{id:'w2',name:'ديدي',bal:0},{id:'w3',name:'انستا',bal:0}])
-if(!localStorage.getItem('groups_dakhl')) store.set('groups_dakhl', ['امانات','دي دي','جمايل','فودافون كاش','البيت','انستا','الراتب','المكافآت','الهدايا','توصيل','أخرى'])
-if(!localStorage.getItem('groups_masrof')) store.set('groups_masrof', ['الاكل','اكل صيدليه','اكل البيت','اكل خارجي و ترفيه','منظفات','عزومات','المواصلات','البنزين','الصيانة','الجراج','الأجرة','زيت','دي دي'])
-if(!localStorage.getItem('contacts')) store.set('contacts', ['ياسمين','حسين','إسلام وليد'])
-if(!localStorage.getItem('trans')) store.set('trans', [])
-if(!localStorage.getItem('last')) store.set('last', {lana:'لنا',walletId:'w1',group:'المواصلات',contact:'ياسمين'})
+const APP={get:function(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set:function(k,v){localStorage.setItem(k,JSON.stringify(v))}}
+if(!localStorage.getItem('groups')) APP.set('groups',['المواصلات','ترفيهي','أكل','إيجار','راتب','مبيعات','تحويل'])
+if(!localStorage.getItem('contacts')) APP.set('contacts',['ياسمين','حسين','إسلام وليد','أحمد','محمد'])
+if(!localStorage.getItem('wallets')) APP.set('wallets',[{id:'w1',name:'آل عمر',bal:6280},{id:'w2',name:'ديدي',bal:0},{id:'w3',name:'أمانات',bal:15000}])
+if(!localStorage.getItem('trans')) APP.set('trans',[])
 
-var sel={lana:'لنا',wallet:null,group:'',contact:''}
-var edit={type:'',old:''}
-var currentTab='dakhl'
+let sel={lana:'لنا',wallet:APP.get('wallets',[])[0],group:'',contact:''}
+let editMode={type:'',old:''}
 
-function loadLast(){
-  var last=store.get('last',{lana:'لنا',walletId:'w1',group:'المواصلات',contact:'ياسمين'})
-  sel.lana=last.lana||'لنا'
-  var ws=store.get('wallets',[])
-  sel.wallet=ws.find(function(w){return w.id===last.walletId})||ws[0]
-  sel.group=last.group||'المواصلات'
-  sel.contact=last.contact||''
-  document.getElementById('f_lana').innerText=sel.lana
-  document.getElementById('f_wallet').innerText=sel.wallet.name
-  document.getElementById('f_walletBal').innerText=sel.wallet.bal.toLocaleString()+' ج.م'
-  document.getElementById('f_group').innerText=sel.group
-  document.getElementById('f_group').style.opacity='1'
-  if(sel.contact){document.getElementById('f_contact').innerText=sel.contact; document.getElementById('f_contact').style.opacity='1'}
-}
-
-function openSheet(id){document.getElementById('overlay').classList.add('show'); document.getElementById(id).classList.add('show'); if(id==='walletSheet') renderWallets(); if(id==='contactSheet') renderContacts()}
-function closeAll(){document.getElementById('overlay').classList.remove('show'); document.querySelectorAll('.sheet').forEach(function(s){s.classList.remove('show')})}
-function openAdd(){loadLast(); document.getElementById('addModal').classList.add('show')}
+function openSheet(id){document.getElementById('overlay').classList.add('show'); document.getElementById(id).classList.add('show'); if(id==='groupSheet') renderGroups(); if(id==='contactSheet') renderContacts(); if(id==='walletSheet') renderWallets()}
+function closeAll(){document.getElementById('overlay').classList.remove('show'); document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'))}
+function openAdd(){document.getElementById('addModal').classList.add('show')}
 function closeAdd(){document.getElementById('addModal').classList.remove('show')}
-function openType(){document.getElementById('overlay').classList.add('show'); document.getElementById('typeSheet').classList.add('show')}
-function selectType(t){sel.lana=t; document.getElementById('f_lana').innerText=t; closeAll(); if(t==='علينا') setTab('masrof'); else setTab('dakhl');}
+function selectLana(v){sel.lana=v; document.getElementById('f_lana').innerText=v; closeAll()}
 
 function renderWallets(){
-  var ws=store.get('wallets',[])
-  var html=''
-  for(var i=0;i<ws.length;i++){
-    var w=ws[i]
-    html+='<div class="item"><div onclick="selectWallet(\''+w.id+'\')" style="flex:1;cursor:pointer;display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:50%;background:#1A5A3A;display:grid;place-items:center">💵</div><div><b>'+w.name+'</b><br><small style="opacity:.5">نقدي - '+w.bal.toLocaleString()+' ج.م</small></div></div><div style="display:flex;gap:8px"><button onclick="openEditBox(\'wallet\',\''+w.name+'\')" style="width:32px;height:32px;border:0;background:#222;border-radius:8px">✏️</button><button onclick="deleteWallet(\''+w.id+'\')" style="width:32px;height:32px;border:0;background:#222;border-radius:8px">🗑️</button></div></div>'
-  }
-  document.getElementById('walletList').innerHTML=html
+let ws=APP.get('wallets',[])
+document.getElementById('walletList').innerHTML=ws.map(w=>'<div class="walletItem" onclick="selectWallet(\''+w.id+'\')"><div style="display:flex;gap:10px;align-items:center"><div style="width:44px;height:44px;border-radius:50%;background:#1A5A3A;display:grid;place-items:center">💵</div><div><b>'+w.name+'</b><br><small>نقدي</small></div></div><div class="left"><b>'+w.bal.toLocaleString()+' ج.م</b></div></div>').join('')
 }
-function selectWallet(id){var ws=store.get('wallets',[]); for(var i=0;i<ws.length;i++){if(ws[i].id===id) sel.wallet=ws[i]} document.getElementById('f_wallet').innerText=sel.wallet.name; document.getElementById('f_walletBal').innerText=sel.wallet.bal.toLocaleString()+' ج.م'; closeAll();}
-
-function openCats(){document.getElementById('catsPage').classList.add('show'); renderCats()}
-function closeCats(){document.getElementById('catsPage').classList.remove('show')}
-function setTab(tab){
-  currentTab=tab
-  document.getElementById('tabDakhl').className=tab==='dakhl'?'on':''
-  document.getElementById('tabMasrof').className=tab==='masrof'?'on':''
-  document.getElementById('tabDeyon').className=tab==='deyon'?'on':''
-  renderCats()
-}
-function renderCats(){
-  var html=''
-  if(currentTab==='dakhl'){
-    var list=store.get('groups_dakhl',[])
-    html=list.map(function(n){return '<div class="item" onclick="pickCat(\''+n+'\')"><span></span><div style="display:flex;gap:12px;align-items:center"><span>'+n+'</span><div style="width:36px;height:36px;border-radius:50%;background:#15803D;display:grid;place-items:center">●</div></div></div>'}).join('')
-  }
-  if(currentTab==='masrof'){
-    var list=store.get('groups_masrof',[])
-    html=list.map(function(n){return '<div class="item" onclick="pickCat(\''+n+'\')"><span></span><div style="display:flex;gap:12px;align-items:center"><span>'+n+'</span><div style="width:36px;height:36px;border-radius:50%;background:#333;display:grid;place-items:center">●</div></div></div>'}).join('')
-  }
-  if(currentTab==='deyon'){
-    html='<div class="item"><span style="font-size:11px;opacity:.6">لإقراض جهة ما دينا جديدا أو تسديد دين</span><b>لنا</b></div><div class="item"><span style="font-size:11px;opacity:.6">لاستلام دين جديد أو تحصيل دين</span><b>علينا</b></div>'
-  }
-  document.getElementById('catsList').innerHTML=html
-}
-function pickCat(name){sel.group=name; document.getElementById('f_group').innerText=name; document.getElementById('f_group').style.opacity='1'; closeCats();}
+function selectWallet(id){sel.wallet=APP.get('wallets',[]).find(w=>w.id===id); document.getElementById('f_wallet').innerText=sel.wallet.name; document.getElementById('f_walletBal').innerText=sel.wallet.bal.toLocaleString()+' م.ج'; closeAll(); renderMain()}
 
 function renderGroups(){
-  var q=(document.getElementById('searchGroup')?document.getElementById('searchGroup').value:'').toLowerCase()
-  var key=currentTab==='dakhl'?'groups_dakhl':'groups_masrof'
-  var list=store.get(key,[]).filter(function(g){return g.toLowerCase().indexOf(q)>-1})
-  var html=''
-  for(var i=0;i<list.length;i++){var g=list[i]; html+='<div class="item"><span onclick="selectGroup(\''+g+'\')" style="flex:1;cursor:pointer">'+g+'</span><div style="display:flex;gap:8px"><button onclick="openEditBox(\'group\',\''+g+'\')" style="width:32px;height:32px;border:0;background:#222;border-radius:8px">✏️</button><button onclick="deleteGroup(\''+g+'\')" style="width:32px;height:32px;border:0;background:#222;border-radius:8px">🗑️</button></div></div>'}
-  document.getElementById('groupList').innerHTML=html
+let q=(document.getElementById('searchGroup').value||'').toLowerCase()
+let list=APP.get('groups',[]).filter(g=>g.toLowerCase().includes(q))
+document.getElementById('groupList').innerHTML=list.map(g=>'<div class="item"><span class="name" onclick="selectGroup(\''+g+'\')">'+g+'</span><div class="icons"><div class="iconBtn" onclick="openEditBox(\'group\',\''+g+'\')">✏️</div><div class="iconBtn" onclick="delItem(\'groups\',\''+g+'\')">🗑️</div></div></div>').join('')
 }
-function selectGroup(g){sel.group=g; document.getElementById('f_group').innerText=g; document.getElementById('f_group').style.opacity='1'; closeAll();}
-function deleteGroup(g){if(!confirm('مسح '+g+'؟')) return; var key=currentTab==='dakhl'?'groups_dakhl':'groups_masrof'; var a=store.get(key,[]).filter(function(x){return x!==g}); store.set(key,a); renderGroups(); renderCats();}
+function selectGroup(g){sel.group=g; document.getElementById('f_group').innerText=g; document.getElementById('f_group').style.opacity='1'; closeAll()}
 
 function renderContacts(){
-  var q=(document.getElementById('searchContact')?document.getElementById('searchContact').value:'').toLowerCase()
-  var list=store.get('contacts',[]).filter(function(c){return c.toLowerCase().indexOf(q)>-1})
-  var html=''
-  for(var i=0;i<list.length;i++){var c=list[i]; html+='<div class="item"><span onclick="selectContact(\''+c+'\')" style="flex:1;cursor:pointer">'+c+'</span><div style="display:flex;gap:8px"><button onclick="openEditBox(\'contact\',\''+c+'\')" style="width:32px;height:32px;border:0;background:#222;border-radius:8px">✏️</button><button onclick="deleteContact(\''+c+'\')" style="width:32px;height:32px;border:0;background:#222;border-radius:8px">🗑️</button></div></div>'}
-  document.getElementById('contactList').innerHTML=html
+let q=(document.getElementById('searchContact').value||'').toLowerCase()
+let list=APP.get('contacts',[]).filter(c=>c.toLowerCase().includes(q))
+document.getElementById('contactList').innerHTML=list.map(c=>'<div class="item"><span class="name" onclick="selectContact(\''+c+'\')">'+c+'</span><div class="icons"><div class="iconBtn" onclick="openEditBox(\'contact\',\''+c+'\')">✏️</div><div class="iconBtn" onclick="delItem(\'contacts\',\''+c+'\')">🗑️</div></div></div>').join('')
 }
-function selectContact(c){sel.contact=c; document.getElementById('f_contact').innerText=c; document.getElementById('f_contact').style.opacity='1'; closeAll();}
-function deleteContact(c){if(!confirm('مسح '+c+'؟')) return; var a=store.get('contacts',[]).filter(function(x){return x!==c}); store.set('contacts',a); renderContacts();}
+function selectContact(c){sel.contact=c; document.getElementById('f_contact').innerText=c; document.getElementById('f_contact').style.opacity='1'; closeAll()}
 
 function openEditBox(type,oldVal){
-  edit.type=type; edit.old=oldVal||''
-  var title= oldVal? 'تعديل: '+oldVal : (type==='wallet'?'إضافة محفظة':type==='group'?'إضافة تصنيف':'إضافة جهة اتصال')
-  document.getElementById('editTitle').innerText=title
-  document.getElementById('editInput').value=oldVal||''
-  document.getElementById('editBox').classList.add('show')
-  setTimeout(function(){document.getElementById('editInput').focus()},100)
+editMode={type:type,old:oldVal||''}
+document.getElementById('editTitle').innerText=oldVal? 'تعديل: '+oldVal : (type==='group'?'إضافة مجموعة':type==='contact'?'إضافة جهة اتصال':'إضافة محفظة')
+document.getElementById('editInput').value=oldVal||''
+document.getElementById('editBox').classList.add('show')
 }
 function closeEditBox(){document.getElementById('editBox').classList.remove('show')}
-function doSave(){
-  var v=document.getElementById('editInput').value.trim()
-  if(!v){alert('اكتب الاسم'); return;}
-  if(edit.type==='wallet'){
-    var ws=store.get('wallets',[])
-    if(edit.old){ for(var i=0;i<ws.length;i++){ if(ws[i].name===edit.old) ws[i].name=v } }
-    else { ws.push({id:'w'+Date.now(),name:v,bal:0}) }
-    store.set('wallets',ws)
-    renderWallets()
-    renderMain()
-  }
-  if(edit.type==='group'){
-    var key=currentTab==='masrof'?'groups_masrof':'groups_dakhl'
-    var gs=store.get(key,[])
-    if(edit.old){ var idx=gs.indexOf(edit.old); if(idx>-1) gs[idx]=v } else { if(gs.indexOf(v)===-1) gs.push(v) }
-    store.set(key,gs)
-    renderCats()
-    renderGroups()
-  }
-  if(edit.type==='contact'){
-    var cs=store.get('contacts',[])
-    if(edit.old){ var idx2=cs.indexOf(edit.old); if(idx2>-1) cs[idx2]=v } else { if(cs.indexOf(v)===-1) cs.push(v) }
-    store.set('contacts',cs)
-    renderContacts()
-  }
-  closeEditBox()
+function saveEdit(){
+let v=document.getElementById('editInput').value.trim()
+if(!v) return
+if(editMode.type==='group'){
+let a=APP.get('groups',[]); if(editMode.old){let i=a.indexOf(editMode.old); if(i>-1) a[i]=v} else a.push(v); APP.set('groups',a); renderGroups()
 }
-function deleteWallet(id){
-  var ws=store.get('wallets',[])
-  if(ws.length<=1){alert('لازم محفظة واحدة على الأقل'); return;}
-  if(!confirm('مسح المحفظة؟')) return;
-  ws=ws.filter(function(w){return w.id!==id})
-  store.set('wallets',ws)
-  sel.wallet=ws[0]
-  renderWallets()
-  renderMain()
+if(editMode.type==='contact'){
+let a=APP.get('contacts',[]); if(editMode.old){let i=a.indexOf(editMode.old); if(i>-1) a[i]=v} else a.push(v); APP.set('contacts',a); renderContacts()
+}
+if(editMode.type==='wallet'){
+let a=APP.get('wallets',[]); if(editMode.old){let w=a.find(x=>x.name===editMode.old); if(w) w.name=v} else a.push({id:Math.random().toString(36).slice(2,6),name:v,bal:0}); APP.set('wallets',a); renderWallets()
+}
+closeEditBox()
+}
+function delItem(key,val){
+if(!confirm('مسح '+val+' ؟')) return
+let a=APP.get(key,[]).filter(x=> (typeof x==='string'? x!==val : x.name!==val))
+APP.set(key,a)
+if(key==='groups') renderGroups()
+if(key==='contacts') renderContacts()
+if(key==='wallets') renderWallets()
 }
 
 function saveTrans(){
-  var amt=Number(document.getElementById('f_amount').value||0)
-  if(!amt) return alert('اكتب المبلغ')
-  if(!sel.group) return alert('اختر التصنيف')
-  var trans=store.get('trans',[])
-  trans.push({id:Date.now(),amount:amt,group:sel.group,contact:sel.contact,wallet:sel.wallet.name,lana:sel.lana,note:document.getElementById('f_note').value})
-  store.set('trans',trans)
-  // حفظ اخر اختيار
-  store.set('last',{lana:sel.lana,walletId:sel.wallet.id,group:sel.group,contact:sel.contact})
-  document.getElementById('f_amount').value=''
-  document.getElementById('f_note').value=''
-  closeAdd()
-  renderMain()
+let amt=Number(document.getElementById('f_amount').value||0)
+if(!amt) return alert('اكتب المبلغ')
+if(!sel.group) return alert('اختر المجموعة')
+let t=APP.get('trans',[]); t.push({id:Math.random().toString(36).slice(2,6),amount:amt,cat:sel.group,contact:sel.contact,wallet:sel.wallet.name,lana:sel.lana})
+APP.set('trans',t)
+if(sel.lana==='لنا') sel.wallet.bal+=amt; else sel.wallet.bal-=amt
+let ws=APP.get('wallets',[]); let ww=ws.find(w=>w.id===sel.wallet.id); if(ww) ww.bal=sel.wallet.bal; APP.set('wallets',ws)
+document.getElementById('f_amount').value=''; closeAdd(); renderMain()
 }
 function renderMain(){
-  var ws=store.get('wallets',[])
-  var total=0; for(var i=0;i<ws.length;i++) total+=Number(ws[i].bal)
-  document.getElementById('totalTop').innerText='EGP '+total.toLocaleString()
-  var trans=store.get('trans',[])
-  var html= trans.length? '' : '<div style="text-align:center;padding:60px;opacity:.4">لا يوجد معاملات - اضغط +</div>'
-  for(var k=trans.length-1;k>=0;k--){var t=trans[k]; html+='<div class="card"><b>'+t.group+' - '+t.amount.toLocaleString()+' ج.م ('+t.lana+')</b><div style="font-size:11px;opacity:.5">'+t.wallet+' | '+t.contact+' | '+(t.note||'')+'</div></div>'}
-  document.getElementById('main').innerHTML=html
-  loadLast()
+let ws=APP.get('wallets',[]); let total=ws.reduce((s,w)=>s+Number(w.bal),0)
+document.getElementById('totalTop').innerText='EGP '+total.toLocaleString()
+let trans=APP.get('trans',[])
+let html=trans.length? trans.slice().reverse().map(t=>'<div class="card"><b>'+t.cat+' - '+t.amount.toLocaleString()+'</b><div style="font-size:11px;opacity:.5">'+t.wallet+' | '+t.contact+'</div></div>').join('') : '<div style="text-align:center;padding:80px;opacity:.4">لا يوجد معاملات<br>اضغط +</div>'
+document.getElementById('main').innerHTML=html
 }
 renderMain()
 </script>
