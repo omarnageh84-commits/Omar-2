@@ -7,88 +7,57 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{font-family:'Cairo';box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:#0A0A0A}
+html,body{height:100%;overflow:hidden;background:#000}
 body{display:flex;flex-direction:column;color:#fff}
-
-/* الهيدر */
-.h{height:56px;background:#15803D;padding:0 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-radius:16px 16px 0 0;margin:4px 4px 0}
-
-/* التبويبات فوق - FIX */
-.topMain{
-  height:48px;
-  background:#1A1A1A;
-  display:flex;
-  overflow-x:auto;
-  overflow-y:hidden;
-  flex-shrink:0;
-  border-bottom:1px solid #222;
-  scrollbar-width:none;
-  -ms-overflow-style:none;
-}
-.topMain::-webkit-scrollbar{display:none}
-.topMain button{
-  flex:0 0 auto;
-  min-width:80px;
-  padding:0 14px;
-  background:transparent;
-  border:0;
-  color:#777;
-  font-size:11.5px;
-  font-weight:600;
-  white-space:nowrap;
-  border-bottom:3px solid transparent;
-  cursor:pointer;
-}
-.topMain button.on{color:#fff;border-color:#fff;background:#2A2A2A;font-weight:700}
-
-.content{flex:1;overflow:auto;background:#0A0A0A;padding:12px}
+.h{height:52px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 12px;flex-shrink:0}
+.topMain{height:50px;background:#111;display:flex;flex-shrink:0;border-bottom:1px solid #222}
+.topMain button{flex:1;background:transparent;border:0;color:#666;font-size:11px;font-weight:600;border-bottom:3px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.topMain button.on{color:#fff;border-color:#fff;background:#1E1E1E}
+.topMain button span:first-child{font-size:14px}
+.content{flex:1;overflow:auto;background:#080808;padding:12px}
 .card{background:#1E1E1E;border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px}
-.bottom{height:70px;background:#1A1A1A;border-top:1px solid #222;display:flex;justify-content:space-around;align-items:center;flex-shrink:0}
+.bottom{height:70px;background:#111;border-top:1px solid #222;display:flex;justify-content:space-around;align-items:center;flex-shrink:0}
 .bItem{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
 .bItem.on{color:#15803D}
-.plus{width:58px;height:58px;border-radius:50%;background:#15803D;display:grid;place-items:center;font-size:28px;color:#fff;margin-top:-30px;box-shadow:0 6px 18px #15803D66}
-.page{display:none}
-.page.show{display:block}
-.inp{width:100%;height:42px;background:#121212;border:1px solid #333;border-radius:12px;padding:0 12px;color:#fff;margin-top:8px;outline:none}
-.btn{width:100%;height:44px;background:#15803D;border:0;border-radius:12px;color:#fff;font-weight:700;margin-top:12px}
+.plus{width:60px;height:60px;border-radius:50%;background:#15803D;display:grid;place-items:center;font-size:30px;color:#fff;margin-top:-30px}
+.page{display:none}.page.show{display:block}
 </style>
 </head>
 <body>
 <div class="h">
-<div style="display:flex;align-items:center;gap:6px"><span>🔒</span><b>OMAR</b><span style="opacity:.8">EGP 0</span></div>
-<div style="font-size:12px">الجنيه المصري ▼</div>
+<div><b>🔒 OMAR</b> <span style="font-size:12px">EGP 0</span></div>
+<div style="font-size:11px">الجنيه المصري ▼</div>
 </div>
 
 <div class="topMain">
-<button id="btn-income" class="on" onclick="go('income')">الدخل</button>
-<button id="btn-outcome" onclick="go('outcome')">المصروف</button>
-<button id="btn-debts" onclick="go('debts')">الديون</button>
-<button id="btn-att" onclick="go('att')">الحضور والانصراف</button>
-<button id="btn-notes" onclick="go('notes')">الملاحظات واليومية</button>
+<button id="b1" class="on" onclick="go('income')"><span>💰</span><span>الدخل</span></button>
+<button id="b2" onclick="go('outcome')"><span>💸</span><span>المصروف</span></button>
+<button id="b3" onclick="go('debts')"><span>📒</span><span>الديون</span></button>
+<button id="b4" onclick="go('att')"><span>⏰</span><span>الحضور</span></button>
+<button id="b5" onclick="go('notes')"><span>📋</span><span>اليومية</span></button>
 </div>
 
-<div id="page-income" class="page show"><div class="card">الدخل: 0ج</div><div id="list-income" style="text-align:center;padding:40px;opacity:.4">لا يوجد دخل</div></div>
-<div id="page-outcome" class="page"><div class="card">المصروف: 0ج</div><div id="list-outcome" style="text-align:center;padding:40px;opacity:.4">لا يوجد مصروفات<br>ابدأ بالإدخال</div></div>
-<div id="page-debts" class="page"><div class="card">لنا: 0ج - علينا: 0ج - الصافي: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد ديون</div></div>
-<div id="page-att" class="page"><div style="text-align:center;padding:40px;opacity:.4">الحضور والانصراف</div></div>
-<div id="page-notes" class="page"><div style="text-align:center;padding:40px;opacity:.4">الملاحظات واليومية</div></div>
+<div id="p-income" class="page show" style="flex:1;overflow:auto;padding:12px"><div class="card">الدخل: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد دخل</div></div>
+<div id="p-outcome" class="page" style="flex:1;overflow:auto;padding:12px"><div class="card">المصروف: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد مصروفات<br>ابدأ بالإدخال</div></div>
+<div id="p-debts" class="page" style="flex:1;overflow:auto;padding:12px"><div class="card">لنا: 0ج - علينا: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد ديون</div></div>
+<div id="p-att" class="page" style="flex:1;overflow:auto;padding:12px"><div style="text-align:center;padding:40px;opacity:.4">الحضور والانصراف</div></div>
+<div id="p-notes" class="page" style="flex:1;overflow:auto;padding:12px"><div class="card">اليومية: 0 ملاحظة</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد ملاحظات</div></div>
 
 <div class="bottom">
-<div class="bItem" id="b-notes" onclick="go('notes')"><span>📋</span><span>اليومية</span></div>
-<div class="bItem" id="b-att" onclick="go('att')"><span>⏰</span><span>الحضور</span></div>
+<div class="bItem" id="bb1" onclick="go('notes')"><span>📋</span><span>اليومية</span></div>
+<div class="bItem" id="bb2" onclick="go('att')"><span>⏰</span><span>الحضور</span></div>
 <div class="plus" onclick="go('income')">+</div>
-<div class="bItem" id="b-outcome" onclick="go('outcome')"><span>💸</span><span>المصروف</span></div>
-<div class="bItem on" id="b-income" onclick="go('income')"><span>💰</span><span>الدخل</span></div>
+<div class="bItem" id="bb3" onclick="go('outcome')"><span>💸</span><span>المصروف</span></div>
+<div class="bItem on" id="bb4" onclick="go('income')"><span>💰</span><span>الدخل</span></div>
 </div>
 
 <script>
-if(screen.orientation&&screen.orientation.lock){try{screen.orientation.lock('portrait')}catch(e){}}
 function go(t){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'))
- document.getElementById('page-'+t).classList.add('show')
+ document.getElementById('p-'+t).classList.add('show')
  document.querySelectorAll('.topMain button').forEach(b=>b.classList.remove('on'))
- document.getElementById('btn-'+t).classList.add('on')
- document.getElementById('btn-'+t).scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})
+ let map={income:'b1',outcome:'b2',debts:'b3',att:'b4',notes:'b5'}
+ document.getElementById(map[t]).classList.add('on')
 }
 </script>
 </body>
