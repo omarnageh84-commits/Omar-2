@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>مشروعي - إدارة احترافية</title>
+<title>مشروعي</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -45,75 +45,78 @@ body{background:#121212;color:#fff;padding-bottom:90px}
 <div class="bottom" id="bottomNav"></div>
 <div id="modal" class="modal"><div class="box"><h3 id="mTitle">إضافة</h3><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:12px"><button onclick="saveItem()" style="flex:1;height:42px;border-radius:12px;background:#0F7A3D;color:#fff;border:0">إضافة الآن</button><button onclick="closeM()" style="flex:1;height:42px;border-radius:12px;background:#222;color:#fff;border:1px solid #333">إلغاء</button></div></div></div>
 <script>
-const APP={get:(k,d)=>{try{let v=JSON.parse(localStorage.getItem(k)); return Array.isArray(v)?v:d;}catch{return d}},set:(k,v)=>{localStorage.setItem(k,JSON.stringify(v)); if(localStorage.getItem('gs_url')){clearTimeout(window._syncT); window._syncT=setTimeout(()=>{syncSheetSilent()},1500);}}};
-const uid=()=>Math.random().toString(36).slice(2,7);
+const APP={get:function(k,d){try{var v=JSON.parse(localStorage.getItem(k)); return Array.isArray(v)?v:d;}catch(e){return d}},set:function(k,v){localStorage.setItem(k,JSON.stringify(v)); if(localStorage.getItem('gs_url')){clearTimeout(window._syncT); window._syncT=setTimeout(function(){syncSheetSilent()},1500);}}};
+const uid=function(){return Math.random().toString(36).slice(2,7);};
 const SUBS={expenses:[{id:'outcome',l:'مصروف',i:'💸'},{id:'income',l:'مدخلات',i:'💰'},{id:'net',l:'الصافي',i:'📊'},{id:'all',l:'الكل',i:'📋'}],debts:[{id:'lena',l:'لنا',i:'⬆️'},{id:'alayna',l:'علينا',i:'⬇️'},{id:'net',l:'الصافي',i:'⚖️'},{id:'all',l:'الكل',i:'📋'}],attendance:[{id:'hader',l:'حاضر',i:'✅'},{id:'ghaeb',l:'غائب',i:'❌'},{id:'mot',l:'متأخر',i:'⏰'},{id:'all',l:'الكل',i:'📅'}],notes:[{id:'pinned',l:'مثبتة',i:'📌'},{id:'general',l:'عامة',i:'📝'},{id:'all',l:'الكل',i:'📋'}]};
 let topT=localStorage.getItem('topT')||'expenses', bottomT='all';
 function setTop(t){topT=t;bottomT='all';localStorage.setItem('topT',t);render();}
 function setBottom(b){bottomT=b;render();}
 function render(){
- document.querySelectorAll('.top a').forEach(a=>a.classList.toggle('on',a.dataset.t===topT));
+ document.querySelectorAll('.top a').forEach(function(a){a.classList.toggle('on',a.dataset.t===topT)});
  let subs=SUBS[topT];
- document.getElementById('bottomNav').innerHTML=`<a class="${bottomT===subs[0].id?'on':''}" onclick="setBottom('${subs[0].id}')"><span>${subs[0].i}</span><span>${subs[0].l}</span></a><a class="${bottomT===subs[1].id?'on':''}" onclick="setBottom('${subs[1].id}')"><span>${subs[1].i}</span><span>${subs[1].l}</span></a><div class="plus" onclick="openM()">+</div><a class="${bottomT===subs[2].id?'on':''}" onclick="setBottom('${subs[2].id}')"><span>${subs[2].i}</span><span>${subs[2].l}</span></a><a class="${bottomT===subs[3]?.id?'on':''}" onclick="setBottom('${subs[3]?.id||'all'}')"><span>${subs[3]?.i||'📋'}</span><span>${subs[3]?.l||'الكل'}</span></a>`;
+ let id3 = subs[3]? subs[3].id : 'all';
+ let i3 = subs[3]? (subs[3].i||'📋') : '📋';
+ let l3 = subs[3]? (subs[3].l||'الكل') : 'الكل';
+ document.getElementById('bottomNav').innerHTML='<a class="'+(bottomT===subs[0].id?'on':'')+'" onclick="setBottom(\''+subs[0].id+'\')"><span>'+subs[0].i+'</span><span>'+subs[0].l+'</span></a><a class="'+(bottomT===subs[1].id?'on':'')+'" onclick="setBottom(\''+subs[1].id+'\')"><span>'+subs[1].i+'</span><span>'+subs[1].l+'</span></a><div class="plus" onclick="openM()">+</div><a class="'+(bottomT===subs[2].id?'on':'')+'" onclick="setBottom(\''+subs[2].id+'\')"><span>'+subs[2].i+'</span><span>'+subs[2].l+'</span></a><a class="'+(bottomT===id3?'on':'')+'" onclick="setBottom(\''+id3+'\')"><span>'+i3+'</span><span>'+l3+'</span></a>';
  let expenses=APP.get('expenses',[]);
  let debts=APP.get('debts',[]);
  let atts=APP.get('attendance',[]);
  let notes=APP.get('notes',[]);
- let sumOut=expenses.filter(x=>x.type==='outcome').reduce((s,x)=>s+(Number(x.amount)||0),0);
- let sumIn=expenses.filter(x=>x.type==='income').reduce((s,x)=>s+(Number(x.amount)||0),0);
+ let sumOut=0; expenses.forEach(function(x){if(x.type==='outcome') sumOut+= (Number(x.amount)||0);});
+ let sumIn=0; expenses.forEach(function(x){if(x.type==='income') sumIn+= (Number(x.amount)||0);});
  let net=sumIn-sumOut;
  let summaryHTML='';
- if(topT==='expenses') summaryHTML=`<div style="width:80px;height:80px;border-radius:50%;border:6px solid ${net>=0?'#0F7A3D':'#EF4444'};display:grid;place-items:center;font-weight:700">${net}ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>المصاريف: ${sumOut}ج</div><div>المدخلات: ${sumIn}ج</div><div>الصافي: ${net}ج</div></div>`;
- if(topT==='debts'){let lena=debts.filter(x=>x.type==='لنا').reduce((s,x)=>s+(Number(x.amount)||0),0); let alayna=debts.filter(x=>x.type==='علينا').reduce((s,x)=>s+(Number(x.amount)||0),0); summaryHTML=`<div style="width:80px;height:80px;border-radius:50%;border:6px solid #4DD0E1;display:grid;place-items:center;font-weight:700">${lena-alayna}ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>لنا: ${lena}ج</div><div>علينا: ${alayna}ج</div><div>الصافي: ${lena-alayna}ج</div></div>`;}
- if(topT==='attendance'){let h=atts.filter(x=>x.status==='حاضر').length; let g=atts.filter(x=>x.status==='غائب').length; let m=atts.filter(x=>x.status==='متأخر').length; summaryHTML=`<div style="width:80px;height:80px;border-radius:50%;border:6px solid #0F7A3D;display:grid;place-items:center;font-weight:700">${atts.length}</div><div style="flex:1;font-size:12px;line-height:22px"><div>حاضر: ${h}</div><div>غائب: ${g}</div><div>متأخر: ${m}</div></div>`;}
- if(topT==='notes') summaryHTML=`<div style="width:80px;height:80px;border-radius:50%;border:6px solid #3F3B6B;display:grid;place-items:center;font-weight:700">${notes.length}</div><div style="flex:1;font-size:12px"><div>إجمالي الملاحظات: ${notes.length}</div></div>`;
+ if(topT==='expenses') summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid '+(net>=0?'#0F7A3D':'#EF4444')+';display:grid;place-items:center;font-weight:700">'+net+'ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>المصاريف: '+sumOut+'ج</div><div>المدخلات: '+sumIn+'ج</div><div>الصافي: '+net+'ج</div></div>';
+ if(topT==='debts'){let lena=0, alayna=0; debts.forEach(function(x){if(x.type==='لنا') lena+= (Number(x.amount)||0); else alayna+= (Number(x.amount)||0);}); summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid #4DD0E1;display:grid;place-items:center;font-weight:700">'+(lena-alayna)+'ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>لنا: '+lena+'ج</div><div>علينا: '+alayna+'ج</div><div>الصافي: '+(lena-alayna)+'ج</div></div>';}
+ if(topT==='attendance'){let h=0,g=0,m=0; atts.forEach(function(x){if(x.status==='حاضر') h++; else if(x.status==='غائب') g++; else if(x.status==='متأخر') m++;}); summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid #0F7A3D;display:grid;place-items:center;font-weight:700">'+atts.length+'</div><div style="flex:1;font-size:12px;line-height:22px"><div>حاضر: '+h+'</div><div>غائب: '+g+'</div><div>متأخر: '+m+'</div></div>';}
+ if(topT==='notes') summaryHTML='<div style="width:80px;height:80px;border-radius:50%;border:6px solid #3F3B6B;display:grid;place-items:center;font-weight:700">'+notes.length+'</div><div style="flex:1;font-size:12px"><div>إجمالي الملاحظات: '+notes.length+'</div></div>';
  document.getElementById('summaryCard').innerHTML=summaryHTML;
  let html='', data=[];
  if(topT==='expenses'){
    data=APP.get('expenses',[]);
-   if(bottomT==='outcome') data=data.filter(x=>x.type==='outcome');
-   if(bottomT==='income') data=data.filter(x=>x.type==='income');
+   if(bottomT==='outcome') data=data.filter(function(x){return x.type==='outcome'});
+   if(bottomT==='income') data=data.filter(function(x){return x.type==='income'});
    if(bottomT==='net') data=[];
-   html=data.map(e=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><b>${e.amount}ج - ${e.desc||'بدون وصف'}</b><div style="font-size:11px;opacity:.6">${e.type==='outcome'?'مصروف':'دخل'} - ${e.date||''}</div></div><div><span style="cursor:pointer" onclick="delItem('expenses','${e.id}')">🗑️</span></div></div>`).join('');
+   html=data.map(function(e){return '<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><b>'+e.amount+'ج - '+(e.desc||'بدون وصف')+'</b><div style="font-size:11px;opacity:.6">'+(e.type==='outcome'?'مصروف':'دخل')+' - '+(e.date||'')+'</div></div><div><span style="cursor:pointer" onclick="delItem(\'expenses\',\''+e.id+'\')">🗑️</span></div></div>'}).join('');
  }
  if(topT==='debts'){
    data=APP.get('debts',[]);
-   if(bottomT==='lena') data=data.filter(x=>x.type==='لنا');
-   if(bottomT==='alayna') data=data.filter(x=>x.type==='علينا');
-   html=data.map(d=>`<div class="card" style="display:flex;justify-content:space-between"><div><b>${d.person} - ${d.amount}ج</b><div style="color:${d.type==='لنا'?'#4caf50':'#f44336'};font-size:12px">${d.type}</div></div><div><span style="cursor:pointer" onclick="delItem('debts','${d.id}')">🗑️</span></div></div>`).join('');
+   if(bottomT==='lena') data=data.filter(function(x){return x.type==='لنا'});
+   if(bottomT==='alayna') data=data.filter(function(x){return x.type==='علينا'});
+   html=data.map(function(d){return '<div class="card" style="display:flex;justify-content:space-between"><div><b>'+d.person+' - '+d.amount+'ج</b><div style="color:'+(d.type==='لنا'?'#4caf50':'#f44336')+';font-size:12px">'+d.type+'</div></div><div><span style="cursor:pointer" onclick="delItem(\'debts\',\''+d.id+'\')">🗑️</span></div></div>'}).join('');
  }
  if(topT==='attendance'){
    data=APP.get('attendance',[]);
-   if(bottomT==='hader') data=data.filter(x=>x.status==='حاضر');
-   if(bottomT==='ghaeb') data=data.filter(x=>x.status==='غائب');
-   if(bottomT==='mot') data=data.filter(x=>x.status==='متأخر');
-   html=data.map(a=>`<div class="card" style="display:flex;justify-content:space-between"><div><b>${a.date||''} - ${a.status}</b><div style="font-size:11px;opacity:.6">${a.checkIn||''} - ${a.checkOut||''}</div></div><div><span style="cursor:pointer" onclick="delItem('attendance','${a.id}')">🗑️</span></div></div>`).join('');
+   if(bottomT==='hader') data=data.filter(function(x){return x.status==='حاضر'});
+   if(bottomT==='ghaeb') data=data.filter(function(x){return x.status==='غائب'});
+   if(bottomT==='mot') data=data.filter(function(x){return x.status==='متأخر'});
+   html=data.map(function(a){return '<div class="card" style="display:flex;justify-content:space-between"><div><b>'+(a.date||'')+' - '+a.status+'</b><div style="font-size:11px;opacity:.6">'+(a.checkIn||'')+' - '+(a.checkOut||'')+'</div></div><div><span style="cursor:pointer" onclick="delItem(\'attendance\',\''+a.id+'\')">🗑️</span></div></div>'}).join('');
  }
  if(topT==='notes'){
    data=APP.get('notes',[]);
-   html=data.map(n=>`<div class="card"><b>${n.title||'بدون عنوان'}</b><div style="font-size:12px;opacity:.8">${n.content||''}</div><div style="text-align:left"><span style="cursor:pointer" onclick="delItem('notes','${n.id}')">🗑️</span></div></div>`).join('');
+   html=data.map(function(n){return '<div class="card"><b>'+(n.title||'بدون عنوان')+'</b><div style="font-size:12px;opacity:.8">'+(n.content||'')+'</div><div style="text-align:left"><span style="cursor:pointer" onclick="delItem(\'notes\',\''+n.id+'\')">🗑️</span></div></div>'}).join('');
  }
  document.getElementById('list').innerHTML=html||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد بيانات - دوس + للإضافة</div>';
 }
 function openM(){
  let f='';
- if(topT==='expenses') f=`<input id="f_a" class="inp" placeholder="المبلغ" type="number"><input id="f_d" class="inp" placeholder="الوصف"><select id="f_t" class="inp"><option value="outcome">مصروف</option><option value="income">مدخلات</option></select><input id="f_date" class="inp" type="date" value="${new Date().toISOString().slice(0,10)}">`;
- if(topT==='debts'){let def=bottomT==='lena'?'لنا':bottomT==='alayna'?'علينا':'لنا'; f=`<input id="f_p" class="inp" placeholder="اسم الشخص"><input id="f_a" class="inp" placeholder="المبلغ" type="number"><select id="f_t" class="inp"><option ${def==='لنا'?'selected':''}>لنا</option><option ${def==='علينا'?'selected':''}>علينا</option></select><input id="f_note" class="inp" placeholder="ملاحظة">`;}
- if(topT==='attendance') f=`<input id="f_date" class="inp" type="date" value="${new Date().toISOString().slice(0,10)}"><input id="f_in" class="inp" type="time" value="09:00"><input id="f_out" class="inp" type="time" value="17:00"><select id="f_st" class="inp"><option>حاضر</option><option>غائب</option><option>متأخر</option></select>`;
- if(topT==='notes') f=`<input id="f_ti" class="inp" placeholder="عنوان"><input id="f_c" class="inp" placeholder="محتوى">`;
+ if(topT==='expenses') f='<input id="f_a" class="inp" placeholder="المبلغ" type="number"><input id="f_d" class="inp" placeholder="الوصف"><select id="f_t" class="inp"><option value="outcome">مصروف</option><option value="income">مدخلات</option></select><input id="f_date" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'">';
+ if(topT==='debts'){let def=bottomT==='lena'?'لنا':bottomT==='alayna'?'علينا':'لنا'; f='<input id="f_p" class="inp" placeholder="اسم الشخص"><input id="f_a" class="inp" placeholder="المبلغ" type="number"><select id="f_t" class="inp"><option '+(def==='لنا'?'selected':'')+'>لنا</option><option '+(def==='علينا'?'selected':'')+'>علينا</option></select><input id="f_note" class="inp" placeholder="ملاحظة">';}
+ if(topT==='attendance') f='<input id="f_date" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'"><input id="f_in" class="inp" type="time" value="09:00"><input id="f_out" class="inp" type="time" value="17:00"><select id="f_st" class="inp"><option>حاضر</option><option>غائب</option><option>متأخر</option></select>';
+ if(topT==='notes') f='<input id="f_ti" class="inp" placeholder="عنوان"><input id="f_c" class="inp" placeholder="محتوى">';
  document.getElementById('mFields').innerHTML=f;
  document.getElementById('modal').classList.add('show');
 }
 function closeM(){document.getElementById('modal').classList.remove('show');}
 function saveItem(){
  let id=uid();
- if(topT==='expenses'){let a=APP.get('expenses',[]); a.push({id,amount:Number(document.getElementById('f_a').value)||0,desc:document.getElementById('f_d').value,type:document.getElementById('f_t').value,date:document.getElementById('f_date').value}); APP.set('expenses',a);}
- if(topT==='debts'){let a=APP.get('debts',[]); a.push({id,person:document.getElementById('f_p').value,amount:Number(document.getElementById('f_a').value)||0,type:document.getElementById('f_t').value,note:document.getElementById('f_note').value,date:new Date().toISOString().slice(0,10)}); APP.set('debts',a);}
- if(topT==='attendance'){let a=APP.get('attendance',[]); a.push({id,date:document.getElementById('f_date').value,checkIn:document.getElementById('f_in').value,checkOut:document.getElementById('f_out').value,status:document.getElementById('f_st').value}); APP.set('attendance',a);}
- if(topT==='notes'){let a=APP.get('notes',[]); a.push({id,title:document.getElementById('f_ti').value,content:document.getElementById('f_c').value,date:new Date().toISOString().slice(0,10)}); APP.set('notes',a);}
+ if(topT==='expenses'){let a=APP.get('expenses',[]); a.push({id:id,amount:Number(document.getElementById('f_a').value)||0,desc:document.getElementById('f_d').value,type:document.getElementById('f_t').value,date:document.getElementById('f_date').value}); APP.set('expenses',a);}
+ if(topT==='debts'){let a=APP.get('debts',[]); a.push({id:id,person:document.getElementById('f_p').value,amount:Number(document.getElementById('f_a').value)||0,type:document.getElementById('f_t').value,note:document.getElementById('f_note').value,date:new Date().toISOString().slice(0,10)}); APP.set('debts',a);}
+ if(topT==='attendance'){let a=APP.get('attendance',[]); a.push({id:id,date:document.getElementById('f_date').value,checkIn:document.getElementById('f_in').value,checkOut:document.getElementById('f_out').value,status:document.getElementById('f_st').value}); APP.set('attendance',a);}
+ if(topT==='notes'){let a=APP.get('notes',[]); a.push({id:id,title:document.getElementById('f_ti').value,content:document.getElementById('f_c').value,date:new Date().toISOString().slice(0,10)}); APP.set('notes',a);}
  closeM(); render();
 }
-function delItem(k,id){if(confirm('مسح؟')){APP.set(k,APP.get(k,[]).filter(x=>x.id!==id)); render();}}
+function delItem(k,id){if(confirm('مسح؟')){APP.set(k,APP.get(k,[]).filter(function(x){return x.id!==id})); render();}}
 function exportExcel(){
  let wb=XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('expenses',[])),'مصروفاتي');
