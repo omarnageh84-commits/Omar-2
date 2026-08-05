@@ -1,25 +1,157 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OMAR</title><style>*{font-family:sans-serif;box-sizing:border-box;margin:0;padding:0}body{background:#000;color:#fff;height:100vh;display:flex;flex-direction:column}.h{height:54px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin:4px;border-radius:14px 14px 0 0}.page{flex:1;background:#0A0A0A;display:none;flex-direction:column;overflow:auto;padding:12px}.page.show{display:flex}.card{background:#1E1E1E;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between}.bottom{height:72px;background:#151515;border-top:1px solid #222;display:flex;align-items:center}.bItem{flex:1;display:flex;flex-direction:column;align-items:center;font-size:9px;color:#666}.bItem.on{color:#15803D}.plusW{flex:1;display:flex;justify-content:center}.plus{width:60px;height:60px;background:#15803D;border-radius:50%;display:grid;place-items:center;font-size:32px;margin-top:-35px;border:4px solid #000}.modal{position:fixed;inset:0;background:rgba(0,0,0,.94);display:none;z-index:999;flex-direction:column}.modal.show{display:flex}.mBox{background:#1E1E1E;margin:auto;width:92%;max-width:360px;border-radius:14px;padding:14px}.inp{width:100%;height:44px;background:#111;border:1px solid #333;border-radius:10px;padding:0 10px;color:#fff;margin-top:8px}.btn{width:100%;height:42px;background:#15803D;border:0;border-radius:10px;color:#fff;margin-top:10px}.catItem{padding:12px;border-bottom:1px solid #222;display:flex;justify-content:space-between}</style></head><body>
-<div class="h"><div>OMAR EGP 50000 🔒</div><div>الجنيه المصري ▼</div></div>
-<div id="p1" class="page show"><div id="l1"></div></div><div id="p2" class="page"><div id="l2"></div></div><div id="p3" class="page"><div id="l3"></div></div><div id="p4" class="page"><div id="l4"></div></div><div id="p5" class="page"><div id="l5"></div></div><div id="p6" class="page"><div id="l6"></div></div>
-<div class="bottom"><div class="bItem on" id="b1" onclick="go(1)">الدخل</div><div class="bItem" id="b2" onclick="go(2)">المصروف</div><div class="bItem" id="b3" onclick="go(3)">الديون</div><div class="plusW"><div class="plus" onclick="plusAct()">+</div></div><div class="bItem" id="b4" onclick="go(4)">الحضور</div><div class="bItem" id="b5" onclick="go(5)">ملاحظات</div><div class="bItem" id="b6" onclick="go(6)">اليومية</div></div>
-<div id="mCats" class="modal"><div style="background:#222;padding:12px;display:flex;justify-content:space-between"><b>الأقسام - ضيف غسيل</b><span onclick="hide('mCats')">X</span></div><div style="display:flex;gap:6px;padding:10px;background:#111"><input id="newCat" class="inp" style="margin:0" placeholder="بند جديد مثلا غسيل"><button onclick="addNewCat()" style="background:#15803D;border:0;border-radius:8px;color:#fff;padding:0 12px">إضافة</button></div><div id="catList" style="flex:1;overflow:auto;background:#0A0A0A"></div></div>
-<div id="mAdd" class="modal"><div class="mBox"><h3 id="aT">إضافة</h3><div id="aF"></div><button class="btn" onclick="save()">حفظ</button><button class="btn" style="background:#333" onclick="hide('mAdd')">إلغاء</button></div></div>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OMAR</title>
+<style>
+body{background:#000;color:#fff;margin:0;font-family:Arial}
+.header{height:54px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 12px;margin:4px;border-radius:12px}
+.page{display:none;padding:12px;flex:1;overflow:auto}
+.page.on{display:flex;flex-direction:column}
+.card{background:#1E1E1E;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:8px}
+.bottom{height:70px;background:#151515;display:flex;border-top:1px solid #222}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#666;font-size:10px}
+.tab.on{color:#15803D}
+.plusWrap{flex:1;display:flex;justify-content:center}
+.plus{width:60px;height:60px;background:#15803D;border-radius:50%;margin-top:-30px;display:flex;align-items:center;justify-content:center;font-size:30px;border:4px solid #000}
+.box{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:99;flex-direction:column}
+.box.on{display:flex}
+.item{padding:14px;border-bottom:1px solid #222}
+.inp{width:100%;height:44px;background:#111;border:1px solid #333;border-radius:10px;color:#fff;margin-top:8px;padding:0 10px}
+.btn{width:100%;height:44px;background:#15803D;border:0;border-radius:10px;color:#fff;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="header"><div>OMAR EGP 50000</div><div>الجنيه المصري</div></div>
+
+<div id="p1" class="page on"><div id="list1"></div></div>
+<div id="p2" class="page"><div id="list2"></div></div>
+<div id="p3" class="page"><div id="list3"></div></div>
+<div id="p4" class="page"><div id="list4"></div></div>
+<div id="p5" class="page"><div id="list5"></div></div>
+<div id="p6" class="page"><div id="list6"></div></div>
+
+<div class="bottom">
+<div class="tab on" id="t1" onclick="openTab(1)">الدخل</div>
+<div class="tab" id="t2" onclick="openTab(2)">المصروف</div>
+<div class="tab" id="t3" onclick="openTab(3)">الديون</div>
+<div class="plusWrap"><div class="plus" onclick="openPlus()">+</div></div>
+<div class="tab" id="t4" onclick="openTab(4)">الحضور</div>
+<div class="tab" id="t5" onclick="openTab(5)">ملاحظات</div>
+<div class="tab" id="t6" onclick="openTab(6)">اليومية</div>
+</div>
+
+<div id="catBox" class="box">
+<div style="background:#222;padding:12px;display:flex;justify-content:space-between"><b id="catTitle">الأقسام</b><span onclick="closeBox('catBox')">X</span></div>
+<div style="display:flex;gap:6px;padding:10px;background:#111"><input id="newCatInput" class="inp" style="margin:0" placeholder="بند جديد غسيل"><button onclick="addCat()" style="background:#15803D;border:0;border-radius:8px;color:#fff;padding:0 14px">إضافة</button></div>
+<div id="catList" style="flex:1;overflow:auto;background:#0A0A0A"></div>
+</div>
+
+<div id="addBox" class="box"><div style="background:#1E1E1E;margin:auto;width:90%;max-width:360px;border-radius:14px;padding:14px"><h3 id="addTitle">إضافة</h3><div id="addFields"></div><button class="btn" onclick="doSave()">حفظ</button><button class="btn" style="background:#333" onclick="closeBox('addBox')">إلغاء</button></div></div>
+
 <script>
-var cur=1,sel='',eid=null;
-function G(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
-function S(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function uid(){return 'id'+Math.random().toString(36).slice(2,6)}
-var inCats=JSON.parse(localStorage.getItem('inCats')||'["الراتب","مكافأة","هدايا","غسيل"]');
-var outCats=JSON.parse(localStorage.getItem('outCats')||'[["الاكل","اكل صيدليه","غسيل"],["المواصلات","البنزين"],["الصيدلية","ديون الصيدلية"]]');
-function go(n){cur=n;var ps=document.querySelectorAll('.page');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');document.getElementById('p'+n).classList.add('show');var bs=document.querySelectorAll('.bItem');for(var j=0;j<bs.length;j++)bs[j].classList.remove('on');document.getElementById('b'+n).classList.add('on');render()}
-function hide(id){document.getElementById(id).classList.remove('show')}
-function plusAct(){if(cur==1||cur==2){document.getElementById('mCats').classList.add('show');showCats();return}openAdd(null);document.getElementById('mAdd').classList.add('show')}
-function showCats(){var h='';if(cur==1){for(var i=0;i<inCats.length;i++)h+='<div class="catItem" onclick="pick(\''+inCats[i]+'\')"><span>'+inCats[i]+'</span></div>'}else{for(var g=0;g<outCats.length;g++)for(var k=1;k<outCats[g].length;k++)h+='<div class="catItem" onclick="pick(\''+outCats[g][k]+'\')"><span>'+outCats[g][k]+'</span></div>'}document.getElementById('catList').innerHTML=h}
-function addNewCat(){var v=document.getElementById('newCat').value.trim();if(!v)return;if(cur==1){inCats.push(v);S('inCats',inCats)}else{outCats[0].push(v);S('outCats',outCats)}document.getElementById('newCat').value='';showCats()}
-function pick(c){sel=c;hide('mCats');openAdd(null);document.getElementById('mAdd').classList.add('show')}
-function openAdd(o){var f='';if(cur==1||cur==2){f='<input id="i1" class="inp" type="number" placeholder="المبلغ" value="'+(o?o.a:'')+'"><input id="i2" class="inp" placeholder="ملاحظة" value="'+(o?o.n:'')+'">'}else if(cur==3){f='<input id="i1" class="inp" placeholder="الاسم - الصيدلية" value="'+(o?o.p:'')+'"><input id="i2" class="inp" type="number" placeholder="اجمالي 5000" value="'+(o?o.a:'')+'"><input id="i3" class="inp" type="number" placeholder="مدفوع 2500" value="'+(o?o.paid||'')+'">'}else{f='<input id="i1" class="inp" placeholder="العنوان" value="'+(o?o.t||o?o.p:'')+'"><input id="i2" class="inp" placeholder="ملاحظة" value="'+(o?o.n||'')+'">'}document.getElementById('aF').innerHTML=f}
-function save(){var a;if(cur==1){a=G('income');var o={id:eid||uid(),c:sel,a:+(document.getElementById('i1').value||0),n:document.getElementById('i2').value};if(eid){for(var i=0;i<a.length;i++)if(a[i].id==eid)a[i]=o}else a.push(o);S('income',a)}else if(cur==2){a=G('outcome');var o={id:eid||uid(),c:sel,a:+(document.getElementById('i1').value||0),n:document.getElementById('i2').value};if(eid){for(var i=0;i<a.length;i++)if(a[i].id==eid)a[i]=o}else a.push(o);S('outcome',a)}else if(cur==3){a=G('debts');var o={id:eid||uid(),p:document.getElementById('i1').value,a:+(document.getElementById('i2').value||0),paid:+(document.getElementById('i3').value||0)};if(eid){for(var i=0;i<a.length;i++)if(a[i].id==eid)a[i]=o}else a.push(o);S('debts',a)}else if(cur==4){a=G('att');var o={id:eid||uid(),t:document.getElementById('i1').value||'حضور'};a.push(o);S('att',a)}else if(cur==5){a=G('notes');var o={id:eid||uid(),t:document.getElementById('i1').value};a.push(o);S('notes',a)}else{a=G('tasks');var o={id:eid||uid(),t:document.getElementById('i1').value};a.push(o);S('tasks',a)}hide('mAdd');render()}
-function del(k,id){if(confirm('مسح؟')){S(k,G(k).filter(function(x){return x.id!=id}));render()}}
-function render(){var inc=G('income'),out=G('outcome'),de=G('debts');var h='';for(var i=inc.length-1;i>=0;i--)h+='<div class="card"><div>'+inc[i].c+' '+inc[i].a+'ج</div><div onclick="del(\'income\',\''+inc[i].id+'\')">🗑️</div></div>';document.getElementById('l1').innerHTML=h||'لا يوجد دخل - دوس + وضيف غسيل';h='';for(var i=out.length-1;i>=0;i--)h+='<div class="card"><div>'+out[i].c+' '+out[i].a+'ج</div><div onclick="del(\'outcome\',\''+out[i].id+'\')">🗑️</div></div>';document.getElementById('l2').innerHTML=h||'لا يوجد';h='';for(var i=0;i<de.length;i++){var rem=de[i].a-(de[i].paid||0);h+='<div class="card"><div>'+de[i].p+' اجمالي '+de[i].a+' مدفوع '+(de[i].paid||0)+' متبقي '+rem+'</div><div onclick="del(\'debts\',\''+de[i].id+'\')">🗑️</div></div>'}document.getElementById('l3').innerHTML=h||'مثال: الصيدلية 5000 رديت 2500 = متبقي 2500';document.getElementById('l4').innerHTML='الحضور شغال';document.getElementById('l5').innerHTML='ملاحظات';document.getElementById('l6').innerHTML='يومية';}
-render();
-</script></body></html>
+var curTab=1;
+var curCatName="";
+var inCats=["الراتب","مكافأة","هدايا","غسيل"];
+var outCats=["اكل صيدليه","اكل البيت","غسيل","البنزين","ديون الصيدلية"];
+
+try{var saved=localStorage.getItem('inCats'); if(saved) inCats=JSON.parse(saved)}catch(e){}
+try{var saved2=localStorage.getItem('outCats'); if(saved2) outCats=JSON.parse(saved2)}catch(e){}
+
+function openTab(n){
+ curTab=n;
+ for(var i=1;i<=6;i++){
+   document.getElementById('p'+i).classList.remove('on');
+   document.getElementById('t'+i).classList.remove('on');
+ }
+ document.getElementById('p'+n).classList.add('on');
+ document.getElementById('t'+n).classList.add('on');
+ showLists();
+}
+function closeBox(id){document.getElementById(id).classList.remove('on')}
+
+function openPlus(){
+ if(curTab==1 || curTab==2){
+   document.getElementById('catBox').classList.add('on');
+   showCats();
+ } else {
+   document.getElementById('addBox').classList.add('on');
+   document.getElementById('addTitle').innerText='إضافة';
+   if(curTab==3) document.getElementById('addFields').innerHTML='<input id="f1" class="inp" placeholder="الاسم احمد / الصيدلية"><input id="f2" class="inp" type="number" placeholder="إجمالي 5000"><input id="f3" class="inp" type="number" placeholder="مدفوع 2500">';
+   else if(curTab==4) document.getElementById('addFields').innerHTML='<input id="f1" class="inp" type="date"><input id="f2" class="inp" type="time" value="09:00"><input id="f3" class="inp" type="time" value="17:00">';
+   else document.getElementById('addFields').innerHTML='<input id="f1" class="inp" placeholder="العنوان"><input id="f2" class="inp" placeholder="تفاصيل">';
+ }
+}
+
+function showCats(){
+ var h='';
+ var list = curTab==1? inCats : outCats;
+ for(var i=0;i<list.length;i++){
+   h+='<div class="item" onclick="chooseCat(\''+list[i]+'\')">'+list[i]+'</div>';
+ }
+ document.getElementById('catList').innerHTML=h;
+ document.getElementById('catTitle').innerText = curTab==1? 'الدخل - اختار او ضيف غسيل' : 'المصروف - اختار او ضيف غسيل';
+}
+
+function addCat(){
+ var v=document.getElementById('newCatInput').value;
+ if(!v) return;
+ if(curTab==1){inCats.push(v); try{localStorage.setItem('inCats',JSON.stringify(inCats))}catch(e){}}
+ else{outCats.push(v); try{localStorage.setItem('outCats',JSON.stringify(outCats))}catch(e){}}
+ document.getElementById('newCatInput').value='';
+ showCats();
+}
+
+function chooseCat(name){
+ curCatName=name;
+ closeBox('catBox');
+ document.getElementById('addBox').classList.add('on');
+ document.getElementById('addTitle').innerText=name;
+ document.getElementById('addFields').innerHTML='<input id="f1" class="inp" type="number" placeholder="المبلغ"><input id="f2" class="inp" placeholder="ملاحظة">';
+}
+
+function doSave(){
+ var key = curTab==1? 'inc' : curTab==2? 'out' : curTab==3? 'deb' : curTab==4? 'att' : curTab==5? 'not' : 'tas';
+ var arr=[]; try{arr=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){arr=[]}
+ if(curTab==1 || curTab==2){
+   var amount=document.getElementById('f1').value;
+   var note=document.getElementById('f2').value;
+   arr.push({name:curCatName,amount:amount,note:note});
+ }
+ else if(curTab==3){
+   var p=document.getElementById('f1').value;
+   var tot=document.getElementById('f2').value;
+   var paid=document.getElementById('f3').value;
+   arr.push({p:p,tot:tot,paid:paid});
+ }
+ else {
+   var v1=document.getElementById('f1').value;
+   var v2=document.getElementById('f2')? document.getElementById('f2').value : '';
+   arr.push({t:v1,c:v2});
+ }
+ try{localStorage.setItem(key,JSON.stringify(arr))}catch(e){}
+ closeBox('addBox');
+ showLists();
+}
+
+function showLists(){
+ try{
+ var inc=JSON.parse(localStorage.getItem('inc')||'[]');
+ var h=''; for(var i=inc.length-1;i>=0;i--) h+='<div class="card">'+inc[i].name+' - '+inc[i].amount+'ج <small>'+inc[i].note+'</small></div>';
+ document.getElementById('list1').innerHTML = h || 'لا يوجد دخل - دوس + وضيف غسيل';
+ var out=JSON.parse(localStorage.getItem('out')||'[]');
+ h=''; for(var i=out.length-1;i>=0;i--) h+='<div class="card">'+out[i].name+' - '+out[i].amount+'ج</div>';
+ document.getElementById('list2').innerHTML = h || 'لا يوجد مصروف';
+ var deb=JSON.parse(localStorage.getItem('deb')||'[]');
+ h=''; for(var i=0;i<deb.length;i++){var rem=(+deb[i].tot||0)-(+deb[i].paid||0); h+='<div class="card">'+deb[i].p+' إجمالي '+deb[i].tot+' مدفوع '+deb[i].paid+' متبقي '+rem+'</div>';}
+ document.getElementById('list3').innerHTML = h || 'لا يوجد ديون - الصيدلية 5000 رديت 2500 = متبقي 2500';
+ document.getElementById('list4').innerHTML='الحضور شغال - دوس +';
+ document.getElementById('list5').innerHTML='ملاحظات';
+ document.getElementById('list6').innerHTML='اليومية';
+ }catch(e){alert('خطأ:'+e)}
+}
+showLists();
+</script>
+</body>
+</html>
