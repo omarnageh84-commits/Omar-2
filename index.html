@@ -3,37 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<meta name="screen-orientation" content="portrait">
 <title>OMAR PRO</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{font-family:'Cairo';box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:#080808}
+html,body{height:100%;overflow:hidden;background:#0A0A0A}
 body{display:flex;flex-direction:column;color:#fff}
-/* منع اللف */
-@media screen and (orientation:landscape){body{transform:rotate(0deg)}}
 
-.h{height:54px;background:#0F7A3D;padding:0 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.topMain{height:48px;background:#121212;display:flex;overflow:auto;flex-shrink:0;border-bottom:1px solid #1E1E1E}
-.topMain button{flex:1;min-width:85px;background:transparent;border:0;color:#777;font-size:12px;font-weight:600;white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer}
-.topMain button.on{color:#fff;border-color:#fff;font-weight:700;background:#1A1A1A}
+/* الهيدر */
+.h{height:56px;background:#15803D;padding:0 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-radius:16px 16px 0 0;margin:4px 4px 0}
+
+/* التبويبات فوق - FIX */
+.topMain{
+  height:48px;
+  background:#1A1A1A;
+  display:flex;
+  overflow-x:auto;
+  overflow-y:hidden;
+  flex-shrink:0;
+  border-bottom:1px solid #222;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.topMain::-webkit-scrollbar{display:none}
+.topMain button{
+  flex:0 0 auto;
+  min-width:80px;
+  padding:0 14px;
+  background:transparent;
+  border:0;
+  color:#777;
+  font-size:11.5px;
+  font-weight:600;
+  white-space:nowrap;
+  border-bottom:3px solid transparent;
+  cursor:pointer;
+}
+.topMain button.on{color:#fff;border-color:#fff;background:#2A2A2A;font-weight:700}
+
 .content{flex:1;overflow:auto;background:#0A0A0A;padding:12px}
-.card{background:#1A1A1A;border:1px solid #222;border-radius:16px;padding:14px;margin-bottom:10px}
-.bottom{height:68px;background:#121212;border-top:1px solid #1E1E1E;display:flex;justify-content:space-around;align-items:center;flex-shrink:0}
-.bItem{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;cursor:pointer}
-.bItem.on{color:#0F7A3D}
-.plus{width:56px;height:56px;border-radius:50%;background:#0F7A3D;display:grid;place-items:center;font-size:26px;color:#fff;margin-top:-28px;box-shadow:0 4px 16px #0F7A3D66}
+.card{background:#1E1E1E;border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px}
+.bottom{height:70px;background:#1A1A1A;border-top:1px solid #222;display:flex;justify-content:space-around;align-items:center;flex-shrink:0}
+.bItem{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bItem.on{color:#15803D}
+.plus{width:58px;height:58px;border-radius:50%;background:#15803D;display:grid;place-items:center;font-size:28px;color:#fff;margin-top:-30px;box-shadow:0 6px 18px #15803D66}
 .page{display:none}
 .page.show{display:block}
 .inp{width:100%;height:42px;background:#121212;border:1px solid #333;border-radius:12px;padding:0 12px;color:#fff;margin-top:8px;outline:none}
-.btn{width:100%;height:46px;background:#0F7A3D;border:0;border-radius:12px;color:#fff;font-weight:700;margin-top:12px}
-.summary{width:80px;height:80px;border-radius:50%;border:6px solid #0F7A3D;display:grid;place-items:center;font-weight:800}
+.btn{width:100%;height:44px;background:#15803D;border:0;border-radius:12px;color:#fff;font-weight:700;margin-top:12px}
 </style>
 </head>
 <body>
 <div class="h">
-<div style="font-size:12px;opacity:.9">▼ الجنيه المصري</div>
-<div style="display:flex;gap:8px;align-items:center"><span id="total" style="font-size:12px">6,280 EGP</span><b>OMAR 🔒</b></div>
+<div style="display:flex;align-items:center;gap:6px"><span>🔒</span><b>OMAR</b><span style="opacity:.8">EGP 0</span></div>
+<div style="font-size:12px">الجنيه المصري ▼</div>
 </div>
 
 <div class="topMain">
@@ -44,107 +67,29 @@ body{display:flex;flex-direction:column;color:#fff}
 <button id="btn-notes" onclick="go('notes')">الملاحظات واليومية</button>
 </div>
 
-<!-- الدخل -->
-<div id="page-income" class="page show">
-<div class="card" style="display:flex;gap:12px;align-items:center"><div class="summary" id="sumIn">0ج</div><div style="font-size:12px;line-height:20px"><div>إجمالي الدخل: <span id="tIn">0</span>ج</div><div>المصروف: <span id="tOut1">0</span>ج</div><div>الصافي: <b id="tNet1" style="color:#4ade80">0ج</b></div></div></div>
-<div id="list-income"></div>
-</div>
-
-<!-- المصروف -->
-<div id="page-outcome" class="page">
-<div class="card" style="display:flex;gap:12px;align-items:center"><div class="summary" style="border-color:#EF4444" id="sumOut">0ج</div><div style="font-size:12px;line-height:20px"><div>إجمالي المصروف: <span id="tOut2">0</span>ج</div><div>الدخل: <span id="tIn2">0</span>ج</div><div>الصافي: <b id="tNet2">0ج</b></div></div></div>
-<div id="list-outcome"></div>
-</div>
-
-<!-- الديون -->
-<div id="page-debts" class="page">
-<div class="card" style="display:flex;gap:12px;align-items:center"><div class="summary" style="border-color:#4DD0E1" id="sumDebt">0ج</div><div style="font-size:12px"><div>لنا: <span id="lena">0</span>ج</div><div>علينا: <span id="alayna">0</span>ج</div><div>الصافي: <span id="netDebt">0</span>ج</div></div></div>
-<div id="list-debts"></div>
-</div>
-
-<!-- الحضور والانصراف -->
-<div id="page-att" class="page">
-<div class="card" style="display:flex;gap:12px;align-items:center"><div class="summary" id="sumAtt">0%</div><div style="font-size:11px"><div>✅ حاضر: <span id="hader">0</span></div><div>❌ غائب: <span id="ghaeb">0</span></div><div>⏰ متأخر: <span id="late">0</span></div></div></div>
-<div id="list-att"></div>
-</div>
-
-<!-- الملاحظات واليومية -->
-<div id="page-notes" class="page">
-<div class="card" style="display:flex;gap:12px;align-items:center"><div class="summary" style="border-color:#3F3B6B" id="sumNotes">0</div><div style="font-size:12px"><div>اليومية: <span id="countNotes">0</span> ملاحظة</div></div></div>
-<div id="list-notes"></div>
-</div>
+<div id="page-income" class="page show"><div class="card">الدخل: 0ج</div><div id="list-income" style="text-align:center;padding:40px;opacity:.4">لا يوجد دخل</div></div>
+<div id="page-outcome" class="page"><div class="card">المصروف: 0ج</div><div id="list-outcome" style="text-align:center;padding:40px;opacity:.4">لا يوجد مصروفات<br>ابدأ بالإدخال</div></div>
+<div id="page-debts" class="page"><div class="card">لنا: 0ج - علينا: 0ج - الصافي: 0ج</div><div style="text-align:center;padding:40px;opacity:.4">لا يوجد ديون</div></div>
+<div id="page-att" class="page"><div style="text-align:center;padding:40px;opacity:.4">الحضور والانصراف</div></div>
+<div id="page-notes" class="page"><div style="text-align:center;padding:40px;opacity:.4">الملاحظات واليومية</div></div>
 
 <div class="bottom">
-<div class="bItem on" id="b-income" onclick="go('income')"><span>💰</span><span>الدخل</span></div>
-<div class="bItem" id="b-outcome" onclick="go('outcome')"><span>💸</span><span>المصروف</span></div>
-<div class="plus" onclick="openAdd()">+</div>
-<div class="bItem" id="b-att" onclick="go('att')"><span>⏰</span><span>الحضور</span></div>
 <div class="bItem" id="b-notes" onclick="go('notes')"><span>📋</span><span>اليومية</span></div>
+<div class="bItem" id="b-att" onclick="go('att')"><span>⏰</span><span>الحضور</span></div>
+<div class="plus" onclick="go('income')">+</div>
+<div class="bItem" id="b-outcome" onclick="go('outcome')"><span>💸</span><span>المصروف</span></div>
+<div class="bItem on" id="b-income" onclick="go('income')"><span>💰</span><span>الدخل</span></div>
 </div>
 
-<div id="modal" style="position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:99;padding:12px"><div style="background:#1E1E1E;border:1px solid #333;border-radius:18px;padding:14px;width:100%;max-width:380px"><h3 id="mTitle">إضافة</h3><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:12px"><button onclick="save()" style="flex:1;height:42px;background:#0F7A3D;border:0;border-radius:12px;color:#fff;font-weight:700">حفظ</button><button onclick="closeM()" style="flex:1;height:42px;background:#222;border:1px solid #333;border-radius:12px;color:#fff">إلغاء</button></div></div></div>
-
 <script>
-if(screen.orientation && screen.orientation.lock){try{screen.orientation.lock('portrait')}catch(e){}}
-const APP={get(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}}
-const uid=()=>Math.random().toString(36).slice(2,6)
-const fmt=n=>Number(n||0).toLocaleString('en-US')
-let curTab='income'
-
+if(screen.orientation&&screen.orientation.lock){try{screen.orientation.lock('portrait')}catch(e){}}
 function go(t){
- curTab=t
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'))
  document.getElementById('page-'+t).classList.add('show')
  document.querySelectorAll('.topMain button').forEach(b=>b.classList.remove('on'))
- document.getElementById('btn-'+(t==='att'?'att':t==='notes'?'notes':t)).classList.add('on')
- document.querySelectorAll('.bItem').forEach(b=>b.classList.remove('on'))
- let bId = t==='income'?'b-income':t==='outcome'?'b-outcome':t==='debts'?'b-outcome':t==='att'?'b-att':'b-notes'
- if(document.getElementById(bId)) document.getElementById(bId).classList.add('on')
- render()
+ document.getElementById('btn-'+t).classList.add('on')
+ document.getElementById('btn-'+t).scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})
 }
-function calc(cin,cout){try{let a=cin.split(':').map(Number),b=cout.split(':').map(Number);let d=(b[0]*60+b[1])-(a[0]*60+a[1]);if(d<0)d+=1440;return d/60}catch(e){return 0}}
-
-function render(){
- let income=APP.get('income',[]), outcome=APP.get('outcome',[]), debts=APP.get('debts',[]), att=APP.get('att',[]), notes=APP.get('notes',[])
- let sumIn=0,sumOut=0; income.forEach(x=>sumIn+=+x.amount||0); outcome.forEach(x=>sumOut+=+x.amount||0)
- let lena=0,alayna=0; debts.forEach(x=>{if(x.type==='لنا') lena+=+x.amount||0; else alayna+=+x.amount||0})
- document.getElementById('total').innerText=fmt(sumIn-sumOut)+' EGP'
- document.getElementById('sumIn').innerText=fmt(sumIn)+'ج'; document.getElementById('tIn').innerText=fmt(sumIn); document.getElementById('tOut1').innerText=fmt(sumOut); document.getElementById('tNet1').innerText=fmt(sumIn-sumOut)+'ج'
- document.getElementById('sumOut').innerText=fmt(sumOut)+'ج'; document.getElementById('tOut2').innerText=fmt(sumOut); document.getElementById('tIn2').innerText=fmt(sumIn); document.getElementById('tNet2').innerText=fmt(sumIn-sumOut)+'ج'
- document.getElementById('lena').innerText=fmt(lena); document.getElementById('alayna').innerText=fmt(alayna); document.getElementById('netDebt').innerText=fmt(lena-alayna); document.getElementById('sumDebt').innerText=fmt(lena-alayna)+'ج'
- let h=0,g=0,l=0; att.forEach(x=>{if(x.status==='حاضر') h++; else if(x.status==='غائب') g++; else l++})
- document.getElementById('hader').innerText=h; document.getElementById('ghaeb').innerText=g; document.getElementById('late').innerText=l; document.getElementById('sumAtt').innerText=(att.length?Math.round(h/att.length*100):0)+'%'
- document.getElementById('sumNotes').innerText=notes.length; document.getElementById('countNotes').innerText=notes.length
-
- document.getElementById('list-income').innerHTML=income.map(e=>`<div class="card"><div style="display:flex;justify-content:space-between"><b>${fmt(e.amount)}ج - ${e.desc}</b><span onclick="del('income','${e.id}')">🗑️</span></div><div style="font-size:11px;opacity:.5">${e.date}</div></div>`).join('')||`<div style="text-align:center;padding:40px;opacity:.4">لا يوجد دخل - دوس +</div>`
- document.getElementById('list-outcome').innerHTML=outcome.map(e=>`<div class="card"><div style="display:flex;justify-content:space-between"><b>${fmt(e.amount)}ج - ${e.desc}</b><span onclick="del('outcome','${e.id}')">🗑️</span></div><div style="font-size:11px;opacity:.5">${e.date}</div></div>`).join('')||`<div style="text-align:center;padding:40px;opacity:.4">لا يوجد مصروفات - ابدأ بالإدخال</div>`
- document.getElementById('list-debts').innerHTML=debts.map(d=>`<div class="card"><div style="display:flex;justify-content:space-between"><b>${d.person} - ${fmt(d.amount)}ج</b><span onclick="del('debts','${d.id}')">🗑️</span></div><div style="font-size:11px;color:${d.type==='لنا'?'#4ade80':'#f87171'}">${d.type}</div></div>`).join('')||`<div style="text-align:center;padding:40px;opacity:.4">لا يوجد ديون</div>`
- document.getElementById('list-att').innerHTML=att.map(a=>`<div class="card"><div style="display:flex;justify-content:space-between"><b>${a.date}</b><span>${a.status}</span></div><div style="font-size:11px">دخول ${a.checkIn} - خروج ${a.checkOut} - ${a.totalHours}س</div></div>`).join('')||`<div style="text-align:center;padding:40px;opacity:.4">لا يوجد حضور</div>`
- document.getElementById('list-notes').innerHTML=notes.map(n=>`<div class="card"><b>${n.title}</b><div style="font-size:12px;opacity:.8">${n.content}</div><div style="text-align:left"><span onclick="del('notes','${n.id}')">🗑️</span></div></div>`).join('')||`<div style="text-align:center;padding:40px;opacity:.4">لا يوجد ملاحظات</div>`
-}
-function openAdd(){
- let today=new Date().toISOString().slice(0,10)
- let f=''
- if(curTab==='income') f=`<input id="a" class="inp" type="number" placeholder="المبلغ"><input id="d" class="inp" placeholder="الوصف"><input id="dt" class="inp" type="date" value="${today}">`
- if(curTab==='outcome') f=`<input id="a" class="inp" type="number" placeholder="المبلغ"><input id="d" class="inp" placeholder="الوصف"><input id="dt" class="inp" type="date" value="${today}">`
- if(curTab==='debts') f=`<input id="p" class="inp" placeholder="اسم الشخص"><input id="a" class="inp" type="number" placeholder="المبلغ"><select id="t" class="inp"><option>لنا</option><option>علينا</option></select>`
- if(curTab==='att') f=`<input id="dt" class="inp" type="date" value="${today}"><div style="display:flex;gap:8px"><input id="in" class="inp" type="time" value="09:00"><input id="out" class="inp" type="time" value="17:00"></div><select id="st" class="inp"><option value="حاضر">حاضر</option><option value="غائب">غائب</option><option value="متأخر">متأخر</option></select>`
- if(curTab==='notes') f=`<input id="ti" class="inp" placeholder="العنوان"><textarea id="co" class="inp" style="height:80px;padding-top:10px" placeholder="التفاصيل"></textarea>`
- document.getElementById('mFields').innerHTML=f
- document.getElementById('modal').style.display='grid'
-}
-function closeM(){document.getElementById('modal').style.display='none'}
-function save(){
- let id=uid()
- if(curTab==='income'){let a=APP.get('income',[]); a.push({id,amount:+document.getElementById('a').value||0,desc:document.getElementById('d').value,date:document.getElementById('dt').value}); APP.set('income',a)}
- if(curTab==='outcome'){let a=APP.get('outcome',[]); a.push({id,amount:+document.getElementById('a').value||0,desc:document.getElementById('d').value,date:document.getElementById('dt').value}); APP.set('outcome',a)}
- if(curTab==='debts'){let a=APP.get('debts',[]); a.push({id,person:document.getElementById('p').value,amount:+document.getElementById('a').value||0,type:document.getElementById('t').value}); APP.set('debts',a)}
- if(curTab==='att'){let cin=document.getElementById('in').value, cout=document.getElementById('out').value; let h=calc(cin,cout); let a=APP.get('att',[]); a.push({id,date:document.getElementById('dt').value,checkIn:cin,checkOut:cout,totalHours:h.toFixed(2),status:document.getElementById('st').value}); APP.set('att',a)}
- if(curTab==='notes'){let a=APP.get('notes',[]); a.push({id,title:document.getElementById('ti').value,content:document.getElementById('co').value}); APP.set('notes',a)}
- closeM(); render()
-}
-function del(k,id){if(confirm('مسح؟')){APP.set(k,APP.get(k,[]).filter(x=>x.id!==id)); render()}}
-render()
 </script>
 </body>
 </html>
