@@ -1,22 +1,24 @@
-<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OMAR - متطلباتي فقط</title><style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#000;color:#fff;height:100vh;display:flex;flex-direction:column}.h{height:56px;background:#15803D;display:flex;align-items:center;justify-content:space-between;padding:0 12px;margin:4px;border-radius:12px}.page{display:none;flex:1;overflow:auto;padding:10px;background:#0A0A0A}.page.on{display:block}.card{background:#1A1A1A;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:8px}.top{display:flex;gap:6px;background:#111;padding:5px;border-radius:10px;margin-bottom:10px}.top button{flex:1;height:30px;border:0;background:transparent;color:#777;border-radius:8px}.top button.on{background:#15803D;color:#fff}.bottom{height:68px;background:#151515;display:flex;border-top:1px solid #222}.b{flex:1;text-align:center;color:#666;font-size:10px;padding-top:12px}.b.on{color:#15803D}.plusW{flex:1;display:flex;justify-content:center}.plus{width:58px;height:58px;background:#15803D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin-top:-28px;border:4px solid #000}.modal{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;z-index:99;flex-direction:column}.modal.on{display:flex}.inp{width:100%;height:42px;background:#111;border:1px solid #333;border-radius:10px;color:#fff;padding:0 10px;margin-top:8px}.btn{width:100%;height:42px;background:#15803D;border:0;border-radius:10px;color:#fff;margin-top:10px}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#111;color:#888;padding:6px;border:1px solid #222}td{padding:6px;border:1px solid #222;text-align:center}.edit{width:60px;background:#000;border:1px solid #15803D;border-radius:6px;color:#fff;text-align:center;padding:4px}</style></head><body>
-<div class="h"><div>OMAR - الرصيد <span id="bal">0</span> ج</div><div>EGP</div></div>
+<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OMAR PRO - كامل</title><style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#000;color:#fff;height:100vh;display:flex;flex-direction:column}.h{height:56px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin:4px;border-radius:12px}.page{display:none;flex:1;overflow:auto;padding:10px;background:#0A0A0A}.page.on{display:block}.card{background:#1A1A1A;border:1px solid #222;border-radius:14px;padding:12px;margin-bottom:8px}.top{display:flex;gap:6px;background:#111;padding:5px;border-radius:10px;margin-bottom:10px}.top button{flex:1;height:30px;border:0;background:transparent;color:#777;border-radius:8px}.top button.on{background:#15803D;color:#fff}.bottom{height:68px;background:#151515;display:flex;border-top:1px solid #222}.b{flex:1;text-align:center;color:#666;font-size:10px;padding-top:12px}.b.on{color:#15803D}.plusW{flex:1;display:flex;justify-content:center}.plus{width:58px;height:58px;background:#15803D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin-top:-28px;border:4px solid #000}.modal{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;z-index:99;flex-direction:column}.modal.on{display:flex}.inp{width:100%;height:42px;background:#111;border:1px solid #333;border-radius:10px;color:#fff;padding:0 10px;margin-top:8px}.btn{width:100%;height:42px;background:#15803D;border:0;border-radius:10px;color:#fff;margin-top:10px}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#111;color:#888;padding:8px;border:1px solid #222}td{padding:7px;border:1px solid #222;text-align:center}.edit{width:70px;background:#000;border:1px solid #15803D;border-radius:6px;color:#fff;text-align:center;padding:5px}.item{padding:14px;border-bottom:1px solid #222}</style></head><body>
+<div class="h"><div>OMAR - الرصيد <span id="balTop">0</span> ج</div><div>EGP ▼</div></div>
 
-<div id="p2" class="page on"><div class="card">إجمالي المصروف <b id="sOut">0</b> ج | متوسط <b id="sAvg">0</b></div><div id="l2"></div></div>
+<div id="p1" class="page"><div class="card">الدخل <b id="sInc">0</b> ج | الصافي <b id="sNet">0</b> ج</div><div id="l1"></div></div>
+<div id="p2" class="page on"><div class="card">إجمالي المصروف <b id="sOut">0</b> ج | متوسط يومي <b id="sAvg">0</b> ج | أكبر بند <b id="sBig">-</b></div><div id="l2"></div></div>
 <div id="p3" class="page"><div class="top"><button id="d0" class="on" onclick="setD(0)">الكل</button><button id="d1" onclick="setD(1)">لنا</button><button id="d2" onclick="setD(2)">علينا</button></div><div id="l3"></div></div>
 <div id="p4" class="page">
 <div class="card" style="padding:0;overflow:auto">
 <table>
 <tr><th>الساعه</th><th>كم يوم</th><th>سعر الساعه</th><th>عدد الساعات</th><th>الصافي</th><th>المطلوب</th><th>يوميا</th><th>ديون صيدليه</th><th>المتبقي</th></tr>
-<tr><td><input id="inH" class="edit" value="1100"></td><td id="vDays">26</td><td id="vPrice">42</td><td id="vHours">0</td><td id="vNet">0</td><td><input id="inReq" class="edit" value="15000"></td><td id="vDaily">0</td><td id="vPharm">0</td><td id="vLeft">0</td></tr>
-<tr><th>محرر</th><th colspan="9"><button onclick="saveCfg()" style="background:#15803D;border:0;border-radius:6px;color:#fff;padding:6px 20px;width:100%">حفظ الساعه والمطلوب 💾</button></th></tr>
+<tr><td><input id="inH" class="edit" value="1100"></td><td id="vDays">0</td><td id="vPrice">42</td><td id="vHours">0</td><td id="vNet">0</td><td><input id="inReq" class="edit" value="15000"></td><td id="vDaily">0</td><td id="vPharm">0</td><td id="vLeft">0</td></tr>
+<tr><th>محرر</th><th colspan="8"><button onclick="saveCfg()" style="background:#15803D;border:0;border-radius:6px;color:#fff;padding:6px;width:100%">حفظ الساعه والمطلوب 💾</button></th></tr>
 </table>
 </div>
-<div class="card" style="padding:0;overflow:auto"><table><tr><th>يوم</th><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>الصافي</th><th>ملاحظات</th><th>✏️</th></tr><tbody id="attBody"></tbody></table></div>
+<div class="card" style="padding:0;overflow:auto"><table><tr><th>يوم</th><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>الصافي</th><th>ملاحظات</th><th>حذف</th></tr><tbody id="attBody"></tbody></table></div>
 </div>
-<div id="p5" class="page"><div id="l5"></div></div>
-<div id="p6" class="page"><div id="l6"></div></div>
+<div id="p5" class="page"><div id="l5">لا يوجد ملاحظات</div></div>
+<div id="p6" class="page"><div id="l6">لا يوجد مهام</div></div>
 
 <div class="bottom">
+<div class="b" id="b1" onclick="go(1)">الدخل</div>
 <div class="b on" id="b2" onclick="go(2)">المصروف</div>
 <div class="b" id="b3" onclick="go(3)">الديون</div>
 <div class="plusW"><div class="plus" onclick="openPlus()">+</div></div>
@@ -25,53 +27,54 @@
 <div class="b" id="b6" onclick="go(6)">اليومية</div>
 </div>
 
-<div id="box" class="modal"><div style="background:#1E1E1E;margin:auto;width:92%;max-width:360px;border-radius:14px;padding:14px"><h3 id="boxT">إضافة</h3><div id="boxF"></div><button class="btn" onclick="doSave()">حفظ</button><button class="btn" style="background:#333" onclick="hideBox()">إلغاء</button></div></div>
+<div id="catBox" class="modal"><div style="background:#222;padding:12px;display:flex;justify-content:space-between"><b>الأقسام</b><span onclick="hideBox('catBox')">X</span></div><div style="display:flex;gap:6px;padding:10px;background:#111"><input id="newCat" class="inp" style="margin:0" placeholder="بند جديد مثلا غسيل"><button onclick="addCat()" style="background:#15803D;border:0;border-radius:8px;color:#fff;padding:0 12px">إضافة</button></div><div id="catList" style="flex:1;overflow:auto;background:#000"></div></div>
+<div id="box" class="modal"><div style="background:#1E1E1E;margin:auto;width:92%;max-width:360px;border-radius:14px;padding:14px"><h3 id="boxT">إضافة</h3><div id="boxF"></div><button class="btn" onclick="doSave()">حفظ</button><button class="btn" style="background:#333" onclick="hideBox('box')">إلغاء</button></div></div>
 
 <script>
-var cur=2,curD=0,editId=null;
+var cur=2,curD=0,curCat='',editId=null;
 function load(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function fmt(n){return Number(n||0).toLocaleString()}
 function uid(){return 'x'+Math.random().toString(36).slice(2,6)}
 function toTime(v){var n=Number(v); if(isNaN(n)) return v||'-'; var h=Math.floor(n); var isPM=h>=12; var hh=h; if(hh==0) hh=12; if(hh>12) hh-=12; return hh+':00 '+(isPM?'م':'ص')}
-
-function go(n){cur=n; for(var i=2;i<=6;i++){var p=document.getElementById('p'+i); if(p) p.classList.remove('on'); var b=document.getElementById('b'+i); if(b) b.classList.remove('on');} document.getElementById('p'+n).classList.add('on'); document.getElementById('b'+n).classList.add('on'); render()}
+function go(n){cur=n; for(var i=1;i<=6;i++){var p=document.getElementById('p'+i); if(p) p.classList.remove('on'); var b=document.getElementById('b'+i); if(b) b.classList.remove('on');} document.getElementById('p'+n).classList.add('on'); document.getElementById('b'+n).classList.add('on'); render()}
 function setD(n){curD=n; document.getElementById('d0').className=n==0?'on':''; document.getElementById('d1').className=n==1?'on':''; document.getElementById('d2').className=n==2?'on':''; render()}
-function hideBox(){document.getElementById('box').classList.remove('on'); editId=null}
-function openPlus(){editId=null; document.getElementById('box').classList.add('on'); build(null)}
+function hideBox(id){var el=document.getElementById(id||'box'); el.classList.remove('on'); editId=null}
+function openPlus(){editId=null; if(cur==1||cur==2){document.getElementById('catBox').classList.add('on'); showCats(); return} document.getElementById('box').classList.add('on'); build(null)}
+var inCats,outCats; try{inCats=JSON.parse(localStorage.getItem('inCats'))}catch(e){} if(!inCats) inCats=["الراتب","غسيل"]; try{outCats=JSON.parse(localStorage.getItem('outCats'))}catch(e){} if(!outCats) outCats=["طعام وشراب","غسيل","مواصلات","ديون الصيدلية"];
+function showCats(){var h='';var list=cur==1?inCats:outCats;for(var i=0;i<list.length;i++) h+='<div class="item" data-n="'+list[i]+'" onclick="pickCat(this)">'+list[i]+'</div>';document.getElementById('catList').innerHTML=h}
+function addCat(){var v=document.getElementById('newCat').value.trim(); if(!v) return; if(cur==1){inCats.push(v); save('inCats',inCats)} else {outCats.push(v); save('outCats',outCats)} document.getElementById('newCat').value=''; showCats()}
+function pickCat(el){curCat=el.getAttribute('data-n'); hideBox('catBox'); document.getElementById('box').classList.add('on'); build(null)}
 function build(o){
- var f='';
- if(cur==2){document.getElementById('boxT').innerText='إضافة مصروف'; f='<input id="f1" class="inp" placeholder="البند - غسيل / طعام وشراب" value="'+(o?o.c:'')+'"><input id="f2" class="inp" type="number" placeholder="المبلغ" value="'+(o?o.a:'')+'"><input id="f3" class="inp" placeholder="ملاحظة" value="'+(o?o.n:'')+'">';}
- else if(cur==3){document.getElementById('boxT').innerText='دين - الصيدلية'; f='<input id="f1" class="inp" placeholder="الاسم - الصيدليه" value="'+(o?o.p:'')+'"><input id="f2" class="inp" type="number" placeholder="الإجمالي 1000" value="'+(o?o.a:'')+'"><input id="f3" class="inp" type="number" placeholder="المدفوع 300" value="'+(o?o.paid||'')+'"><select id="f4" class="inp"><option value="علينا">علينا</option><option value="لنا">لنا</option></select>';}
- else if(cur==4){document.getElementById('boxT').innerText='حضور'; f='<input id="f1" class="inp" type="date" value="'+(o?o.d:new Date().toISOString().slice(0,10))+'"><input id="f2" class="inp" type="number" placeholder="حضور 9=9ص 19=7م" value="'+(o?o.inN||'')+'"><input id="f3" class="inp" type="number" placeholder="انصراف 17" value="'+(o?o.outN||'')+'"><input id="f4" class="inp" placeholder="ملاحظات" value="'+(o?o.nt||'')+'">';}
- else{document.getElementById('boxT').innerText='إضافة'; f='<input id="f1" class="inp" placeholder="العنوان" value="'+(o?o.t:'')+'"><input id="f2" class="inp" placeholder="تفاصيل" value="'+(o?o.c||'')+'">';}
- document.getElementById('boxF').innerHTML=f;
- if(o&&o.t){var s=document.getElementById('f4'); if(s) s.value=o.t;}
+var f=''; if(cur==1||cur==2){document.getElementById('boxT').innerText=curCat; f='<input id="f1" class="inp" type="number" placeholder="المبلغ" value="'+(o?o.a:'')+'"><input id="f2" class="inp" placeholder="ملاحظة" value="'+(o?o.n:'')+'">';}
+else if(cur==3){document.getElementById('boxT').innerText='الصيدلية'; f='<input id="f1" class="inp" placeholder="الاسم - الصيدليه" value="'+(o?o.p:'')+'"><input id="f2" class="inp" type="number" placeholder="الإجمالي 1000" value="'+(o?o.a:'')+'"><input id="f3" class="inp" type="number" placeholder="المدفوع 300" value="'+(o?o.paid||'')+'"><select id="f4" class="inp"><option value="علينا">علينا</option><option value="لنا">لنا</option></select>';}
+else if(cur==4){document.getElementById('boxT').innerText='حضور'; f='<input id="f1" class="inp" type="date" value="'+(o?o.d:new Date().toISOString().slice(0,10))+'"><input id="f2" class="inp" type="number" placeholder="حضور 9=9ص 19=7م" value="'+(o?o.inN||'')+'"><input id="f3" class="inp" type="number" placeholder="انصراف" value="'+(o?o.outN||'')+'"><input id="f4" class="inp" placeholder="ملاحظات" value="'+(o?o.nt||'')+'">';}
+else{f='<input id="f1" class="inp" placeholder="عنوان" value="'+(o?o.t:'')+'">';}
+document.getElementById('boxF').innerHTML=f; if(o&&o.t){var s=document.getElementById('f4'); if(s) s.value=o.t;}
 }
 function doSave(){
- if(cur==2){var a=load('outcome');var o={id:editId||uid(),c:document.getElementById('f1').value,a:Number(document.getElementById('f2').value||0),n:document.getElementById('f3').value,d:new Date().toISOString().slice(0,10)}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('outcome',a);}
- else if(cur==3){var a=load('debts');var o={id:editId||uid(),p:document.getElementById('f1').value,a:Number(document.getElementById('f2').value||0),paid:Number(document.getElementById('f3').value||0),t:document.getElementById('f4').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('debts',a);}
- else if(cur==4){var a=load('att');var inN=document.getElementById('f2').value,outN=document.getElementById('f3').value;var o={id:editId||uid(),d:document.getElementById('f1').value,inN:inN,outN:outN,in:toTime(inN),out:toTime(outN),h:Math.abs(Number(outN)-Number(inN)),nt:document.getElementById('f4').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('att',a);}
- else if(cur==5){var a=load('notes');a.push({id:uid(),t:document.getElementById('f1').value,c:document.getElementById('f2').value});save('notes',a);}
- else{var a=load('tasks');a.push({id:uid(),t:document.getElementById('f1').value});save('tasks',a);}
- hideBox();render();
+if(cur==1){var a=load('income');var o={id:editId||uid(),c:curCat,a:Number(document.getElementById('f1').value||0),n:document.getElementById('f2').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('income',a);}
+else if(cur==2){var a=load('outcome');var o={id:editId||uid(),c:curCat,a:Number(document.getElementById('f1').value||0),n:document.getElementById('f2').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('outcome',a);}
+else if(cur==3){var a=load('debts');var o={id:editId||uid(),p:document.getElementById('f1').value,a:Number(document.getElementById('f2').value||0),paid:Number(document.getElementById('f3').value||0),t:document.getElementById('f4').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('debts',a);}
+else if(cur==4){var a=load('att');var inN=document.getElementById('f2').value,outN=document.getElementById('f3').value;var o={id:editId||uid(),d:document.getElementById('f1').value,inN:inN,outN:outN,in:toTime(inN),out:toTime(outN),h:Math.abs(Number(outN)-Number(inN)),nt:document.getElementById('f4').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); save('att',a);}
+hideBox('box'); render();
 }
 function del(k,id){if(confirm('مسح؟')){save(k,load(k).filter(function(x){return x.id!=id}));render()}}
-function editItem(k,id){var arr=load(k);var o=null;for(var i=0;i<arr.length;i++) if(arr[i].id==id) o=arr[i]; if(!o) return; editId=id; document.getElementById('box').classList.add('on'); build(o);}
 function saveCfg(){localStorage.setItem('cfgH',document.getElementById('inH').value);localStorage.setItem('cfgReq',document.getElementById('inReq').value);render()}
 function render(){
- var out=load('outcome'),deb=load('debts'),att=load('att');
- var so=0;for(var i=0;i<out.length;i++) so+=out[i].a; document.getElementById('sOut').innerText=fmt(so); document.getElementById('sAvg').innerText=fmt(out.length?Math.round(so/30):0); document.getElementById('bal').innerText=fmt(69050-so);
- var h='';for(var i=out.length-1;i>=0;i--) h+='<div class="card"><div><b>'+out[i].c+'</b> - '+fmt(out[i].a)+'ج<br><small>'+out[i].n+'</small></div><div><span onclick="editItem(\'outcome\',\''+out[i].id+'\')">✏️</span> <span onclick="del(\'outcome\',\''+out[i].id+'\')">🗑️</span></div></div>';document.getElementById('l2').innerHTML=h||'لا يوجد مصروف';
- var grouped={};for(var i=0;i<deb.length;i++){var k=deb[i].p.trim();if(!grouped[k]) grouped[k]={p:k,a:0,paid:0,t:deb[i].t};grouped[k].a+=deb[i].a;grouped[k].paid+=deb[i].paid;}
- var list=[];for(var k in grouped) list.push(grouped[k]); if(curD==1) list=list.filter(function(x){return x.t=='لنا'}); if(curD==2) list=list.filter(function(x){return x.t=='علينا'});
- h='';for(var i=0;i<list.length;i++){var d=list[i];var rem=d.a-d.paid;var col=d.t=='لنا'?'#15803D':'#f87171';h+='<div class="card" style="border-right:4px solid '+col+'"><div style="display:flex;justify-content:space-between"><b>'+d.p+'</b><span style="color:'+col+'">'+d.t+' متبقي '+fmt(rem)+'ج</span></div><div style="display:flex;gap:1px;margin-top:8px;background:#222"><div style="flex:1;background:#111;padding:6px;text-align:center">الإجمالي<br><b>'+fmt(d.a)+'ج</b></div><div style="flex:1;background:#111;padding:6px;text-align:center">المدفوع<br><b style="color:#4ade80">'+fmt(d.paid)+'ج</b></div><div style="flex:1;background:#111;padding:6px;text-align:center">المتبقي<br><b>'+fmt(rem)+'ج</b></div></div></div>';}document.getElementById('l3').innerHTML=h||'الصيدليه 1000 مدفوع 300 متبقي 700';
- var cfgH=Number(localStorage.getItem('cfgH')||1100),cfgReq=Number(localStorage.getItem('cfgReq')||15000);document.getElementById('inH').value=cfgH;document.getElementById('inReq').value=cfgReq;
- var totalH=0;for(var i=0;i<att.length;i++) totalH+=att[i].h;var pharm=0;for(var i=0;i<list.length;i++) if(list[i].p.indexOf('صيد')>-1) pharm+=list[i].a-list[i].paid;
- document.getElementById('vDays').innerText=att.length||26;document.getElementById('vPrice').innerText=42;document.getElementById('vHours').innerText=totalH.toFixed(0);document.getElementById('vNet').innerText=fmt(totalH*42);document.getElementById('vDaily').innerText=(cfgReq/(att.length||26)).toFixed(2);document.getElementById('vPharm').innerText=fmt(pharm);document.getElementById('vLeft').innerText=fmt(totalH*42-cfgReq-pharm);
- var body='';var now=new Date();var y=now.getFullYear(),m=now.getMonth();var days=new Date(y,m+1,0).getDate();
- for(var d=1;d<=days;d++){var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var f=null;for(var j=0;j<att.length;j++) if(att[j].d==ds) f=att[j];if(f) body+='<tr><td>'+d+'</td><td>'+ds+'</td><td>'+f.in+'</td><td>'+f.out+'</td><td>'+f.h+'</td><td>'+(f.nt||'')+'</td><td><span onclick="del(\'att\',\''+f.id+'\')">🗑️</span></td></tr>';else body+='<tr><td>'+d+'</td><td>'+ds+'</td><td>-</td><td>-</td><td>-</td><td>-</td><td></td></tr>';}
- document.getElementById('attBody').innerHTML=body;
+var inc=load('income'),out=load('outcome'),deb=load('debts'),att=load('att');
+var si=0,so=0;for(var i=0;i<inc.length;i++) si+=inc[i].a;for(var i=0;i<out.length;i++) so+=out[i].a;
+document.getElementById('sInc').innerText=fmt(si);document.getElementById('sOut').innerText=fmt(so);document.getElementById('balTop').innerText=fmt(69050+si-so);document.getElementById('sNet').innerText=fmt(si-so);
+var h='';for(var i=inc.length-1;i>=0;i--) h+='<div class="card"><div>'+inc[i].c+' - '+fmt(inc[i].a)+'ج</div><div onclick="del(\'income\',\''+inc[i].id+'\')">🗑️</div></div>';document.getElementById('l1').innerHTML=h||'لا يوجد';
+h='';var big='-';var max=0;for(var i=0;i<out.length;i++) if(out[i].a>max){max=out[i].a;big=out[i].c} for(var i=out.length-1;i>=0;i--) h+='<div class="card"><div><b>'+out[i].c+'</b> - '+fmt(out[i].a)+'ج<br><small>'+out[i].n+'</small></div><div onclick="del(\'outcome\',\''+out[i].id+'\')">🗑️</div></div>';document.getElementById('l2').innerHTML=h||'لا يوجد';document.getElementById('sBig').innerText=big;document.getElementById('sAvg').innerText=fmt(out.length?Math.round(so/30):0);
+var grouped={};for(var i=0;i<deb.length;i++){var k=deb[i].p.trim();if(!grouped[k]) grouped[k]={p:k,a:0,paid:0,t:deb[i].t};grouped[k].a+=deb[i].a;grouped[k].paid+=deb[i].paid;}var list=[];for(var k in grouped) list.push(grouped[k]);if(curD==1) list=list.filter(function(x){return x.t=='لنا'});if(curD==2) list=list.filter(function(x){return x.t=='علينا'});
+h='';for(var i=0;i<list.length;i++){var d=list[i];var rem=d.a-d.paid;var col=d.t=='لنا'?'#15803D':'#f87171';h+='<div class="card" style="border-right:4px solid '+col+'"><div style="display:flex;justify-content:space-between"><b>'+d.p+'</b><span style="color:'+col+'">'+d.t+' متبقي '+fmt(rem)+'ج</span></div><div style="display:flex;gap:1px;margin-top:8px;background:#222"><div style="flex:1;background:#111;padding:6px;text-align:center">الإجمالي<br><b>'+fmt(d.a)+'ج</b></div><div style="flex:1;background:#111;padding:6px;text-align:center">المدفوع<br><b style="color:#4ade80">'+fmt(d.paid)+'ج</b></div><div style="flex:1;background:#111;padding:6px;text-align:center">المتبقي<br><b>'+fmt(rem)+'ج</b></div></div></div>';}document.getElementById('l3').innerHTML=h||'الصيدليه 1000 - 300 = 700';
+var cfgH=Number(localStorage.getItem('cfgH')||1100),cfgReq=Number(localStorage.getItem('cfgReq')||15000);document.getElementById('inH').value=cfgH;document.getElementById('inReq').value=cfgReq;
+var totalH=0;for(var i=0;i<att.length;i++) totalH+=att[i].h;var pharm=0;for(var i=0;i<list.length;i++) if(list[i].p.indexOf('صيد')>-1) pharm+=list[i].a-list[i].paid;
+document.getElementById('vDays').innerText=att.length||26;document.getElementById('vPrice').innerText=42;document.getElementById('vHours').innerText=totalH.toFixed(0);document.getElementById('vNet').innerText=fmt(totalH*42);document.getElementById('vDaily').innerText=(cfgReq/(att.length||26)).toFixed(2);document.getElementById('vPharm').innerText=fmt(pharm);document.getElementById('vLeft').innerText=fmt(totalH*42-cfgReq-pharm);
+var body='';var now=new Date();var y=now.getFullYear(),m=now.getMonth();var days=new Date(y,m+1,0).getDate();
+for(var d=1;d<=days;d++){var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var f=null;for(var j=0;j<att.length;j++) if(att[j].d==ds) f=att[j];if(f) body+='<tr><td>'+d+'</td><td>'+ds+'</td><td>'+f.in+'</td><td>'+f.out+'</td><td>'+f.h+'</td><td>'+(f.nt||'')+'</td><td><span onclick="del(\'att\',\''+f.id+'\')">🗑️</span></td></tr>';else body+='<tr><td>'+d+'</td><td>'+ds+'</td><td>-</td><td>-</td><td>-</td><td>-</td><td></td></tr>';}
+document.getElementById('attBody').innerHTML=body;
 }
 render();
 </script>
