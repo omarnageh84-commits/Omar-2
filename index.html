@@ -1,157 +1,113 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OMAR</title>
-<style>
-body{background:#000;color:#fff;margin:0;font-family:Arial}
-.header{height:54px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 12px;margin:4px;border-radius:12px}
-.page{display:none;padding:12px;flex:1;overflow:auto}
-.page.on{display:flex;flex-direction:column}
-.card{background:#1E1E1E;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:8px}
-.bottom{height:70px;background:#151515;display:flex;border-top:1px solid #222}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#666;font-size:10px}
-.tab.on{color:#15803D}
-.plusWrap{flex:1;display:flex;justify-content:center}
-.plus{width:60px;height:60px;background:#15803D;border-radius:50%;margin-top:-30px;display:flex;align-items:center;justify-content:center;font-size:30px;border:4px solid #000}
-.box{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:99;flex-direction:column}
-.box.on{display:flex}
-.item{padding:14px;border-bottom:1px solid #222}
-.inp{width:100%;height:44px;background:#111;border:1px solid #333;border-radius:10px;color:#fff;margin-top:8px;padding:0 10px}
-.btn{width:100%;height:44px;background:#15803D;border:0;border-radius:10px;color:#fff;margin-top:10px}
-</style>
-</head>
-<body>
-<div class="header"><div>OMAR EGP 50000</div><div>الجنيه المصري</div></div>
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OMAR PRO</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&display=swap" rel="stylesheet"><style>*{font-family:Cairo;box-sizing:border-box;margin:0;padding:0}body{background:#000;color:#fff;display:flex;flex-direction:column;height:100vh}.h{height:56px;background:#15803D;display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin:4px;border-radius:14px 14px 0 0}.page{flex:1;background:#0A0A0A;display:none;flex-direction:column;overflow:auto;padding:10px}.page.on{display:flex}.card{background:#1A1A1A;border:1px solid #252525;border-radius:14px;padding:12px;margin-bottom:8px}.top{display:flex;gap:6px;background:#111;padding:5px;border-radius:10px;margin-bottom:10px}.top button{flex:1;height:32px;border:0;background:transparent;color:#777;border-radius:8px;font-size:12px}.top button.on{background:#15803D;color:#fff}.bottom{height:72px;background:#151515;border-top:1px solid #222;display:flex;align-items:center;flex-shrink:0}.b{flex:1;display:flex;flex-direction:column;align-items:center;font-size:9px;color:#666}.b.on{color:#15803D}.plusW{flex:1;display:flex;justify-content:center}.plus{width:62px;height:62px;background:#15803D;border-radius:50%;display:grid;place-items:center;font-size:32px;margin-top:-34px;border:4px solid #000}.modal{position:fixed;inset:0;background:rgba(0,0,0,.93);display:none;z-index:99;flex-direction:column}.modal.on{display:flex}.inp{width:100%;height:42px;background:#111;border:1px solid #333;border-radius:10px;color:#fff;padding:0 10px;margin-top:8px}.btn{width:100%;height:42px;background:#15803D;border:0;border-radius:10px;color:#fff;margin-top:10px;font-weight:700}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#222;border-radius:10px;overflow:hidden;margin-top:8px}.grid3 div{background:#111;padding:8px;text-align:center;font-size:11px}.grid3.v{font-weight:700;font-size:13px;color:#fff}.sumTable{width:100%;border-collapse:collapse;background:#1A1A1A;border-radius:12px;overflow:hidden;border:1px solid #222}.sumTable th{font-size:10px;color:#888;padding:6px;background:#111}.sumTable td{padding:8px;text-align:center;font-size:12px;border-top:1px solid #222}.editInput{width:70px;background:#000;border:1px solid #15803D;border-radius:6px;color:#fff;text-align:center;padding:4px}
+.hTable{width:100%;border-collapse:collapse;font-size:11px}.hTable th{background:#111;color:#888;padding:8px;border:1px solid #222}.hTable td{padding:6px;border:1px solid #222;text-align:center}.hTable input{width:50px;background:#000;border:1px solid #333;border-radius:6px;color:#fff;text-align:center;padding:4px}
+</style></head><body>
+<div class="h"><div>OMAR EGP <span id="bal">EGP 69,050</span></div><div>▼ EGP</div></div>
 
-<div id="p1" class="page on"><div id="list1"></div></div>
-<div id="p2" class="page"><div id="list2"></div></div>
-<div id="p3" class="page"><div id="list3"></div></div>
-<div id="p4" class="page"><div id="list4"></div></div>
-<div id="p5" class="page"><div id="list5"></div></div>
-<div id="p6" class="page"><div id="list6"></div></div>
+<div id="p1" class="page on"><div class="card"><div>إجمالي الدخل <b id="sInc">0ج</b></div><div>الرصيد <b id="sBal">0ج</b></div></div><div id="l1"></div></div>
+<div id="p2" class="page"><div class="card"><div>إجمالي المصروف <b id="sOut" style="color:#f87171">0ج</b></div><div>متوسط يومي <b id="sAvg">0ج</b></div></div><div id="l2"></div></div>
+<div id="p3" class="page"><div class="top"><button id="d0" class="on" onclick="setD(0)">الكل</button><button id="d1" onclick="setD(1)">لنا</button><button id="d2" onclick="setD(2)">علينا</button></div><div id="l3"></div></div>
+<div id="p4" class="page">
+<div class="card" style="padding:0;overflow:auto"><table class="sumTable"><thead><tr><th>الساعه</th><th>كم يوم</th><th>سعر الساعه</th><th>عدد الساعات</th><th>الصافي</th><th>المطلوب</th><th>المطلوب يوميا</th><th>ديون للصيدليه</th><th>المتبقي</th><th>محرر</th></tr></thead><tbody><tr>
+<td><input id="cfgH" class="editInput" value="1100" onchange="saveCfg()"></td>
+<td id="cfgDays">26</td><td id="cfgPrice">42</td><td id="cfgHours">26</td><td id="cfgNet">1111</td>
+<td><input id="cfgReq" class="editInput" value="15000" onchange="saveCfg()"></td>
+<td id="cfgDaily">13.64</td><td id="cfgPharm">1750</td><td id="cfgLeft">-639</td>
+<td><span onclick="saveCfg()">💾</span></td>
+</tr></tbody></table></div>
+<div class="card" style="padding:0;overflow:auto"><table class="hTable"><thead><tr><th>يوم</th><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>الصافي</th><th>ملاحظات</th></tr></thead><tbody id="attBody"></tbody></table></div>
+</div>
+<div id="p5" class="page"><div id="l5"></div></div>
+<div id="p6" class="page"><div id="l6"></div></div>
 
 <div class="bottom">
-<div class="tab on" id="t1" onclick="openTab(1)">الدخل</div>
-<div class="tab" id="t2" onclick="openTab(2)">المصروف</div>
-<div class="tab" id="t3" onclick="openTab(3)">الديون</div>
-<div class="plusWrap"><div class="plus" onclick="openPlus()">+</div></div>
-<div class="tab" id="t4" onclick="openTab(4)">الحضور</div>
-<div class="tab" id="t5" onclick="openTab(5)">ملاحظات</div>
-<div class="tab" id="t6" onclick="openTab(6)">اليومية</div>
+<div class="b on" id="b1" onclick="go(1)">💰<br>الدخل</div>
+<div class="b" id="b2" onclick="go(2)">💸<br>المصروف</div>
+<div class="b" id="b3" onclick="go(3)">📒<br>الديون</div>
+<div class="plusW"><div class="plus" onclick="plusAct()">+</div></div>
+<div class="b" id="b4" onclick="go(4)">⏰<br>الحضور</div>
+<div class="b" id="b5" onclick="go(5)">📝<br>ملاحظات</div>
+<div class="b" id="b6" onclick="go(6)">📋<br>اليومية</div>
 </div>
 
-<div id="catBox" class="box">
-<div style="background:#222;padding:12px;display:flex;justify-content:space-between"><b id="catTitle">الأقسام</b><span onclick="closeBox('catBox')">X</span></div>
-<div style="display:flex;gap:6px;padding:10px;background:#111"><input id="newCatInput" class="inp" style="margin:0" placeholder="بند جديد غسيل"><button onclick="addCat()" style="background:#15803D;border:0;border-radius:8px;color:#fff;padding:0 14px">إضافة</button></div>
-<div id="catList" style="flex:1;overflow:auto;background:#0A0A0A"></div>
-</div>
-
-<div id="addBox" class="box"><div style="background:#1E1E1E;margin:auto;width:90%;max-width:360px;border-radius:14px;padding:14px"><h3 id="addTitle">إضافة</h3><div id="addFields"></div><button class="btn" onclick="doSave()">حفظ</button><button class="btn" style="background:#333" onclick="closeBox('addBox')">إلغاء</button></div></div>
+<div id="mCat" class="modal"><div style="background:#222;padding:12px;display:flex;justify-content:space-between"><b>الأقسام - ضيف غسيل</b><span onclick="hide('mCat')">X</span></div><div style="display:flex;gap:6px;padding:10px;background:#111"><input id="newCat" class="inp" style="margin:0" placeholder="بند جديد مثلا غسيل"><button onclick="addCat()" style="background:#15803D;border:0;border-radius:8px;color:#fff;padding:0 12px">إضافة</button></div><div id="catList" style="flex:1;overflow:auto;background:#000"></div></div>
+<div id="mAdd" class="modal"><div style="background:#1E1E1E;margin:auto;width:92%;max-width:380px;border-radius:14px;padding:14px"><h3 id="addT">إضافة</h3><div id="addF"></div><button class="btn" onclick="doSave()">حفظ</button><button class="btn" style="background:#333" onclick="hide('mAdd')">إلغاء</button></div></div>
 
 <script>
-var curTab=1;
-var curCatName="";
-var inCats=["الراتب","مكافأة","هدايا","غسيل"];
-var outCats=["اكل صيدليه","اكل البيت","غسيل","البنزين","ديون الصيدلية"];
+var cur=1,curD=0,curCat='',editId=null;
+function G(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
+function S(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function fmt(n){return Number(n||0).toLocaleString()}
+function uid(){return 'i'+Math.random().toString(36).slice(2,6)}
+var inCats=JSON.parse(localStorage.getItem('inCats')||'["الراتب","مكافأة","هدايا","غسيل"]');
+var outCats=JSON.parse(localStorage.getItem('outCats')||'["اكل صيدليه","اكل البيت","غسيل","البنزين","ديون الصيدلية","مواصلات"]');
 
-try{var saved=localStorage.getItem('inCats'); if(saved) inCats=JSON.parse(saved)}catch(e){}
-try{var saved2=localStorage.getItem('outCats'); if(saved2) outCats=JSON.parse(saved2)}catch(e){}
+function go(n){cur=n;for(var i=1;i<=6;i++){document.getElementById('p'+i).classList.remove('on');document.getElementById('b'+i).classList.remove('on')}document.getElementById('p'+n).classList.add('on');document.getElementById('b'+n).classList.add('on');render()}
+function setD(n){curD=n;document.getElementById('d0').className=n==0?'on':'';document.getElementById('d1').className=n==1?'on':'';document.getElementById('d2').className=n==2?'on':'';render()}
+function hide(id){document.getElementById(id).classList.remove('on');editId=null}
+function toTime(v){if(!v) return ''; v=''+v; if(v.includes(':')) return v; var num=parseFloat(v); if(isNaN(num)) return v; var h=Math.floor(num); var isPM=h>=12; if(h==0) h=12; if(h>12) h-=12; if(h==0) h=12; return h+':00 '+(isPM?'م':'ص')}
+function toNumTime(v){var n=parseFloat(v); if(!isNaN(n)) return n; return 0}
 
-function openTab(n){
- curTab=n;
- for(var i=1;i<=6;i++){
-   document.getElementById('p'+i).classList.remove('on');
-   document.getElementById('t'+i).classList.remove('on');
- }
- document.getElementById('p'+n).classList.add('on');
- document.getElementById('t'+n).classList.add('on');
- showLists();
+function plusAct(){editId=null; if(cur==1||cur==2){document.getElementById('mCat').classList.add('on');showCats();return} openAdd(null); document.getElementById('mAdd').classList.add('on')}
+function showCats(){var h='';var list=cur==1?inCats:outCats;for(var i=0;i<list.length;i++) h+='<div style="padding:12px;border-bottom:1px solid #222;display:flex;justify-content:space-between" onclick="pick(\''+list[i]+'\')"><span>'+list[i]+'</span><span>●</span></div>';document.getElementById('catList').innerHTML=h}
+function addCat(){var v=document.getElementById('newCat').value.trim(); if(!v) return; if(cur==1){inCats.push(v);S('inCats',inCats)}else{outCats.push(v);S('outCats',outCats)} document.getElementById('newCat').value=''; showCats()}
+function pick(c){curCat=c; hide('mCat'); openAdd(null); document.getElementById('mAdd').classList.add('on')}
+function openAdd(o){
+ var f='';
+ if(cur==1||cur==2){document.getElementById('addT').innerText='إضافة '+(o?o.c:curCat)+' - '+toTime(''); f='<input id="f1" class="inp" type="number" placeholder="المبلغ" value="'+(o?o.a:'')+'"><input id="f2" class="inp" placeholder="ملاحظة" value="'+(o?o.n:'')+'"><input id="f3" class="inp" type="date" value="'+(o?o.d:new Date().toISOString().slice(0,10))+'">'}
+ else if(cur==3){document.getElementById('addT').innerText='إضافة دين - الصيدلية جدول'; f='<input id="f1" class="inp" placeholder="الاسم - الصيدلية / احمد - سلف / محمد - قرض" value="'+(o?o.p:'')+'"><input id="f2" class="inp" type="number" placeholder="الإجمالي 1000" value="'+(o?o.a:'')+'"><input id="f3" class="inp" type="number" placeholder="المدفوع 300" value="'+(o?o.paid||'')+'"><select id="f4" class="inp"><option value="علينا" '+(o&&o.t=='علينا'?'selected':'')+'>علينا</option><option value="لنا" '+(o&&o.t=='لنا'?'selected':'')+'>لنا</option></select><input id="f5" class="inp" placeholder="ملاحظة - أدوية الشهر" value="'+(o?o.nt||'')+'">'}
+ else if(cur==4){document.getElementById('addT').innerText='إضافة حضور'; f='<input id="f1" class="inp" type="date" value="'+(o?o.d:new Date().toISOString().slice(0,10))+'"><input id="f2" class="inp" type="number" placeholder="حضور 9 = 9:00 ص - 19 = 7:00 م" value="'+(o?o.inN||'')+'"><input id="f3" class="inp" type="number" placeholder="انصراف 17 = 5:00 م" value="'+(o?o.outN||'')+'"><input id="f4" class="inp" placeholder="ملاحظات" value="'+(o?o.nt||'')+'">'}
+ else {document.getElementById('addT').innerText='إضافة'; f='<input id="f1" class="inp" placeholder="العنوان" value="'+(o?o.t:'')+'"><textarea id="f2" class="inp" style="height:70px" placeholder="التفاصيل">'+(o?o.c||'')+'</textarea>'}
+ document.getElementById('addF').innerHTML=f;
 }
-function closeBox(id){document.getElementById(id).classList.remove('on')}
-
-function openPlus(){
- if(curTab==1 || curTab==2){
-   document.getElementById('catBox').classList.add('on');
-   showCats();
- } else {
-   document.getElementById('addBox').classList.add('on');
-   document.getElementById('addTitle').innerText='إضافة';
-   if(curTab==3) document.getElementById('addFields').innerHTML='<input id="f1" class="inp" placeholder="الاسم احمد / الصيدلية"><input id="f2" class="inp" type="number" placeholder="إجمالي 5000"><input id="f3" class="inp" type="number" placeholder="مدفوع 2500">';
-   else if(curTab==4) document.getElementById('addFields').innerHTML='<input id="f1" class="inp" type="date"><input id="f2" class="inp" type="time" value="09:00"><input id="f3" class="inp" type="time" value="17:00">';
-   else document.getElementById('addFields').innerHTML='<input id="f1" class="inp" placeholder="العنوان"><input id="f2" class="inp" placeholder="تفاصيل">';
- }
-}
-
-function showCats(){
- var h='';
- var list = curTab==1? inCats : outCats;
- for(var i=0;i<list.length;i++){
-   h+='<div class="item" onclick="chooseCat(\''+list[i]+'\')">'+list[i]+'</div>';
- }
- document.getElementById('catList').innerHTML=h;
- document.getElementById('catTitle').innerText = curTab==1? 'الدخل - اختار او ضيف غسيل' : 'المصروف - اختار او ضيف غسيل';
-}
-
-function addCat(){
- var v=document.getElementById('newCatInput').value;
- if(!v) return;
- if(curTab==1){inCats.push(v); try{localStorage.setItem('inCats',JSON.stringify(inCats))}catch(e){}}
- else{outCats.push(v); try{localStorage.setItem('outCats',JSON.stringify(outCats))}catch(e){}}
- document.getElementById('newCatInput').value='';
- showCats();
-}
-
-function chooseCat(name){
- curCatName=name;
- closeBox('catBox');
- document.getElementById('addBox').classList.add('on');
- document.getElementById('addTitle').innerText=name;
- document.getElementById('addFields').innerHTML='<input id="f1" class="inp" type="number" placeholder="المبلغ"><input id="f2" class="inp" placeholder="ملاحظة">';
-}
-
 function doSave(){
- var key = curTab==1? 'inc' : curTab==2? 'out' : curTab==3? 'deb' : curTab==4? 'att' : curTab==5? 'not' : 'tas';
- var arr=[]; try{arr=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){arr=[]}
- if(curTab==1 || curTab==2){
-   var amount=document.getElementById('f1').value;
-   var note=document.getElementById('f2').value;
-   arr.push({name:curCatName,amount:amount,note:note});
- }
- else if(curTab==3){
-   var p=document.getElementById('f1').value;
-   var tot=document.getElementById('f2').value;
-   var paid=document.getElementById('f3').value;
-   arr.push({p:p,tot:tot,paid:paid});
- }
- else {
-   var v1=document.getElementById('f1').value;
-   var v2=document.getElementById('f2')? document.getElementById('f2').value : '';
-   arr.push({t:v1,c:v2});
- }
- try{localStorage.setItem(key,JSON.stringify(arr))}catch(e){}
- closeBox('addBox');
- showLists();
+ var a;
+ if(cur==1){a=G('income');var o={id:editId||uid(),c:curCat,a:+(document.getElementById('f1').value||0),n:document.getElementById('f2').value,d:document.getElementById('f3').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); S('income',a)}
+ else if(cur==2){a=G('outcome');var o={id:editId||uid(),c:curCat,a:+(document.getElementById('f1').value||0),n:document.getElementById('f2').value,d:document.getElementById('f3').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); S('outcome',a)}
+ else if(cur==3){a=G('debts');var o={id:editId||uid(),p:document.getElementById('f1').value||'الصيدليه',a:+(document.getElementById('f2').value||0),paid:+(document.getElementById('f3').value||0),t:document.getElementById('f4').value,nt:document.getElementById('f5').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); S('debts',a)}
+ else if(cur==4){a=G('att');var inN=document.getElementById('f2').value,outN=document.getElementById('f3').value; var o={id:editId||uid(),d:document.getElementById('f1').value,inN:inN,outN:outN,in:toTime(inN),out:toTime(outN),h:Math.abs(toNumTime(outN)-toNumTime(inN)),nt:document.getElementById('f4').value}; if(editId){for(var i=0;i<a.length;i++) if(a[i].id==editId) a[i]=o;} else a.push(o); S('att',a)}
+ else if(cur==5){a=G('notes');var o={id:editId||uid(),t:document.getElementById('f1').value,c:document.getElementById('f2').value}; a.push(o); S('notes',a)}
+ else {a=G('tasks');var o={id:editId||uid(),t:document.getElementById('f1').value,c:document.getElementById('f2').value}; a.push(o); S('tasks',a)}
+ hide('mAdd'); render();
 }
+function del(k,id){if(confirm('مسح؟')){S(k,G(k).filter(function(x){return x.id!=id})); render()}}
+function editDebt(id){var o=G('debts').find(function(x){return x.id==id}); if(!o) return; editId=id; cur=3; go(3); openAdd(o); document.getElementById('mAdd').classList.add('on')}
+function saveCfg(){var h=document.getElementById('cfgH').value,req=document.getElementById('cfgReq').value; localStorage.setItem('cfgH',h); localStorage.setItem('cfgReq',req); render()}
+function render(){
+ var inc=G('income'),out=G('outcome'),deb=G('debts'),att=G('att'),notes=G('notes'),tasks=G('tasks');
+ var si=0,so=0; for(var i=0;i<inc.length;i++) si+=inc[i].a; for(var i=0;i<out.length;i++) so+=out[i].a;
+ document.getElementById('sInc').innerText=fmt(si)+'ج'; document.getElementById('sOut').innerText=fmt(so)+'ج'; document.getElementById('sBal').innerText=fmt(si-so)+'ج'; document.getElementById('bal').innerText='EGP '+fmt(si-so+69050);
+ var avg=out.length? (so/30).toFixed(0):0; var topB=out.length? out.reduce(function(m,x){return x.a>m.a?x:m},{a:0,c:''}).c : ''; if(document.getElementById('sAvg')) document.getElementById('sAvg').innerText=fmt(avg)+'ج';
 
-function showLists(){
- try{
- var inc=JSON.parse(localStorage.getItem('inc')||'[]');
- var h=''; for(var i=inc.length-1;i>=0;i--) h+='<div class="card">'+inc[i].name+' - '+inc[i].amount+'ج <small>'+inc[i].note+'</small></div>';
- document.getElementById('list1').innerHTML = h || 'لا يوجد دخل - دوس + وضيف غسيل';
- var out=JSON.parse(localStorage.getItem('out')||'[]');
- h=''; for(var i=out.length-1;i>=0;i--) h+='<div class="card">'+out[i].name+' - '+out[i].amount+'ج</div>';
- document.getElementById('list2').innerHTML = h || 'لا يوجد مصروف';
- var deb=JSON.parse(localStorage.getItem('deb')||'[]');
- h=''; for(var i=0;i<deb.length;i++){var rem=(+deb[i].tot||0)-(+deb[i].paid||0); h+='<div class="card">'+deb[i].p+' إجمالي '+deb[i].tot+' مدفوع '+deb[i].paid+' متبقي '+rem+'</div>';}
- document.getElementById('list3').innerHTML = h || 'لا يوجد ديون - الصيدلية 5000 رديت 2500 = متبقي 2500';
- document.getElementById('list4').innerHTML='الحضور شغال - دوس +';
- document.getElementById('list5').innerHTML='ملاحظات';
- document.getElementById('list6').innerHTML='اليومية';
- }catch(e){alert('خطأ:'+e)}
+ // مصروفات مربوطة بالدخل في البطاقة
+ var h=''; for(var i=inc.length-1;i>=0;i--) h+='<div class="card" style="display:flex;justify-content:space-between"><div><b>'+inc[i].c+'</b> - '+fmt(inc[i].a)+'ج<br><small>'+inc[i].n+' '+inc[i].d+'</small></div><div><span onclick="del(\'income\',\''+inc[i].id+'\')">🗑️</span></div></div>'; document.getElementById('l1').innerHTML=h||'لا يوجد دخل';
+ h=''; for(var i=out.length-1;i>=0;i--) h+='<div class="card" style="border-right:4px solid #f87171;display:flex;justify-content:space-between"><div><b>'+out[i].c+'</b><br><small>'+out[i].n+' - '+out[i].d+'</small></div><div style="color:#f87171">'+fmt(out[i].a)+'ج 🗑️</div></div>'; document.getElementById('l2').innerHTML=h||'لا يوجد مصروف';
+
+ // ديون مجمعة باسم الصيدلية
+ var grouped={}; for(var i=0;i<deb.length;i++){var k=deb[i].p.trim(); if(!grouped[k]) grouped[k]={p:k,a:0,paid:0,t:deb[i].t,nt:deb[i].nt,ids:[]}; grouped[k].a+=deb[i].a; grouped[k].paid+=deb[i].paid||0; grouped[k].ids.push(deb[i].id)}
+ var list=Object.values(grouped); if(curD==1) list=list.filter(function(x){return x.t=='لنا'}); if(curD==2) list=list.filter(function(x){return x.t=='علينا'});
+ h=''; for(var i=0;i<list.length;i++){var d=list[i]; var rem=d.a-d.paid; var color=d.t=='لنا'?'#15803D':'#f87171'; h+='<div class="card" style="border-right:4px solid '+color+'"><div style="display:flex;justify-content:space-between"><b>'+d.p+'</b><span style="background:'+(d.t=='لنا'?'#15803D33':'#f8717133')+';color:'+color+';padding:2px 8px;border-radius:12px;font-size:11px">'+d.t+' - متبقي '+fmt(rem)+'ج</span></div><div class="grid3"><div><div>الإجمالي</div><div class="v">'+fmt(d.a)+'ج</div></div><div><div>المدفوع</div><div class="v" style="color:#4ade80">'+fmt(d.paid)+'ج</div></div><div><div>المتبقي</div><div class="v">'+fmt(rem)+'ج</div></div></div><div style="display:flex;justify-content:space-between;margin-top:8px"><small>'+(d.nt||'')+'</small><div><span onclick="editDebt(\''+d.ids[0]+'\')">✏️ تعديل</span> <span onclick="del(\'debts\',\''+d.ids[0]+'\')">🗑️ مسح</span></div></div></div>'}
+ document.getElementById('l3').innerHTML=h||'لا يوجد ديون';
+
+ // حضور - شهر كامل
+ var cfgH=+(localStorage.getItem('cfgH')||1100), cfgReq=+(localStorage.getItem('cfgReq')||15000);
+ document.getElementById('cfgH').value=cfgH; document.getElementById('cfgReq').value=cfgReq;
+ var days=att.length||26, price=42, hours=0; for(var i=0;i<att.length;i++) hours+=att[i].h||0;
+ var pharmTotal=0; for(var i=0;i<deb.length;i++) if(deb[i].p.includes('صيد')||deb[i].p.includes('صيد')) pharmTotal+=deb[i].a-(deb[i].paid||0);
+ document.getElementById('cfgDays').innerText=days; document.getElementById('cfgPrice').innerText=price; document.getElementById('cfgHours').innerText=hours.toFixed(0); document.getElementById('cfgNet').innerText=fmt(hours*price); document.getElementById('cfgDaily').innerText=(cfgReq/days).toFixed(2); document.getElementById('cfgPharm').innerText=fmt(pharmTotal); document.getElementById('cfgLeft').innerText=fmt((hours*price)-cfgReq-pharmTotal);
+
+ var body=''; var now=new Date(); var year=now.getFullYear(), month=now.getMonth();
+ var daysInMonth=new Date(year,month+1,0).getDate();
+ for(var d=1;d<=daysInMonth;d++){
+   var dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+   var found=att.find(function(x){return x.d==dateStr});
+   if(found) body+='<tr><td>'+d+'</td><td>'+dateStr+'</td><td>'+found.in+'</td><td>'+found.out+'</td><td>'+found.h+'</td><td>'+(found.nt||'')+'</td></tr>';
+   else body+='<tr><td>'+d+'</td><td>'+dateStr+'</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>';
+ }
+ document.getElementById('attBody').innerHTML=body;
+
+ document.getElementById('l5').innerHTML='ملاحظات احترافية'; document.getElementById('l6').innerHTML='يومية';
 }
-showLists();
+render();
 </script>
 </body>
 </html>
