@@ -2,332 +2,176 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>OMAR V2 PRO</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OMAR - المصروفات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-*{font-family:'Cairo',sans-serif;box-sizing:border-box;margin:0;padding:0}
-body{background:#0B0B0E;color:#fff;padding-bottom:90px;overflow-x:hidden}
-::-webkit-scrollbar{width:0}
-.h{background:#0F7A3D;padding:10px 14px 0;position:sticky;top:0;z-index:50}
-.topHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.btnS{height:26px;padding:0 10px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff}
-.btnS.white{background:#fff;color:#0F7A3D;border:0}
-.topTabs{display:flex;gap:2px}
-.topTabs a{flex:1;text-align:center;padding:10px 2px;color:#ffffff88;border-bottom:3px solid transparent;font-size:12px;font-weight:600}
-.topTabs a.on{color:#fff;border-color:#fff}
-.card{background:#1A1A1F;border:1px solid #2A2A35;border-radius:18px;padding:14px;margin-bottom:10px}
-.walletCard{border-radius:20px;padding:16px;position:relative;overflow:hidden;min-height:90px;color:#fff;margin-bottom:12px}
-.walletCard.purple{background:linear-gradient(135deg,#6A4FB8 0%,#4A2E9A 100%)}
-.walletCard.blue{background:linear-gradient(135deg,#3A8DDE 0%,#1E5FAA 100%)}
-.walletCard.green{background:linear-gradient(135deg,#1E9E6B 0%,#146A4A 100%)}
-.walletCard.bgIcon{position:absolute;right:-10px;top:-10px;width:90px;height:90px;background:rgba(255,255,255,.08);border-radius:50%}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:#15151B;border-top:1px solid #23232F;height:72px;display:flex;justify-content:space-around;align-items:center;z-index:999}
-.bottom a{color:#6B6B7A;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+*{font-family:'Cairo';box-sizing:border-box;margin:0;padding:0}
+body{background:#0E0E0E;color:#fff;padding-bottom:80px}
+.h{background:#121212;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;position:sticky;top:0;z-index:10}
+.card{background:#1A1A1A;border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid #222}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #222;height:70px;display:flex;justify-content:space-around;align-items:center;z-index:99}
+.bottom a{color:#666;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
 .bottom a.on{color:#0F7A3D}
-.bottom.plus{width:58px;height:58px;border-radius:50%;background:#0F7A3D;margin-top:-32px;display:grid;place-items:center;font-size:28px;color:#fff;box-shadow:0 8px 20px rgba(15,122,61,.4)}
-.modal{position:fixed;inset:0;background:#000D;backdrop-filter:blur(10px);z-index:100;display:none;place-items:center;padding:14px}
-.modal.show{display:grid}
-.box{background:#1A1A1F;border:1px solid #2A2A35;border-radius:20px;padding:16px;width:100%;max-width:440px;max-height:92vh;overflow:auto}
-.inp{width:100%;height:44px;background:#0E0E11;border:1px solid #2A2A35;border-radius:12px;padding:0 12px;color:#fff;margin-top:8px;outline:none}
-.label{font-size:11px;color:#8A8A9A;margin-top:12px;display:block}
-.menuItem{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1F1F29;font-size:13px}
-.table{width:100%;border-collapse:collapse;font-size:11px}
-.table th{background:#0F7A3D;color:#fff;padding:8px 4px;font-size:10px}
-.table td{border-bottom:1px solid #23232F;padding:8px 4px;text-align:center}
-.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
-.dot{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:16px}
+.plus{width:54px;height:54px;border-radius:50%;background:#0F7A3D;margin-top:-30px;display:grid;place-items:center;font-size:26px;color:#fff}
+.modal{position:fixed;inset:0;background:#0E0E0E;z-index:200;display:none;flex-direction:column}
+.modal.show{display:flex}
+.topBar{height:52px;background:#121212;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #222}
+.inpAmount{width:100%;background:transparent;border:0;border-bottom:2px solid #0F7A3D;color:#fff;font-size:28px;font-weight:800;padding:10px 0;outline:none;text-align:right}
+.row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1E1E1E;font-size:13px}
+.row.left{opacity:.5;font-size:12px}
+.switch{width:38px;height:22px;background:#333;border-radius:20px;position:relative;cursor:pointer;transition:.2s}
+.switch.on{background:#0F7A3D}
+.switch::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;right:3px;transition:.2s}
+.switch.on::after{right:19px}
+.btnGreen{width:100%;height:52px;background:#0F7A3D;border:0;border-radius:12px;color:#fff;font-weight:800;font-size:14px;margin-top:auto}
+.smallIcon{width:32px;height:32px;border-radius:8px;background:#1E1E1E;display:grid;place-items:center}
 </style>
 </head>
 <body>
 <div class="h">
-<div class="topHead">
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:11px">▼ الجنيه المصري</span><b id="totalBal">EGP 6,280</b></div>
+<div style="font-weight:800">OMAR</div>
+</div>
+
+<div style="padding:12px" id="main"></div>
+
+<div class="bottom">
+<a class="on" onclick="setPage('expenses')"><span>💰</span><span>المصروفات</span></a>
+<a onclick="setPage('debts')"><span>📕</span><span>الديون</span></a>
+<div class="plus" onclick="openAdd()">+</div>
+<a onclick="setPage('attendance')"><span>⏰</span><span>الحضور</span></a>
+<a onclick="setPage('more')"><span>☰</span><span>أكثر</span></a>
+</div>
+
+<!-- شاشة الإضافة زي الفيديو بالظبط -->
+<div id="addModal" class="modal">
+<div class="topBar">
+<span onclick="closeAdd()" style="font-size:20px;cursor:pointer">←</span>
+<b>إضافة معاملة</b>
+<span>⚙️</span>
+</div>
+<div style="padding:16px;overflow:auto;flex:1">
 <div style="display:flex;gap:8px;align-items:center">
-<span style="font-size:11px;opacity:.9">▼ الجنيه المصري</span>
-<span id="totalTop" style="font-size:12px;font-weight:800">EGP 6,280 إجمالي الرصيد</span>
-</div>
-<div style="display:flex;gap:6px;align-items:center">
-<button class="btnS" onclick="exportExcel()">Excel</button>
-<button class="btnS white" onclick="syncSheet()">☁️ رفع</button>
-<div style="font-weight:800;margin-right:6px">OMAR</div>
-</div>
-</div>
-<div class="topTabs" id="topTabs"></div>
+<div style="background:#1A1A1A;border:1px solid #333;border-radius:8px;padding:6px 10px;font-size:12px">د.م</div>
+<input id="f_amount" class="inpAmount" type="number" placeholder="المبلغ" style="flex:1">
 </div>
 
-<div style="padding:12px" id="mainContent"></div>
-<div class="bottom" id="bottomNav"></div>
+<div class="row" onclick="openSelect('lena')">
+<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#3B82F622">👥</div><span>لنا</span></div>
+<span class="left">›</span>
+</div>
+<div class="row" onclick="openSelect('wallet')">
+<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#0F7A3D22">💼</div><div><div>آل عمر</div><div style="font-size:11px;opacity:.5">6,280 م.ج</div></div></div>
+<span class="left">›</span>
+</div>
 
-<!-- مودال عام -->
-<div id="modal" class="modal"><div class="box"><div style="display:flex;justify-content:space-between"><h3 id="mTitle" style="font-size:14px"></h3><span onclick="closeM()" style="cursor:pointer">✕</span></div><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:16px"><button onclick="saveItem()" style="flex:1;height:46px;border-radius:12px;background:#0F7A3D;color:#fff;border:0;font-weight:800">حفظ</button><button onclick="closeM()" style="flex:1;height:46px;border-radius:12px;background:#22222A;color:#fff;border:1px solid #333">إلغاء</button></div></div></div>
+<div style="padding:12px 0;border-bottom:1px solid #1E1E1E">
+<input id="f_note" style="width:100%;background:transparent;border:0;color:#888;font-size:13px;outline:none" placeholder="الملاحظات">
+</div>
+
+<div class="row">
+<div style="display:flex;gap:14px;align-items:center">
+<span style="font-size:12px">12:43 PM</span>
+<span style="font-size:12px">05/08/2026</span>
+<span>تاريخ المعاملة</span>
+</div>
+<div style="display:flex;gap:10px"><span>🖼️</span><span>📷</span><span>📅</span></div>
+</div>
+
+<div class="row">
+<span>تكرار المعاملة</span>
+<div class="switch" id="sw_repeat" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="row" onclick="openSelect('group')">
+<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon">⭐</div><span>المجموعة</span></div>
+<span class="left" id="val_group">›</span>
+</div>
+
+<div class="row" onclick="openSelect('contact')">
+<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#F59E0B22">📁</div><span>جهة الاتصال</span></div>
+<span class="left" id="val_contact">›</span>
+</div>
+
+<div class="row">
+<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#3B82F622">📅</div><span>تاريخ البدء</span></div>
+<span>05/08/2026</span>
+</div>
+
+<div class="row">
+<div style="display:flex;gap:10px;align-items:center"><div class="smallIcon" style="background:#EF444422">📅</div><span>تاريخ الانتهاء</span></div>
+<span>05/08/2026</span>
+</div>
+
+<div class="row" style="align-items:flex-start">
+<div>
+<div>عدم التأثير على الرصيد</div>
+<div style="font-size:10px;opacity:.5;margin-top:4px">عند تفعيلها سيتم تجاهل هذه المعاملة من رصيد المحفظة المحددة</div>
+</div>
+<div class="switch" onclick="this.classList.toggle('on')"></div>
+</div>
+
+</div>
+<button class="btnGreen" onclick="saveTrans()" style="margin:12px">إضافة معاملة</button>
+</div>
 
 <script>
-function fmt(n){return Number(n||0).toLocaleString('en-US')}
 const APP={get:function(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v!==null?v:d}catch(e){return d}},set:function(k,v){localStorage.setItem(k,JSON.stringify(v))}}
-const uid=function(){return Math.random().toString(36).slice(2,7)}
-if(!localStorage.getItem('wallets')) APP.set('wallets',[{id:'w1',name:'آل عمر',balance:6280,color:'purple',initial:0},{id:'w2',name:'ديدي',balance:0,color:'blue',initial:0},{id:'w3',name:'أمانات',balance:15000,color:'green',initial:15000}])
-if(!localStorage.getItem('transactions')) APP.set('transactions',[{id:uid(),walletId:'w1',amount:300,type:'outcome',cat:'المواصلات',date:'2026-08-03',note:''},{id:uid(),walletId:'w1',amount:1000,type:'outcome',cat:'ترفيهي',date:'2026-08-03',note:''}])
-if(!localStorage.getItem('cats_out')) APP.set('cats_out',['المواصلات','ترفيهي','أكل','إيجار','مشتريات'])
-if(!localStorage.getItem('cats_in')) APP.set('cats_in',['راتب','مبيعات','تحويل'])
-if(!localStorage.getItem('debts')) APP.set('debts',[{id:uid(),person:'إسلام وليد',amount:5000,total:5000,start:'01/08/2024',end:'11/01/2025',type:'علينا'},{id:uid(),person:'ياسمين',amount:15000,total:15000,start:'11/12/2022',end:'11/01/2025',type:'لنا'}])
-if(!localStorage.getItem('attendance')) APP.set('attendance',[])
-if(!localStorage.getItem('notes')) APP.set('notes',[])
-if(!localStorage.getItem('tasks')) APP.set('tasks',[])
-
-let page=localStorage.getItem('page')||'home'
-let topTab=localStorage.getItem('topTab')||'all'
-function setPage(p){page=p;topTab='all';localStorage.setItem('page',p);render()}
-function setTopTab(t){topTab=t;localStorage.setItem('topTab',t);render()}
-
+if(!localStorage.getItem('transactions')) APP.set('transactions',[])
+let page='expenses'
+function setPage(p){page=p;render()}
 function render(){
-let wallets=APP.get('wallets',[]), trans=APP.get('transactions',[]), debts=APP.get('debts',[]), atts=APP.get('attendance',[]), notes=APP.get('notes',[]), tasks=APP.get('tasks',[])
-let total=wallets.reduce(function(s,w){return s+Number(w.balance||0)},0)
-document.getElementById('totalTop').innerText='EGP '+fmt(total)+' إجمالي الرصيد'
-
-// TOP TABS per page
-let topHTML=''
-if(page==='home') topHTML='<a class="'+(topTab==='all'?'on':'')+'" onclick="setTopTab(\'all\')">الرئيسية</a><a class="'+(topTab==='outcome'?'on':'')+'" onclick="setTopTab(\'outcome\')">مصروف</a><a class="'+(topTab==='income'?'on':'')+'" onclick="setTopTab(\'income\')">دخل</a><a class="'+(topTab==='stats'?'on':'')+'" onclick="setTopTab(\'stats\')">إحصائيات</a>'
-if(page==='wallets') topHTML='<a class="on">المحافظ</a>'
-if(page==='attendance') topHTML='<a class="'+(topTab==='table'?'on':'')+'" onclick="setTopTab(\'table\')">جدول</a><a class="'+(topTab==='hader'?'on':'')+'" onclick="setTopTab(\'hader\')">حاضر</a><a class="'+(topTab==='ghaeb'?'on':'')+'" onclick="setTopTab(\'ghaeb\')">غائب</a><a class="on">احترافي</a>'
-if(page==='more') topHTML='<a class="on">المزيد</a>'
-document.getElementById('topTabs').innerHTML=topHTML
-
-// BOTTOM NAV
-document.getElementById('bottomNav').innerHTML=
-'<a class="'+(page==='home'?'on':'')+'" onclick="setPage(\'home\')"><span style="font-size:18px">🏠</span><span>الرئيسية</span></a>'+
-'<a class="'+(page==='wallets'?'on':'')+'" onclick="setPage(\'wallets\')"><span style="font-size:18px">💼</span><span>المحافظ</span></a>'+
-'<div class="plus" onclick="openQuick()">+</div>'+
-'<a class="'+(page==='attendance'?'on':'')+'" onclick="setPage(\'attendance\')"><span style="font-size:18px">⏰</span><span>الحضور</span></a>'+
-'<a class="'+(page==='more'?'on':'')+'" onclick="setPage(\'more\')"><span style="font-size:18px">☰</span><span>المزيد</span></a>'
-
+let trans=APP.get('transactions',[])
+let total=trans.reduce(function(s,t){return t.type==='income'?s+Number(t.amount):s-Number(t.amount)},6280)
+document.getElementById('totalBal').innerText='EGP '+total.toLocaleString('en-US')
 let html=''
-if(page==='home'){
-let sumOut=0,sumIn=0; trans.forEach(function(t){if(t.type==='outcome') sumOut+=Number(t.amount||0); else sumIn+=Number(t.amount||0)})
-let initial=-21921
-let finalBal=initial - sumOut + sumIn + 14365 // محاكاة للأرقام اللي في الفيديو
-html+='<div class="card" style="background:#0F7A3D"><div style="display:flex;justify-content:space-between;font-size:11px;opacity:.8"><span>اليوم 0</span><span>أمس 0</span><span>الأسبوع 300</span></div><div style="display:flex;gap:12px;margin-top:12px;align-items:center"><div style="width:90px;height:90px;border-radius:50%;border:6px solid #fff;display:grid;place-items:center;text-align:center"><div style="font-size:18px;font-weight:800">'+fmt(total)+'</div><div style="font-size:8px">الرصيد النهائي</div></div><div style="flex:1;font-size:11px;line-height:20px"><div>الرصيد الابتدائي: '+fmt(initial)+'</div><div>المصروف: '+fmt(sumOut)+'</div><div>إجمالي الدخل: '+fmt(sumIn||14365)+'</div><div>الديون الموجودة: 12,965</div><div>الديون المستلمة: 5,180</div></div></div></div>'
-// معاملات مجمعة بالتاريخ
+if(page==='expenses'){
+if(trans.length===0) html='<div style="text-align:center;padding:80px 20px;opacity:.4"><div style="font-size:40px">💸</div><div style="margin-top:10px">لا يوجد معاملات</div><div style="font-size:11px;margin-top:4px">اضغط + لإضافة أول معاملة</div></div>'
+else{
 let groups={}
-trans.forEach(function(t){let d=t.date||'2026-08-03'; if(!groups[d]) groups[d]=[]; groups[d].push(t)})
-Object.keys(groups).sort().reverse().forEach(function(d){
-html+='<div style="font-size:11px;opacity:.5;margin:10px 2px">'+d+'</div>'
+trans.forEach(function(t){let d=t.date||'05/08/2026'; if(!groups[d]) groups[d]=[]; groups[d].push(t)})
+Object.keys(groups).reverse().forEach(function(d){
+html+='<div style="font-size:11px;opacity:.4;margin:14px 4px">'+d+'</div>'
 groups[d].forEach(function(t){
-if(topTab!=='all' && t.type!==topTab) return
-html+='<div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px"><div style="display:flex;gap:10px;align-items:center"><div class="dot" style="background:'+(t.type==='outcome'?'#EF444422':'#22C55E22')+'">'+(t.type==='outcome'?'💸':'💰')+'</div><div><b style="font-size:12px">'+t.cat+'</b><div style="font-size:10px;opacity:.5">'+(wallets.find(function(w){return w.id===t.walletId})||{}).name+'</div></div></div><div style="text-align:left"><b style="color:'+(t.type==='outcome'?'#EF4444':'#22C55E')+'">'+(t.type==='outcome'?'-':'+')+fmt(t.amount)+'</b><div style="font-size:9px;opacity:.5">'+t.date+'</div></div></div>'
+html+='<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:10px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:'+(t.type==='outcome'?'#EF444422':'#22C55E22')+';display:grid;place-items:center">'+(t.type==='outcome'?'💸':'💰')+'</div><div><b style="font-size:12px">'+(t.cat||'مصروف')+'</b><div style="font-size:10px;opacity:.5">'+(t.note||'آل عمر')+'</div></div></div><div style="text-align:left"><b style="color:'+(t.type==='outcome'?'#EF4444':'#22C55E')+'">'+(t.type==='outcome'?'-':'+')+Number(t.amount).toLocaleString()+'</b><div style="font-size:10px;opacity:.4" onclick="delTrans(\''+t.id+'\')">🗑️</div></div></div>'
 })
 })
 }
-
-if(page==='wallets'){
-wallets.forEach(function(w){
-html+='<div class="walletCard '+w.color+'" onclick="openWalletMenu(\''+w.id+'\')"><div class="bgIcon"></div><div style="display:flex;justify-content:space-between;position:relative;z-index:2"><div><div style="font-size:11px;opacity:.8">▼ '+w.name+'</div><div style="font-size:22px;font-weight:800;margin-top:6px">EGP '+fmt(w.balance)+'</div><div style="font-size:10px;opacity:.7;margin-top:4px">الرصيد المتاح</div></div><div style="text-align:left"><div style="font-size:16px">💳</div><div style="margin-top:18px;display:flex;gap:8px"><span>👁️</span><span>🔒</span></div></div></div></div>'
-})
-html+='<button onclick="openAddWallet()" style="width:100%;height:44px;border-radius:12px;background:#1A1A1F;border:1px dashed #2A2A35;color:#0F7A3D;margin-top:8px">+ إضافة محفظة</button>'
 }
-
-if(page==='attendance'){
-let totalH=0,totalN=0; atts.forEach(function(a){totalH+=Number(a.totalHours||0); totalN+=Number(a.net||0)})
-html+='<div class="card" style="display:flex;gap:12px;align-items:center"><div style="width:80px;height:80px;border-radius:50%;border:6px solid #0F7A3D;display:grid;place-items:center"><b>'+totalH.toFixed(1)+'</b></div><div style="font-size:11px;line-height:18px"><div>إجمالي الساعات: '+totalH.toFixed(1)+'</div><div>إجمالي الصافي: '+fmt(totalN)+'ج</div><div>سعر الساعة افتراضي 26ج</div></div></div>'
-html+='<div class="card" style="overflow:auto"><table class="table"><tr><th>التاريخ</th><th>الساعة</th><th>كم ساعة</th><th>سعر الساعة</th><th>عدد الساعات</th><th>الصافي</th><th>المطلوب يوميا</th><th>النورين</th><th>الصافي النهائي</th><th>الضريبة</th></tr>'+atts.map(function(a){return '<tr><td>'+a.date+'</td><td>'+a.checkIn+'</td><td>'+a.totalHours+'</td><td>'+a.rate+'</td><td>'+a.totalHours+'</td><td style="color:#22C55E">'+fmt(a.net)+'</td><td>'+a.required+'</td><td>'+a.morning+'</td><td style="font-weight:700">'+fmt(a.finalNet)+'</td><td>'+fmt(a.tax)+'</td><td><span onclick="delItem(\'attendance\',\''+a.id+'\')">🗑️</span></td></tr>'}).join('')+'</table></div>'
-html+='<div>'+atts.filter(function(a){if(topTab==='hader') return a.status==='حاضر'; if(topTab==='ghaeb') return a.status==='غائب'; return true}).map(function(a){return '<div class="card"><div style="display:flex;justify-content:space-between"><b>'+a.date+'</b><span class="badge" style="background:'+(a.status==='حاضر'?'#0F7A3D22':'#EF444422')+'">'+a.status+'</span></div><div style="font-size:11px;margin-top:6px">⏰ '+a.checkIn+' - '+a.checkOut+' | '+a.totalHours+'س | '+fmt(a.rate)+'ج/س | صافي '+fmt(a.net)+'ج | نهائي '+fmt(a.finalNet)+'ج</div></div>'}).join('')+'</div>'
+if(page==='debts') html='<div style="text-align:center;padding:60px;opacity:.4">تبويب الديون - هنظبطه بعد المصروفات</div>'
+if(page==='attendance') html='<div style="text-align:center;padding:60px;opacity:.4">تبويب الحضور والانصراف - الخطوة الجاية</div>'
+if(page==='more') html='<div class="card"><div style="padding:12px;border-bottom:1px solid #222" onclick="setPage(\'notes\')">📝 الملاحظات</div><div style="padding:12px" onclick="setPage(\'tasks\')">✅ المهام اليومية</div></div>'
+document.getElementById('main').innerHTML=html
 }
-
-if(page==='more'){
-html+='<div class="card">'
-+'<div class="menuItem" onclick="setPage(\'debtsPage\')"><span>📕 الديون والأقساط</span><span>›</span></div>'
-+'<div class="menuItem" onclick="openCatManager()"><span>📁 الأقسام (التصنيفات)</span><span>›</span></div>'
-+'<div class="menuItem"><span>🔁 المعاملات المتكررة</span><span>0</span></div>'
-+'<div class="menuItem" onclick="setPage(\'notesPage\')"><span>📝 ملاحظاتي</span><span>'+notes.length+'</span></div>'
-+'<div class="menuItem" onclick="setPage(\'tasksPage\')"><span>✅ المهام اليومية</span><span>'+tasks.length+'</span></div>'
-+'<div class="menuItem"><span>🎯 الأهداف المالية</span><span>›</span></div>'
-+'<div class="menuItem"><span>🔐 الرقم السري</span><span><input type="checkbox" style="accent-color:#0F7A3D"></span></div>'
-+'<div class="menuItem" onclick="exportExcel()"><span>☁️ حفظ واسترجاع البيانات</span><span>›</span></div>'
-+'<div class="menuItem"><span>🌙 الوضع الليلي</span><span><input type="checkbox" checked style="accent-color:#0F7A3D"></span></div>'
-+'<div class="menuItem"><span>🔔 تنبيهات التطبيق</span><span>›</span></div>'
-+'<div class="menuItem"><span>⭐ قيم التطبيق</span><span>›</span></div>'
-+'</div>'
+function openAdd(){document.getElementById('addModal').classList.add('show')}
+function closeAdd(){document.getElementById('addModal').classList.remove('show')}
+function openSelect(type){
+if(type==='group'){
+let g=prompt('اختر المجموعة:\n1- المصروف\n2- الدخل\n3- الديون')
+if(g==='1') document.getElementById('val_group').innerText='المصروف'
+if(g==='2') document.getElementById('val_group').innerText='الدخل'
 }
-
-if(page==='debtsPage'){
-html+='<div style="display:flex;gap:8px;margin-bottom:10px"><button onclick="setPage(\'more\')" class="btnS">‹ رجوع</button><button onclick="openAddDebt()" class="btnS white">+ إضافة دين</button></div>'
-APP.get('debts',[]).forEach(function(d){
-html+='<div class="card"><div style="display:flex;justify-content:space-between"><b>'+d.person+'</b><b style="color:'+(d.type==='لنا'?'#22C55E':'#EF4444')+'">'+fmt(d.amount)+'م.ج</b></div><div style="font-size:10px;opacity:.6;margin-top:6px;display:flex;justify-content:space-between"><span>تاريخ الدين: '+d.start+'</span><span>تاريخ الانتهاء: '+d.end+'</span></div><div style="font-size:10px;margin-top:4px">الإجمالي: '+fmt(d.total)+' - المدفوع: 0</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btnS" onclick="delItem(\'debts\',\''+d.id+'\')">🗑️ مسح</button><button class="btnS white" onclick="alert(\'التفاصيل\')">المزيد من التفاصيل</button></div></div>'
-})
+if(type==='contact'){
+let c=prompt('اسم جهة الاتصال:')
+if(c) document.getElementById('val_contact').innerText=c
 }
-
-if(page==='notesPage'){
-html+='<div style="display:flex;gap:8px;margin-bottom:10px"><button onclick="setPage(\'more\')" class="btnS">‹ رجوع</button><button onclick="openAddNote()" class="btnS white">+ ملاحظة</button></div>'
-html+=APP.get('notes',[]).map(function(n){return '<div class="card"><b>'+n.title+'</b><div style="font-size:12px;opacity:.7;margin-top:4px">'+n.content+'</div><div style="text-align:left;margin-top:8px"><span onclick="delItem(\'notes\',\''+n.id+'\')">🗑️</span></div></div>'}).join('')||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد ملاحظات</div>'
 }
-
-if(page==='tasksPage'){
-html+='<div style="display:flex;gap:8px;margin-bottom:10px"><button onclick="setPage(\'more\')" class="btnS">‹ رجوع</button><button onclick="openAddTask()" class="btnS white">+ مهمة</button></div>'
-html+=APP.get('tasks',[]).map(function(t){return '<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:10px;align-items:center"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+t.id+'\')" style="width:18px;height:18px;accent-color:#0F7A3D"><div><b style="'+(t.done?'text-decoration:line-through;opacity:.5':'')+'">'+t.title+'</b><div style="font-size:10px;opacity:.5">'+t.date+'</div></div></div><span onclick="delItem(\'tasks\',\''+t.id+'\')">🗑️</span></div>'}).join('')||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد مهام اليوم</div>'
-}
-
-document.getElementById('mainContent').innerHTML=html||'<div style="text-align:center;padding:50px;opacity:.4">لا يوجد بيانات</div>'
-}
-
-// فتح مينو المحفظة
-let activeWallet=null
-function openWalletMenu(id){
-activeWallet=id
-let wallets=APP.get('wallets',[])
-let w=wallets.find(function(x){return x.id===id})
-let f='<div style="display:flex;flex-direction:column;gap:8px">'
-+'<button class="inp" style="margin:0" onclick="openAddTrans(\'outcome\')">💸 سحب رصيد</button>'
-+'<button class="inp" style="margin:0" onclick="openAddTrans(\'income\')">💰 إضافة رصيد</button>'
-+'<button class="inp" style="margin:0" onclick="openTransfer()">🔄 تحويل رصيد بين المحافظ</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); setPage(\'home\')">📋 عرض المعاملات</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddWallet(\''+id+'\')">✏️ تعديل</button>'
-+'<button class="inp" style="margin:0;color:#EF4444;border-color:#EF444444" onclick="delWallet(\''+id+'\')">🗑️ حذف المحفظة من التطبيق</button>'
-+'</div>'
-document.getElementById('mTitle').innerText='محفظة '+w.name
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-let btns=document.querySelectorAll('#modal.box button')
-btns[btns.length-2].style.display='none'
-btns[btns.length-1].style.display='none'
-}
-
-function openQuick(){
-let f='<div style="display:flex;flex-direction:column;gap:8px">'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddTrans(\'outcome\')">💸 إضافة مصروف</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddTrans(\'income\')">💰 إضافة دخل</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddDebt()">📕 إضافة دين</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddAttendance()">⏰ إضافة حضور</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddNote()">📝 ملاحظة</button>'
-+'<button class="inp" style="margin:0" onclick="closeM(); openAddTask()">✅ مهمة يومية</button>'
-+'</div>'
-document.getElementById('mTitle').innerText='+ إضافة جديدة'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-}
-
-let currentEdit=null
-function openAddWallet(id){
-let w=id?APP.get('wallets',[]).find(function(x){return x.id===id}):null
-currentEdit=id||null
-let f='<label class="label">اسم المحفظة</label><input id="w_name" class="inp" value="'+(w?w.name:'')+'" placeholder="مثلاً: آل عمر">'
-+'<label class="label">الرصيد الحالي</label><input id="w_bal" class="inp" type="number" value="'+(w?w.balance:0)+'">'
-+'<label class="label"><input type="checkbox" id="w_hide"> استثناء (إخفاء) الرصيد من الشاشة الرئيسية</label>'
-document.getElementById('mTitle').innerText=id?'تعديل محفظة':'إضافة محفظة'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-}
-
-function openAddTrans(type){
-let wallets=APP.get('wallets',[]), cats=type==='outcome'?APP.get('cats_out',[]):APP.get('cats_in',[])
-let f='<label class="label">المحفظة</label><select id="t_wallet" class="inp">'+wallets.map(function(w){return '<option value="'+w.id+'" '+(activeWallet===w.id?'selected':'')+'>'+w.name+' - '+fmt(w.balance)+'</option>'}).join('')+'</select>'
-+'<label class="label">التصنيف</label><select id="t_cat" class="inp">'+cats.map(function(c){return '<option>'+c+'</option>'}).join('')+'</select>'
-+'<label class="label">المبلغ</label><input id="t_amount" class="inp" type="number" placeholder="300">'
-+'<label class="label">التاريخ</label><input id="t_date" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'">'
-+'<label class="label">ملاحظة</label><input id="t_note" class="inp" placeholder="اختياري">'
-document.getElementById('mTitle').innerText=type==='outcome'?'سحب رصيد':'إضافة رصيد'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-document.getElementById('modal').dataset.type=type
-}
-
-function openTransfer(){
-let wallets=APP.get('wallets',[])
-let f='<label class="label">من محفظة</label><select id="tr_from" class="inp">'+wallets.map(function(w){return '<option value="'+w.id+'">'+w.name+' - '+fmt(w.balance)+'</option>'}).join('')+'</select>'
-+'<label class="label">إلى محفظة</label><select id="tr_to" class="inp">'+wallets.map(function(w){return '<option value="'+w.id+'">'+w.name+'</option>'}).join('')+'</select>'
-+'<label class="label">المبلغ</label><input id="tr_amount" class="inp" type="number">'
-document.getElementById('mTitle').innerText='تحويل رصيد بين المحافظ'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-document.getElementById('modal').dataset.type='transfer'
-}
-
-function openAddDebt(){
-let f='<label class="label">اسم الشخص</label><input id="d_person" class="inp"><label class="label">المبلغ</label><input id="d_amount" class="inp" type="number"><label class="label">النوع</label><select id="d_type" class="inp"><option>لنا</option><option>علينا</option></select><label class="label">تاريخ البدء</label><input id="d_start" class="inp" value="01/08/2024"><label class="label">تاريخ الانتهاء</label><input id="d_end" class="inp" value="11/01/2025">'
-document.getElementById('mTitle').innerText='إضافة دين / قسط'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-document.getElementById('modal').dataset.type='debt'
-}
-
-function openAddAttendance(){
-let today=new Date().toISOString().slice(0,10)
-let f='<label class="label">📅 التاريخ</label><input id="a_date" class="inp" type="date" value="'+today+'"><div style="display:flex;gap:8px"><div style="flex:1"><label class="label">⏰ دخول (الساعة)</label><input id="a_in" class="inp" type="time" value="09:00"></div><div style="flex:1"><label class="label">🏁 خروج</label><input id="a_out" class="inp" type="time" value="17:00"></div></div><label class="label">💵 سعر الساعة</label><input id="a_rate" class="inp" type="number" value="26" oninput="calcLive()"><div style="display:flex;gap:8px"><div style="flex:1"><label class="label">📌 المطلوب يوميا</label><input id="a_req" class="inp" type="number" value="8"></div><div style="flex:1"><label class="label">🌅 النورين الصباحية</label><input id="a_morn" class="inp" type="number" value="0"></div></div><label class="label">💸 الضريبة</label><input id="a_tax" class="inp" type="number" value="0" oninput="calcLive()"><label class="label">الحالة</label><select id="a_st" class="inp"><option>حاضر</option><option>غائب</option><option>متأخر</option></select><div id="liveCalc" style="background:#0F7A3D11;border:1px solid #0F7A3D33;border-radius:12px;padding:10px;margin-top:12px;font-size:11px"></div>'
-document.getElementById('mTitle').innerText='إضافة حضور احترافي'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-document.getElementById('modal').dataset.type='attendance'
-setTimeout(calcLive,100)
-}
-function calcLive(){
-let cin=document.getElementById('a_in')?document.getElementById('a_in').value:'09:00'
-let cout=document.getElementById('a_out')?document.getElementById('a_out').value:'17:00'
-let rate=Number(document.getElementById('a_rate')?document.getElementById('a_rate').value:0)
-let tax=Number(document.getElementById('a_tax')?document.getElementById('a_tax').value:0)
-let a=cin.split(':').map(Number), b=cout.split(':').map(Number)
-let diff=(b[0]*60+b[1])-(a[0]*60+a[1]); if(diff<0) diff+=1440
-let h=diff/60, net=h*rate, finalN=net-tax
-let el=document.getElementById('liveCalc')
-if(el) el.innerHTML='الساعة: '+cin+' | كم ساعة: <b>'+h.toFixed(2)+'</b> | سعر الساعة: '+fmt(rate)+' | عدد الساعات: '+h.toFixed(2)+' | الصافي: <b>'+fmt(net)+'ج</b> | المطلوب: 8 | النورين: 0 | الصافي النهائي: <b style="color:#4ade80">'+fmt(finalN)+'ج</b> | الضريبة: '+fmt(tax)
-}
-
-function openAddNote(){let f='<label class="label">عنوان</label><input id="n_title" class="inp"><label class="label">محتوى</label><textarea id="n_content" class="inp" style="height:80px;padding-top:8px"></textarea>'; document.getElementById('mTitle').innerText='ملاحظة جديدة'; document.getElementById('mFields').innerHTML=f; document.getElementById('modal').classList.add('show'); document.getElementById('modal').dataset.type='note'}
-function openAddTask(){let f='<label class="label">المهمة</label><input id="task_title" class="inp" placeholder="مثلاً: متابعة عميل">'; document.getElementById('mTitle').innerText='مهمة يومية'; document.getElementById('mFields').innerHTML=f; document.getElementById('modal').classList.add('show'); document.getElementById('modal').dataset.type='task'}
-function openCatManager(){
-let out=APP.get('cats_out',[]), inn=APP.get('cats_in',[])
-let f='<div style="display:flex;gap:8px"><input id="catName" class="inp" style="margin:0;flex:1" placeholder="اسم القسم"><select id="catType" class="inp" style="margin:0;width:110px"><option value="out">مصروف</option><option value="in">دخل</option></select></div><button onclick="addCat()" style="width:100%;height:40px;border-radius:10px;background:#0F7A3D;color:#fff;border:0;margin-top:8px">+ إضافة</button><div style="margin-top:14px"><b style="font-size:12px">📁 المصاريف</b><div id="outList">'+out.map(function(c,i){return '<div style="display:flex;justify-content:space-between;background:#0E0E11;border:1px solid #23232F;border-radius:10px;padding:8px 12px;margin-top:6px"><span>'+c+'</span><span onclick="delCat(\'out\','+i+')" style="color:#EF4444;cursor:pointer">🗑️</span></div>'}).join('')+'</div></div><div style="margin-top:12px"><b style="font-size:12px">💰 الدخل</b><div id="inList">'+inn.map(function(c,i){return '<div style="display:flex;justify-content:space-between;background:#0E0E11;border:1px solid #23232F;border-radius:10px;padding:8px 12px;margin-top:6px"><span>'+c+'</span><span onclick="delCat(\'in\','+i+')" style="color:#EF4444;cursor:pointer">🗑️</span></div>'}).join('')+'</div></div>'
-document.getElementById('mTitle').innerText='الأقسام'
-document.getElementById('mFields').innerHTML=f
-document.getElementById('modal').classList.add('show')
-}
-function addCat(){let n=document.getElementById('catName').value.trim(), t=document.getElementById('catType').value; if(!n) return; if(t==='out'){let a=APP.get('cats_out',[]); a.push(n); APP.set('cats_out',a)} else {let a=APP.get('cats_in',[]); a.push(n); APP.set('cats_in',a)} openCatManager(); render()}
-function delCat(type,i){if(!confirm('مسح؟')) return; if(type==='out'){let a=APP.get('cats_out',[]); a.splice(i,1); APP.set('cats_out',a)} else {let a=APP.get('cats_in',[]); a.splice(i,1); APP.set('cats_in',a)} openCatManager(); render()}
-
-function closeM(){document.getElementById('modal').classList.remove('show'); document.getElementById('modal').dataset.type=''; currentEdit=null; activeWallet=null}
-function saveItem(){
-let type=document.getElementById('modal').dataset.type
-if(!type && page==='wallets'){
-let name=document.getElementById('w_name').value.trim(), bal=Number(document.getElementById('w_bal').value||0)
-if(!name) return alert('اكتب اسم المحفظة')
-let wallets=APP.get('wallets',[])
-if(currentEdit){let idx=wallets.findIndex(function(w){return w.id===currentEdit}); if(idx>-1){wallets[idx].name=name; wallets[idx].balance=bal}} else {wallets.push({id:uid(),name:name,balance:bal,color:['purple','blue','green'][wallets.length%3],initial:bal})}
-APP.set('wallets',wallets); closeM(); render(); return
-}
-if(type==='outcome' || type==='income'){
-let walletId=document.getElementById('t_wallet').value, cat=document.getElementById('t_cat').value, amount=Number(document.getElementById('t_amount').value||0), date=document.getElementById('t_date').value, note=document.getElementById('t_note').value
+function saveTrans(){
+let amount=Number(document.getElementById('f_amount').value||0)
 if(!amount) return alert('اكتب المبلغ')
-let trans=APP.get('transactions',[]); trans.push({id:uid(),walletId:walletId,amount:amount,type:type,cat:cat,date:date,note:note})
+let note=document.getElementById('f_note').value
+let cat=document.getElementById('val_group').innerText==='›'?'المواصلات':document.getElementById('val_group').innerText
+let type=cat==='الدخل'?'income':'outcome'
+let trans=APP.get('transactions',[])
+trans.push({id:Math.random().toString(36).slice(2,7),amount:amount,note:note,cat:cat,type:type,date:'05/08/2026'})
 APP.set('transactions',trans)
-let wallets=APP.get('wallets',[]); let w=wallets.find(function(x){return x.id===walletId}); if(w){ if(type==='outcome') w.balance-=amount; else w.balance+=amount; APP.set('wallets',wallets)}
-closeM(); render(); return
+document.getElementById('f_amount').value=''
+document.getElementById('f_note').value=''
+closeAdd()
+render()
 }
-if(type==='transfer'){
-let from=document.getElementById('tr_from').value, to=document.getElementById('tr_to').value, amount=Number(document.getElementById('tr_amount').value||0)
-if(from===to) return alert('اختر محفظتين مختلفتين')
-if(!amount) return alert('اكتب المبلغ')
-let wallets=APP.get('wallets',[]); let wf=wallets.find(function(w){return w.id===from}), wt=wallets.find(function(w){return w.id===to})
-if(wf && wt){ wf.balance-=amount; wt.balance+=amount; APP.set('wallets',wallets)}
-closeM(); render(); return
-}
-if(type==='debt'){
-let p=document.getElementById('d_person').value, a=Number(document.getElementById('d_amount').value||0), t=document.getElementById('d_type').value, s=document.getElementById('d_start').value, e=document.getElementById('d_end').value
-let debts=APP.get('debts',[]); debts.push({id:uid(),person:p,amount:a,total:a,start:s,end:e,type:t}); APP.set('debts',debts); closeM(); setPage('debtsPage'); return
-}
-if(type==='attendance'){
-let date=document.getElementById('a_date').value, cin=document.getElementById('a_in').value, cout=document.getElementById('a_out').value, rate=Number(document.getElementById('a_rate').value||0), req=Number(document.getElementById('a_req').value||0), morn=Number(document.getElementById('a_morn').value||0), tax=Number(document.getElementById('a_tax').value||0), st=document.getElementById('a_st').value
-let a1=cin.split(':').map(Number), b1=cout.split(':').map(Number), diff=(b1[0]*60+b1[1])-(a1[0]*60+a1[1]); if(diff<0) diff+=1440
-let hours=diff/60, net=hours*rate, finalNet=net-tax
-let atts=APP.get('attendance',[]); atts.push({id:uid(),date:date,checkIn:cin,checkOut:cout,totalHours:parseFloat(hours.toFixed(2)),rate:rate,required:req,morning:morn,tax:tax,net:Math.round(net),finalNet:Math.round(finalNet),status:st})
-APP.set('attendance',atts); closeM(); render(); return
-}
-if(type==='note'){let t=document.getElementById('n_title').value, c=document.getElementById('n_content').value; let arr=APP.get('notes',[]); arr.push({id:uid(),title:t,content:c}); APP.set('notes',arr); closeM(); setPage('notesPage'); return}
-if(type==='task'){let tt=document.getElementById('task_title').value; let arr=APP.get('tasks',[]); arr.push({id:uid(),title:tt,date:new Date().toLocaleDateString('ar-EG'),done:false}); APP.set('tasks',arr); closeM(); setPage('tasksPage'); return}
-}
-
-function delItem(k,id){if(confirm('مسح؟')){APP.set(k,APP.get(k,[]).filter(function(x){return x.id!==id})); render()}}
-function delWallet(id){if(confirm('حذف المحفظة نهائي؟ رصيدها: '+fmt(APP.get('wallets',[]).find(function(w){return w.id===id}).balance)+' - تم حذف المحفظة من التطبيق')){APP.set('wallets',APP.get('wallets',[]).filter(function(w){return w.id!==id})); closeM(); render()}}
-function toggleTask(id){let tasks=APP.get('tasks',[]); let t=tasks.find(function(x){return x.id===id}); if(t) t.done=!t.done; APP.set('tasks',tasks); render()}
-function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('wallets',[])),'المحافظ'); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('transactions',[])),'المعاملات'); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('attendance',[])),'الحضور'); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('tasks',[])),'المهام'); XLSX.writeFile(wb,'OMAR_V2.xlsx')}
-async function syncSheet(){let url=localStorage.getItem('gs_url')||prompt('لينك Google Apps Script:'); if(!url) return; localStorage.setItem('gs_url',url); let payload={wallets:APP.get('wallets',[]),transactions:APP.get('transactions',[]),attendance:APP.get('attendance',[]),tasks:APP.get('tasks',[])}; try{await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}); alert('✅ اترفع')}catch(e){alert('❌ فشل')}}
+function delTrans(id){if(confirm('مسح؟')){APP.set('transactions',APP.get('transactions',[]).filter(function(x){return x.id!==id})); render()}}
 render()
 </script>
 </body>
