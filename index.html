@@ -1,77 +1,74 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>مشروعي الخاص - SystemOmar Pro Max</title>
+<title>SystemOmar Pro Max - No Zoom Final</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{font-family:'Cairo';box-sizing:border-box;margin:0}
-html,body{touch-action:manipulation;-ms-touch-action:manipulation;-webkit-touch-callout:none;overscroll-behavior:none}
-::-webkit-scrollbar{display:none}
-*{-webkit-text-size-adjust:100%}
-body{background:#121212;color:#fff;padding-bottom:80px}
+html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-touch-callout:none}
+body{background:#121212;color:#fff;padding-bottom:90px}
 .h{background:#0F7A3D;padding:12px 16px 0;position:sticky;top:0;z-index:10}
-.top{display:flex;gap:0}
+.top{display:flex}
 .top a{flex:1;text-align:center;padding:10px 2px;color:#ffffff99;border-bottom:3px solid transparent;font-size:13px;cursor:pointer}
 .top a.on{border-color:#fff;color:#fff;font-weight:700}
 .card{background:#1E1E1E;border:1px solid #2A2A2A;border-radius:16px;padding:12px;margin-bottom:10px}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:#1E1E1E;border-top:1px solid #2A2A2A;height:68px;display:flex;justify-content:space-around;align-items:center;z-index:20}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#1E1E1E;border-top:1px solid #2A2A2A;height:72px;display:flex;justify-content:space-around;align-items:center;z-index:9999}
 .bottom a{color:#888;font-size:11px;display:flex;flex-direction:column;align-items:center;flex:1;cursor:pointer;text-decoration:none}
 .bottom a.on{color:#0F7A3D}
-.plus{width:56px;height:56px;border-radius:50%;background:#3F3B6B;margin-top:-28px;display:grid;place-items:center;font-size:26px;color:#fff;cursor:pointer;box-shadow:0 4px 12px #0005}
+.plus{width:56px;height:56px;border-radius:50%;background:#3F3B6B;margin-top:-28px;display:grid;place-items:center;font-size:26px;color:#fff;cursor:pointer}
 .modal{position:fixed;inset:0;background:#0008;backdrop-filter:blur(6px);z-index:99;display:none;place-items:center;padding:16px}
 .modal.show{display:grid}
 .box{background:#1E1E1E;border:1px solid #333;border-radius:20px;padding:16px;width:100%;max-width:400px}
 .inp{width:100%;height:44px;background:#121212;border:1px solid #333;border-radius:12px;padding:0 12px;color:#fff;margin-top:8px;outline:none}
-.inp:focus{border-color:#0F7A3D}
 </style>
 </head>
 <body>
 <div class="h">
-  <div style="display:flex;justify-content:space-between;color:#fff;font-size:14px"><span>🔒 ⚙️</span><span>الجنيه المصري ▼</span></div>
-  <div class="top" id="topTabs">
-    <a data-t="expenses" class="on" onclick="setTop('expenses')">مصروفاتي</a>
-    <a data-t="debts" onclick="setTop('debts')">ديوني</a>
-    <a data-t="attendance" onclick="setTop('attendance')">الحضور</a>
-    <a data-t="notes" onclick="setTop('notes')">ملاحظاتي</a>
-  </div>
+<div style="display:flex;justify-content:space-between;font-size:14px"><span>🔒</span><span>الجنيه المصري ▼</span></div>
+<div class="top" id="topTabs">
+<a data-t="expenses" class="on" onclick="setTop('expenses')">مصروفاتي</a>
+<a data-t="debts" onclick="setTop('debts')">ديوني</a>
+<a data-t="attendance" onclick="setTop('attendance')">الحضور</a>
+<a data-t="notes" onclick="setTop('notes')">ملاحظاتي</a>
+</div>
 </div>
 <div style="padding:12px">
-  <div class="card" style="display:flex;gap:12px;align-items:center"><div style="width:80px;height:80px;border-radius:50%;border:6px solid #4DD0E1;display:grid;place-items:center;font-weight:700">300ج</div><div style="flex:1;font-size:12px;line-height:22px"><div>المصاريف: <span id="tExp">0</span></div><div>الدخل: <span id="tInc">0</span></div></div></div>
-  <div style="display:flex;gap:8px;margin:12px 0">
-    <button onclick="syncSheet()" style="flex:1;height:40px;border-radius:12px;background:#0F7A3D;color:#fff;border:0;font-weight:700">☁️ رفع للشيت</button>
-    <button onclick="exportExcel()" style="flex:1;height:40px;border-radius:12px;background:#2A2A2A;color:#fff;border:1px solid #333">💾 Excel</button>
-  </div>
-  <div id="list"></div>
+<div class="card" style="display:flex;gap:12px;align-items:center"><div style="width:80px;height:80px;border-radius:50%;border:6px solid #4DD0E1;display:grid;place-items:center">300ج</div><div style="flex:1;font-size:12px"><div>المصاريف: 0</div><div>الدخل: 0</div></div></div>
+<div style="display:flex;gap:8px;margin:12px 0">
+<button onclick="syncSheet()" style="flex:1;height:40px;border-radius:12px;background:#0F7A3D;color:#fff;border:0">☁️ رفع للشيت</button>
+<button onclick="exportExcel()" style="flex:1;height:40px;border-radius:12px;background:#2A2A2A;color:#fff;border:1px solid #333">💾 Excel</button>
+</div>
+<div id="list"></div>
 </div>
 <div class="bottom" id="bottomNav"></div>
-<div id="modal" class="modal"><div class="box"><h3 id="mTitle" style="margin-bottom:10px">إضافة</h3><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:12px"><button onclick="save()" style="flex:1;height:42px;border-radius:12px;background:#0F7A3D;color:#fff;border:0;font-weight:700">إضافة الآن</button><button onclick="closeM()" style="flex:1;height:42px;border-radius:12px;background:#222;color:#fff;border:1px solid #333">إلغاء</button></div></div></div>
+<div id="modal" class="modal"><div class="box"><h3 id="mTitle">إضافة</h3><div id="mFields"></div><div style="display:flex;gap:8px;margin-top:12px"><button onclick="save()" style="flex:1;height:42px;border-radius:12px;background:#0F7A3D;color:#fff;border:0">إضافة الآن</button><button onclick="closeM()" style="flex:1;height:42px;border-radius:12px;background:#222;color:#fff;border:1px solid #333">إلغاء</button></div></div></div>
 <script>
 const APP={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const uid=()=>Math.random().toString(36).slice(2,7);
 const SUBS={expenses:[{id:'outcome',l:'مصروف',i:'💸'},{id:'income',l:'مدخلات',i:'💰'},{id:'net',l:'الصافي',i:'📊'},{id:'all',l:'الكل',i:'📋'}],debts:[{id:'lena',l:'لنا',i:'⬆️'},{id:'alayna',l:'علينا',i:'⬇️'},{id:'net',l:'الصافي',i:'⚖️'},{id:'all',l:'الكل',i:'📋'}],attendance:[{id:'hader',l:'حاضر',i:'✅'},{id:'ghaeb',l:'غائب',i:'❌'},{id:'mot',l:'متأخر',i:'⏰'},{id:'all',l:'الكل',i:'📅'}],notes:[{id:'pinned',l:'مثبتة',i:'📌'},{id:'general',l:'عامة',i:'📝'},{id:'all',l:'الكل',i:'📋'}]};
-let topT=localStorage.getItem('topT')||'expenses', bottomT='all', editId=null;
+let topT=localStorage.getItem('topT')||'expenses', bottomT='all';
 function setTop(t){topT=t;bottomT='all';localStorage.setItem('topT',t);render();}
 function setBottom(b){bottomT=b;render();}
 function render(){
- document.querySelectorAll('.top a').forEach(a=>a.classList.toggle('on',a.dataset.t===topT));
- let subs=SUBS[topT];
- document.getElementById('bottomNav').innerHTML=`<a class="${bottomT===subs[0].id?'on':''}" onclick="setBottom('${subs[0].id}')"><span>${subs[0].i}</span><span>${subs[0].l}</span></a><a class="${bottomT===subs[1].id?'on':''}" onclick="setBottom('${subs[1].id}')"><span>${subs[1].i}</span><span>${subs[1].l}</span></a><div class="plus" onclick="openM()">+</div><a class="${bottomT===subs[2].id?'on':''}" onclick="setBottom('${subs[2].id}')"><span>${subs[2].i}</span><span>${subs[2].l}</span></a><a class="${bottomT===subs[3]?.id?'on':''}" onclick="setBottom('${subs[3]?.id||'all'}')"><span>${subs[3]?.i||'📋'}</span><span>${subs[3]?.l||'الكل'}</span></a>`;
- let html='', data=[];
- if(topT==='expenses'){data=APP.get('expenses',[]); if(bottomT==='outcome')data=data.filter(x=>x.type==='outcome'); if(bottomT==='income')data=data.filter(x=>x.type==='income'); html=data.map(e=>`<div class="card" style="display:flex;justify-content:space-between"><div><b>${e.amount}ج - ${e.desc}</b><div style="font-size:11px;opacity:.5">${e.type}</div></div><div><span onclick="edit('${e.id}')">✏️</span> <span onclick="del('expenses','${e.id}')">🗑️</span></div></div>`).join('');}
- if(topT==='debts'){data=APP.get('debts',[]); if(bottomT==='lena')data=data.filter(x=>x.type==='لنا'); if(bottomT==='alayna')data=data.filter(x=>x.type==='علينا'); html=data.map(d=>`<div class="card" style="display:flex;justify-content:space-between"><div><b>${d.person} - ${d.amount}ج</b><div style="font-size:11px;color:${d.type==='لنا'?'#4caf50':'#f44336'}">${d.type}</div></div><div><span onclick="edit('${d.id}')">✏️</span> <span onclick="del('debts','${d.id}')">🗑️</span></div></div>`).join('');}
- if(topT==='notes'){data=APP.get('notes',[]); html=data.map(n=>`<div class="card"><b>${n.title}</b><div style="font-size:12px;opacity:.6">${n.content}</div></div>`).join('');}
- if(topT==='attendance'){data=APP.get('attendance',[]); html=data.map(a=>`<div class="card">${a.date} - ${a.status}</div>`).join('');}
- document.getElementById('list').innerHTML=html||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد بيانات</div>';
+document.querySelectorAll('.top a').forEach(a=>a.classList.toggle('on',a.dataset.t===topT));
+let subs=SUBS[topT];
+document.getElementById('bottomNav').innerHTML=`<a class="${bottomT===subs[0].id?'on':''}" onclick="setBottom('${subs[0].id}')"><span>${subs[0].i}</span><span>${subs[0].l}</span></a><a class="${bottomT===subs[1].id?'on':''}" onclick="setBottom('${subs[1].id}')"><span>${subs[1].i}</span><span>${subs[1].l}</span></a><div class="plus" onclick="openM()">+</div><a class="${bottomT===subs[2].id?'on':''}" onclick="setBottom('${subs[2].id}')"><span>${subs[2].i}</span><span>${subs[2].l}</span></a><a class="${bottomT===subs[3]?.id?'on':''}" onclick="setBottom('${subs[3]?.id||'all'}')"><span>${subs[3]?.i||'📋'}</span><span>${subs[3]?.l||'الكل'}</span></a>`;
+let html='', data=[];
+if(topT==='expenses'){data=APP.get('expenses',[]); if(bottomT==='outcome')data=data.filter(x=>x.type==='outcome'); if(bottomT==='income')data=data.filter(x=>x.type==='income'); html=data.map(e=>`<div class="card" style="display:flex;justify-content:space-between"><div><b>${e.amount}ج - ${e.desc}</b></div><div><span onclick="del('expenses','${e.id}')">🗑️</span></div></div>`).join('');}
+if(topT==='debts'){data=APP.get('debts',[]); if(bottomT==='lena')data=data.filter(x=>x.type==='لنا'); if(bottomT==='alayna')data=data.filter(x=>x.type==='علينا'); html=data.map(d=>`<div class="card"><b>${d.person} - ${d.amount}ج</b><div style="color:${d.type==='لنا'?'#4caf50':'#f44336'}">${d.type}</div></div>`).join('');}
+if(topT==='notes'){data=APP.get('notes',[]); html=data.map(n=>`<div class="card"><b>${n.title}</b><div>${n.content}</div></div>`).join('');}
+document.getElementById('list').innerHTML=html||'<div style="text-align:center;padding:40px;opacity:.4">لا يوجد بيانات</div>';
 }
 function openM(){let f=''; if(topT==='expenses')f=`<input id="f_a" class="inp" placeholder="المبلغ" type="number"><input id="f_d" class="inp" placeholder="الوصف"><select id="f_t" class="inp"><option value="outcome">مصروف</option><option value="income">مدخلات</option></select>`; if(topT==='debts'){let def=bottomT==='lena'?'لنا':bottomT==='alayna'?'علينا':'لنا'; f=`<input id="f_p" class="inp" placeholder="اسم الشخص"><input id="f_a" class="inp" placeholder="المبلغ" type="number"><select id="f_t" class="inp"><option ${def==='لنا'?'selected':''}>لنا</option><option ${def==='علينا'?'selected':''}>علينا</option></select>`;} if(topT==='notes')f=`<input id="f_ti" class="inp" placeholder="عنوان"><input id="f_c" class="inp" placeholder="محتوى">`; document.getElementById('mFields').innerHTML=f; document.getElementById('modal').classList.add('show');}
-function closeM(){document.getElementById('modal').classList.remove('show'); editId=null;}
-function save(){let id=editId||uid(); if(topT==='expenses'){let a=APP.get('expenses',[]); a.push({id,amount:document.getElementById('f_a').value,desc:document.getElementById('f_d').value,type:document.getElementById('f_t').value}); APP.set('expenses',a);} if(topT==='debts'){let a=APP.get('debts',[]); a.push({id,person:document.getElementById('f_p').value,amount:document.getElementById('f_a').value,type:document.getElementById('f_t').value}); APP.set('debts',a);} if(topT==='notes'){let a=APP.get('notes',[]); a.push({id,title:document.getElementById('f_ti').value,content:document.getElementById('f_c').value}); APP.set('notes',a);} closeM(); render();}
+function closeM(){document.getElementById('modal').classList.remove('show');}
+function save(){let id=uid(); if(topT==='expenses'){let a=APP.get('expenses',[]); a.push({id,amount:document.getElementById('f_a').value,desc:document.getElementById('f_d').value,type:document.getElementById('f_t').value}); APP.set('expenses',a);} if(topT==='debts'){let a=APP.get('debts',[]); a.push({id,person:document.getElementById('f_p').value,amount:document.getElementById('f_a').value,type:document.getElementById('f_t').value}); APP.set('debts',a);} if(topT==='notes'){let a=APP.get('notes',[]); a.push({id,title:document.getElementById('f_ti').value,content:document.getElementById('f_c').value}); APP.set('notes',a);} closeM(); render();}
 function del(k,id){if(confirm('مسح؟')){APP.set(k,APP.get(k,[]).filter(x=>x.id!==id)); render();}}
-function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('expenses',[])),'مصروفاتي'); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('debts',[])),'ديوني'); XLSX.writeFile(wb,'مشروعي.xlsx');}
-function syncSheet(){let url=localStorage.getItem('gs_url')||prompt('لينك Google Apps Script:'); if(!url)return; localStorage.setItem('gs_url',url); fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({expenses:APP.get('expenses',[]),debts:APP.get('debts',[]),notes:APP.get('notes',[]),attendance:APP.get('attendance',[])})}); alert('تم الرفع');}
+function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(APP.get('expenses',[])),'مصروفاتي'); XLSX.writeFile(wb,'مشروعي.xlsx');}
+function syncSheet(){let url=localStorage.getItem('gs_url')||prompt('لينك Google Apps Script:'); if(!url)return; localStorage.setItem('gs_url',url); fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({expenses:APP.get('expenses',[]),debts:APP.get('debts',[])} )}); alert('تم');}
 render();
 </script>
 </body>
