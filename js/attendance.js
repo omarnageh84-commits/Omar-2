@@ -1,5 +1,4 @@
-// js/attendance.js - ديون الصيدلية يدوي فقط + 7.3 = 7:30 + أرشيف 3 شهور
-
+// js/attendance.js - محدث مربوط بالشيت + ديون يدوي فقط + 7.3 = 7:30
 let attData = JSON.parse(localStorage.getItem('att_v2') || '[]');
 let salaryConfig = JSON.parse(localStorage.getItem('salaryConfig') || '{"hourPrice":1100,"days":26,"target":15000,"pharmacy":5000}');
 let attArchive = JSON.parse(localStorage.getItem('att_archive') || '[]');
@@ -52,13 +51,7 @@ function renderAtt(){
   if(attData.length!==getDays(new Date().getFullYear(), new Date().getMonth()+1)) initMonth();
   let totalHours = attData.reduce((s,r)=>s+(r.total||0),0);
   let hp=salaryConfig.hourPrice||1100, days=salaryConfig.days||26, target=salaryConfig.target||15000, pharmacy=salaryConfig.pharmacy||0;
-  // شيلنا السحب التلقائي من الديون - يدوي فقط
   let pricePerHour=days? (hp/days).toFixed(2):0, net=(pricePerHour*totalHours).toFixed(0), dailyReq=hp? (target/hp).toFixed(2):0, remaining=net-pharmacy;
-
-  let lastDayFilled = attData.length>0 && attData[attData.length-1].in && attData[attData.length-1].out;
-  if(lastDayFilled && currentMonthKey === (new Date().getFullYear()+'-'+(new Date().getMonth()+1))){
-    setTimeout(()=>{ if(confirm('خلصت الشهر! أقلب لشهر جديد وأأرشف ده؟')){ attArchive.push({month:currentMonthKey,data:attData,config:{...salaryConfig},at:Date.now()}); if(attArchive.length>3) attArchive=attArchive.slice(-3); attData=[]; initMonth(); renderAtt(); } }, 300);
-  }
 
   document.getElementById('tab-att').innerHTML=`
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:6px">
@@ -84,23 +77,32 @@ function renderAtt(){
   </div>
 
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
-    <div style="padding:5px 8px;background:#f1f5f9;font-size:9px;display:flex;justify-content:space-between"><span>📅 اكتب 7.3 = 07:30 | 19.33 = 19:33</span><span style="font-family:monospace">${totalHours.toFixed(1)}h</span></div>
-    <div style="max-height:420px;overflow:auto">
-      ${attData.map((r,i)=>`
-        <div style="display:grid;grid-template-columns:20px 1fr 1fr 30px;gap:3px;padding:4px;border-bottom:1px solid #f8fafc;align-items:center">
-          <div style="text-align:center;font-size:10px;font-weight:700">${r.day}</div>
-          <div style="position:relative"><input type="text" inputmode="decimal" placeholder="7.3" value="${r.in? toDisplay(r.in):''}" onblur="smartInput(${i},'in',this.value)" onfocus="this.select()" style="width:100%;padding:5px 2px;border:1px solid #e2e8f0;border-radius:5px;font-size:11px;text-align:center;background:${r.in?'#f0fdf4':'#fff'};color:#000"><small style="position:absolute;left:2px;top:1px;font-size:6px;color:#16a34a">${r.in? toAmPm(r.in):''}</small></div>
-          <div style="position:relative"><input type="text" inputmode="decimal" placeholder="19.3" value="${r.out? toDisplay(r.out):''}" onblur="smartInput(${i},'out',this.value)" onfocus="this.select()" style="width:100%;padding:5px 2px;border:1px solid #e2e8f0;border-radius:5px;font-size:11px;text-align:center;background:${r.out?'#fef2f2':'#fff'};color:#000"><small style="position:absolute;left:2px;top:1px;font-size:6px;color:#dc2626">${r.out? toAmPm(r.out):''}</small></div>
-          <div style="text-align:center;font-size:9px;font-weight:700;color:${r.total?'#16a34a':'#ccc'};font-family:monospace" onclick="fillNow(${i})">${r.total||'NOW'}</div>
+    <div style="display:grid;grid-template-columns:32px 1fr 1fr 60px;gap:1px;background:#f1f5f9;padding:4px;font-size:8px;font-weight:800;text-align:center">
+      <div>يوم</div><div>دخول (7.3=7:30)</div><div>خروج</div><div>ساعات</div>
+    </div>
+    <div style="max-height:340px;overflow:auto">
+      ${attData.map(r=>`
+        <div style="display:grid;grid-template-columns:32px 1fr 1fr 60px;gap:1px;padding:2px 4px;border-bottom:1px solid #f1f5f9;align-items:center;background:${r.total? '#f0fdf4':'#fff'}">
+          <div style="font-size:10px;font-weight:800;text-align:center">${r.day}</div>
+          <input value="${r.in}" id="in${r.day}" onchange="updateAtt(${r.day},'in',this.value)" placeholder="07:00" style="border:1px solid #e2e8f0;border-radius:6px;padding:5px 4px;font-size:11px;text-align:center;font-family:monospace;background:#fff;color:#000">
+          <input value="${r.out}" id="out${r.day}" onchange="updateAtt(${r.day},'out',this.value)" placeholder="16:00" style="border:1px solid #e2e8f0;border-radius:6px;padding:5px 4px;font-size:11px;text-align:center;font-family:monospace;background:#fff;color:#000">
+          <div style="font-size:10px;font-weight:800;text-align:center;font-family:monospace;color:${r.total?'#15803d':'#94a3b8'}">${r.total? r.total.toFixed(1):'-'}</div>
         </div>
       `).join('')}
     </div>
+  </div>
   `;
 }
 
-function toDisplay(t){ if(!t) return ''; let [h,m]=t.split(':').map(Number); return `${h}.${String(m).padStart(2,'0')}`; }
-function toAmPm(t){ if(!t) return ''; let [h,m]=t.split(':').map(Number); let ap=h>=12?'م':'ص'; let h12=h%12||12; return `${h12}:${String(m).padStart(2,'0')} ${ap}`; }
-function smartInput(i,f,v){ if(!v){ attData[i][f]=''; attData[i].total=calcH(attData[i].in,attData[i].out); saveAtt(); renderAtt(); return; } let p=parseSmartTime(v); let [h,m]=p.split(':').map(Number); if(isNaN(h)||isNaN(m)||h>23||m>59){ alert('اكتب زي 7.3 أو 19.33'); return; } attData[i][f]=p; attData[i].total=calcH(attData[i].in,attData[i].out); saveAtt(); renderAtt(); }
-function fillNow(i){ let n=new Date(), t=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; if(!attData[i].in) attData[i].in=t; else if(!attData[i].out) attData[i].out=t; else attData[i].out=t; attData[i].total=calcH(attData[i].in,attData[i].out); saveAtt(); renderAtt(); }
-function editConfig(k,v){ salaryConfig[k]=parseFloat(v)||0; saveAtt(); renderAtt(); }
-if(attData.length===0) initMonth();
+function editConfig(k,v){ salaryConfig[k]=parseFloat(v)||0; saveAtt(); renderAtt(); if(typeof renderDashboard==='function') renderDashboard(); }
+function updateAtt(day, type, val){
+  let parsed = parseSmartTime(val);
+  let r=attData.find(x=>x.day===day); if(!r) return;
+  r[type]=parsed;
+  r.total=calcH(r.in, r.out);
+  saveAtt(); renderAtt();
+  if(r.in && r.out && window.ارسل_حضور){
+    ارسل_حضور(r.in, r.out, r.total);
+  }
+  if(typeof renderDashboard==='function') renderDashboard();
+}
