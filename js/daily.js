@@ -1,124 +1,89 @@
-// js/daily.js - نسخة نهائية برو
-
-let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
-let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-let catsIncome = JSON.parse(localStorage.getItem('catsIncome') || '["راتب","مبيعات","تحويل","أخرى"]');
-let catsExp = JSON.parse(localStorage.getItem('catsExp') || '["أكل","إيجار","مواصلات","فواتير","أخرى"]');
-let debts = JSON.parse(localStorage.getItem('debts_v2') || '[]');
+// js/daily.js - اليومية الاحترافية
+let incomeData = JSON.parse(localStorage.getItem('daily_income_pro') || '[]');
+let expData = JSON.parse(localStorage.getItem('daily_exp_pro') || '[]');
+let debtsData = JSON.parse(localStorage.getItem('daily_debt_pro') || '[]');
 
 function saveDaily(){
-  localStorage.setItem('incomes', JSON.stringify(incomes));
-  localStorage.setItem('expenses', JSON.stringify(expenses));
-  localStorage.setItem('catsIncome', JSON.stringify(catsIncome));
-  localStorage.setItem('catsExp', JSON.stringify(catsExp));
-  localStorage.setItem('debts_v2', JSON.stringify(debts));
-  if(typeof renderHome === 'function') renderHome();
+  localStorage.setItem('daily_income_pro', JSON.stringify(incomeData));
+  localStorage.setItem('daily_exp_pro', JSON.stringify(expData));
+  localStorage.setItem('daily_debt_pro', JSON.stringify(debtsData));
 }
 
+// --- INCOME ---
 function renderIncome(){
-  let opts = catsIncome.map(c=>`<option>${c}</option>`).join('');
-  document.getElementById('daily-income').innerHTML=`<div class="input-row"><input id="in-a" type="number" placeholder="المبلغ"><select id="in-c">${opts}</select><button class="btn" onclick="addIncome()">+</button></div><div style="display:flex;gap:6px;margin-bottom:10px"><button class="btn-small" onclick="addCat('income')">+ فئة</button><button class="btn-small" onclick="manageCats('income')">⚙️ إدارة</button></div><b>الإجمالي: ${incomes.reduce((s,x)=>s+ +x.amount,0)} ج.م</b>${incomes.map((x,i)=>`<div class="card"><span>${x.cat} - ${x.date}</span><b>${x.amount} ج.م <span onclick="delI(${i})">❌</span></b></div>`).join('')}`;
-}
-function addIncome(){ let a=document.getElementById('in-a').value; if(!a) return; incomes.push({amount:a,cat:document.getElementById('in-c').value,date:new Date().toLocaleDateString('ar-EG')}); saveDaily(); renderIncome(); }
-function delI(i){ incomes.splice(i,1); saveDaily(); renderIncome(); }
+  let totalToday = incomeData.filter(d=> d.date===todayKey()).reduce((s,x)=>s+x.amount,0);
+  let totalMonth = incomeData.reduce((s,x)=>s+x.amount,0);
+  
+  document.getElementById('daily-income').innerHTML=`
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+    <div style="background:#000;color:#fff;border-radius:14px;padding:10px"><div style="font-size:8px;opacity:.6">اليوم</div><div style="font-size:16px;font-weight:900;font-family:monospace">${totalToday.toLocaleString('en-US')} ج</div></div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:10px"><div style="font-size:8px;color:#16a34a">الشهر</div><div style="font-size:16px;font-weight:900;color:#15803d;font-family:monospace">${totalMonth.toLocaleString('en-US')} ج</div></div>
+  </div>
 
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:8px;display:flex;gap:6px;margin-bottom:8px;position:sticky;top:0;z-index:5">
+    <input id="incAmount" type="text" inputmode="decimal" placeholder="المبلغ - اكتب 1500" style="flex:1;background:#f8fafc;border:0;border-radius:99px;padding:10px 12px;font-size:13px;font-weight:700;outline:none;color:#000">
+    <input id="incNote" type="text" placeholder="ملاحظة" style="width:90px;background:#f8fafc;border:0;border-radius:99px;padding:10px 10px;font-size:11px;outline:none;color:#000">
+    <button onclick="addIncome()" style="background:#000;color:#fff;border:0;width:40px;height:40px;border-radius:50%;font-weight:900">+</button>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:5px;max-height:380px;overflow:auto">
+    ${incomeData.slice().reverse().map((r,i)=>`
+      <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:12px;font-weight:800;font-family:monospace">${r.amount.toLocaleString('en-US')} ج</div><div style="font-size:8px;color:#94a3b8">${r.note||'دخل'} • ${r.date}</div></div>
+        <div style="display:flex;gap:8px;align-items:center"><span style="font-size:8px;background:#f0fdf4;color:#16a34a;padding:2px 6px;border-radius:99px">دخل</span><span onclick="delIncome(${incomeData.length-1-i})" style="color:#ef4444;font-size:12px;cursor:pointer">✕</span></div>
+      </div>
+    `).join('') || `<div style="text-align:center;padding:30px;color:#cbd5e1;font-size:11px">لا يوجد دخل اليوم</div>`}
+  </div>
+  `;
+}
+function addIncome(){
+  let a=document.getElementById('incAmount').value.replace(',','.'), n=document.getElementById('incNote').value;
+  let amt=parseFloat(a); if(!amt) return;
+  incomeData.push({amount:amt, note:n, date:todayKey(), id:Date.now()}); saveDaily(); renderIncome();
+}
+function delIncome(idx){ incomeData.splice(idx,1); saveDaily(); renderIncome(); }
+
+// --- EXPENSE ---
 function renderExp(){
-  let opts = catsExp.map(c=>`<option>${c}</option>`).join('');
-  document.getElementById('daily-exp').innerHTML=`<div class="input-row"><input id="ex-a" type="number" placeholder="المبلغ"><select id="ex-c">${opts}</select><button class="btn" style="background:#ef4444" onclick="addExp()">+</button></div><div style="display:flex;gap:6px;margin-bottom:10px"><button class="btn-small" onclick="addCat('exp')">+ فئة</button><button class="btn-small" onclick="manageCats('exp')">⚙️ إدارة</button></div><b>الإجمالي: ${expenses.reduce((s,x)=>s+ +x.amount,0)} ج.م</b>${expenses.map((x,i)=>`<div class="card"><span>${x.cat}</span><b>${x.amount} ج.م <span onclick="delE(${i})">❌</span></b></div>`).join('')}`;
+  let totalToday = expData.filter(d=> d.date===todayKey()).reduce((s,x)=>s+x.amount,0);
+  document.getElementById('daily-exp').innerHTML=`
+  <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between"><div><div style="font-size:8px;color:#dc2626">مصروف اليوم</div><div style="font-size:16px;font-weight:900;color:#dc2626;font-family:monospace">${totalToday.toLocaleString('en-US')} ج</div></div><div style="font-size:20px">💸</div></div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:8px;display:flex;gap:6px;margin-bottom:8px">
+    <input id="expAmount" type="text" inputmode="decimal" placeholder="المبلغ" style="flex:1;background:#f8fafc;border:0;border-radius:99px;padding:10px 12px;font-size:13px;font-weight:700;outline:none;color:#000">
+    <input id="expNote" type="text" placeholder="ليه؟" style="width:90px;background:#f8fafc;border:0;border-radius:99px;padding:10px 10px;font-size:11px;outline:none;color:#000">
+    <button onclick="addExp()" style="background:#dc2626;color:#fff;border:0;width:40px;height:40px;border-radius:50%;font-weight:900">+</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:5px">${expData.slice().reverse().map((r,i)=>`<div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:8px 10px;display:flex;justify-content:space-between"><div><div style="font-size:12px;font-weight:800">${r.amount.toLocaleString('en-US')} ج</div><div style="font-size:8px;color:#94a3b8">${r.note||'مصروف'} • ${r.date}</div></div><span onclick="delExp(${expData.length-1-i})" style="color:#ef4444;cursor:pointer">✕</span></div>`).join('')}</div>
+  `;
 }
-function addExp(){ let a=document.getElementById('ex-a').value; if(!a) return; expenses.push({amount:a,cat:document.getElementById('ex-c').value}); saveDaily(); renderExp(); }
-function delE(i){ expenses.splice(i,1); saveDaily(); renderExp(); }
+function addExp(){ let a=document.getElementById('expAmount').value, n=document.getElementById('expNote').value; let amt=parseFloat(a); if(!amt) return; expData.push({amount:amt, note:n, date:todayKey(), id:Date.now()}); saveDaily(); renderExp(); }
+function delExp(idx){ expData.splice(idx,1); saveDaily(); renderExp(); }
 
-function addCat(type){ let name=prompt('اسم الفئة الجديدة:'); if(!name) return; if(type==='income') catsIncome.push(name); else catsExp.push(name); saveDaily(); type==='income'?renderIncome():renderExp(); }
-function manageCats(type){
-  let list = type==='income'? catsIncome : catsExp;
-  let html = list.map((c,i)=>`<div class="card"><span>${c}</span><div style="display:flex;gap:4px"><button class="btn-small" onclick="editCat('${type}',${i})">✏️</button><button class="btn-small" style="background:#fee2e2" onclick="deleteCat('${type}',${i})">🗑️</button></div></div>`).join('');
-  document.getElementById(type==='income'?'daily-income':'daily-exp').innerHTML=`<div><b>إدارة فئات ${type==='income'?'الدخل':'المصاريف'}</b>${html}<button class="btn" style="width:100%;margin-top:10px;background:#334155" onclick="${type==='income'?'renderIncome()':'renderExp()'}">رجوع</button></div>`;
-}
-function editCat(type,i){ let oldName=type==='income'?catsIncome[i]:catsExp[i]; let newName=prompt('عدل الاسم:',oldName); if(!newName) return; if(type==='income') catsIncome[i]=newName; else catsExp[i]=newName; saveDaily(); type==='income'?renderIncome():renderExp(); }
-function deleteCat(type,i){ if(!confirm('تمسح الفئة؟')) return; if(type==='income') catsIncome.splice(i,1); else catsExp.splice(i,1); saveDaily(); type==='income'?renderIncome():renderExp(); }
-
-// ============ ديون برو - إدخال احترافي ============
+// --- DEBT (يدوي - انت اللي تحط 5000) ---
 function renderDebt(){
-  let forMe = debts.filter(d=>d.type==='لي').reduce((s,x)=>s+x.remaining,0);
-  let onMe = debts.filter(d=>d.type==='عليّ').reduce((s,x)=>s+x.remaining,0);
+  let total = debtsData.reduce((s,x)=>s+(x.type==='عليّ'? x.remaining: -x.remaining),0);
   document.getElementById('daily-debt').innerHTML=`
-  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;margin-bottom:12px">
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <button id="btn-mode-debt" class="btn" style="flex:1" onclick="setDebtMode('debt')">+ دين جديد</button>
-      <button id="btn-mode-pay" class="btn-small" style="flex:1;padding:10px" onclick="setDebtMode('pay')">💵 تسديد</button>
-    </div>
-    <input id="d-n" placeholder="اسم الشخص" list="names-list" style="width:100%;margin-bottom:8px;padding:10px;border-radius:10px;border:1px solid #e2e8f0">
-    <datalist id="names-list">${debts.map(d=>`<option value="${d.name}">`).join('')}</datalist>
-    <div style="display:flex;gap:8px">
-      <input id="d-a" type="number" placeholder="المبلغ" style="flex:1;padding:10px;border-radius:10px;border:1px solid #e2e8f0">
-      <select id="d-t" style="flex:1;padding:10px;border-radius:10px"><option value="عليّ">عليّ (واخد)</option><option value="لي">لي (مسلف)</option></select>
-    </div>
-    <button id="d-action-btn" class="btn" style="width:100%;margin-top:10px;background:#0f172a" onclick="handleDebtAction()">حفظ الدين</button>
-    <small id="d-hint" style="color:#64748b;display:block;margin-top:6px;text-align:center">اكتب اسم موجود وهيظهرلك الباقي أوتوماتيك</small>
+  <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-size:8px;color:#b45309">صافي ديونك</div><div style="font-size:16px;font-weight:900;font-family:monospace;color:${total>=0?'#dc2626':'#16a34a'}">${total.toLocaleString('en-US')} ج ${total>=0?'عليك':'ليك'}</div></div>
+    <div style="font-size:8px;background:#000;color:#fff;padding:4px 8px;border-radius:99px">يدوي 100%</div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <div class="stat" style="background:#ecfdf5;text-align:center;border:1px solid #bbf7d0"><small>ليك</small><br><b>${forMe}</b></div>
-    <div class="stat" style="background:#fef2f2;text-align:center;border:1px solid #fecaca"><small>عليك</small><br><b>${onMe}</b></div>
+
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:8px;display:grid;grid-template-columns:1fr 1fr 60px;gap:4px;margin-bottom:8px">
+    <input id="debtName" placeholder="الاسم" style="background:#f8fafc;border:0;border-radius:8px;padding:8px;font-size:11px;color:#000;outline:none">
+    <input id="debtAmount" type="number" placeholder="5000" style="background:#fff1f2;border:1.5px solid #fecaca;border-radius:8px;padding:8px;font-size:12px;font-weight:800;color:#dc2626;outline:none;text-align:center">
+    <select id="debtType" style="border:0;background:#f8fafc;border-radius:8px;font-size:10px;color:#000"><option value="عليّ">عليّ</option><option value="ليّا">ليّا</option></select>
+    <button onclick="addDebt()" style="grid-column:span 3;background:#000;color:#fff;border:0;padding:8px;border-radius:8px;font-size:11px;font-weight:700">+ إضافة دين</button>
   </div>
-  ${debts.map((d,i)=>{
-    let percent = d.total>0? Math.min(100,Math.round((d.paid/d.total)*100)) : 0;
-    return `<div class="card" onclick="openLedger(${i})" style="flex-direction:column;padding:0;overflow:hidden;cursor:pointer"><div style="padding:12px;width:100%;display:flex;justify-content:space-between"><div><b>${d.name}</b> <small style="background:${d.type==='لي'?'#dcfce7':'#fee2e2'};padding:2px 6px;border-radius:99px">${d.type}</small><br><small>الباقي <b>${d.remaining} ج.م</b> من ${d.total}</small></div><b>${percent}%</b></div><div style="height:5px;background:#f1f5f9;width:100%"><div style="height:100%;width:${percent}%;background:${percent===100?'#10b981':'#f59e0b'}"></div></div></div>`
-  }).join('')}
-  <div id="ledger-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;padding:20px;display:flex;align-items:center;justify-content:center"><div id="ledger-content" style="background:#fff;width:100%;max-width:380px;border-radius:20px;padding:16px;max-height:80vh;overflow:auto"></div></div>
-  `;
-  // تحديث الهينت لما يكتب اسم موجود
-  setTimeout(()=>{
-    const input = document.getElementById('d-n');
-    if(input){
-      input.addEventListener('input', ()=>{
-        let p = debts.find(d=>d.name.toLowerCase()===input.value.toLowerCase());
-        document.getElementById('d-hint').innerHTML = p? `📌 ${p.name} عليه باقي <b>${p.remaining} ج.م</b> - دوس تسديد` : 'اسم جديد - هيتعمله حساب جديد';
-      });
-    }
-  },100);
-}
 
-let debtMode = 'debt';
-function setDebtMode(mode){
-  debtMode=mode;
-  document.getElementById('btn-mode-debt').className = mode==='debt'? 'btn' : 'btn-small';
-  document.getElementById('btn-mode-pay').className = mode==='pay'? 'btn' : 'btn-small';
-  document.getElementById('btn-mode-debt').style.flex='1'; document.getElementById('btn-mode-pay').style.flex='1';
-  document.getElementById('btn-mode-debt').style.padding='10px'; document.getElementById('btn-mode-pay').style.padding='10px';
-  document.getElementById('d-action-btn').innerText = mode==='debt'? 'حفظ الدين الجديد' : 'تأكيد السداد';
-  document.getElementById('d-action-btn').style.background = mode==='debt'? '#0f172a' : '#10b981';
-}
-
-function handleDebtAction(){
-  let name = document.getElementById('d-n').value.trim();
-  let amount = parseFloat(document.getElementById('d-a').value);
-  let type = document.getElementById('d-t').value;
-  if(!name||!amount) return alert('اكتب الاسم والمبلغ');
-  let person = debts.find(d=>d.name.toLowerCase()===name.toLowerCase() && d.type===type);
-  if(debtMode==='debt'){
-    if(!person){ debts.push({name,type,total:amount,paid:0,remaining:amount,history:[{amount,kind:'دين',date:new Date().toLocaleDateString('ar-EG')}]}); }
-    else { person.total+=amount; person.remaining+=amount; person.history.push({amount,kind:'دين جديد',date:new Date().toLocaleDateString('ar-EG')}); }
-  } else {
-    if(!person) return alert('الاسم ده مش موجود في '+type);
-    person.paid+=amount; person.remaining-=amount; if(person.remaining<0) person.remaining=0;
-    person.history.push({amount,kind:'سداد',date:new Date().toLocaleDateString('ar-EG')});
-    if(person.remaining===0) setTimeout(()=>alert('✅ حساب '+person.name+' خلص'),100);
-  }
-  saveDaily(); renderDebt(); document.getElementById('d-n').value=''; document.getElementById('d-a').value='';
-}
-
-function openLedger(i){
-  let d=debts[i];
-  document.getElementById('ledger-modal').classList.remove('hidden');
-  document.getElementById('ledger-content').innerHTML=`
-    <div style="display:flex;justify-content:space-between"><h3 style="margin:0">📒 ${d.name}</h3><span onclick="document.getElementById('ledger-modal').classList.add('hidden')" style="cursor:pointer">✕</span></div>
-    <div style="background:#f8fafc;padding:10px;border-radius:12px;margin:10px 0;text-align:center">الباقي <b>${d.remaining}</b> | ${d.paid}/${d.total}</div>
-    <div style="display:flex;gap:6px;margin-bottom:10px"><input id="quick-amount" type="number" placeholder="مبلغ" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e2e8f0"><button class="btn" onclick="quickPay(${i})">سداد</button><button class="btn" style="background:#334155" onclick="quickDebt(${i})">+ دين</button></div>
-    <div>${d.history.map((h,hi)=>`<div class="card" style="padding:8px;font-size:13px"><span>${h.date} - ${h.kind} <b>${h.amount}</b></span><div><span onclick="editHistory(${i},${hi})">✏️</span> <span onclick="delHistory(${i},${hi})">🗑️</span></div></div>`).slice().reverse().join('')}</div>
+  <div style="display:flex;flex-direction:column;gap:5px">${debtsData.slice().reverse().map((r,i)=>`<div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:8px 10px;display:flex;justify-content:space-between"><div><div style="font-size:11px;font-weight:700">${r.name}</div><div style="font-size:8px;color:#94a3b8">${r.type} • ${r.remaining.toLocaleString('en-US')} ج</div></div><span onclick="delDebt(${debtsData.length-1-i})" style="color:#ef4444">✕</span></div>`).join('')}</div>
   `;
 }
-function quickPay(i){ let a=parseFloat(document.getElementById('quick-amount').value); if(!a) return; debts[i].paid+=a; debts[i].remaining-=a; if(debts[i].remaining<0) debts[i].remaining=0; debts[i].history.push({amount:a,kind:'سداد',date:new Date().toLocaleDateString('ar-EG')}); saveDaily(); openLedger(i); renderDebt(); }
-function quickDebt(i){ let a=parseFloat(document.getElementById('quick-amount').value); if(!a) return; debts[i].total+=a; debts[i].remaining+=a; debts[i].history.push({amount:a,kind:'دين جديد',date:new Date().toLocaleDateString('ar-EG')}); saveDaily(); openLedger(i); renderDebt(); }
-function editHistory(pi,hi){ let ne=prompt('المبلغ الجديد:',debts[pi].history[hi].amount); if(!ne) return; let diff=parseFloat(ne)-debts[pi].history[hi].amount; debts[pi].history[hi].amount=parseFloat(ne); if(debts[pi].history[hi].kind.includes('سداد')){debts[pi].paid+=diff; debts[pi].remaining-=diff;} else {debts[pi].total+=diff; debts[pi].remaining+=diff;} saveDaily(); openLedger(pi); renderDebt(); }
-function delHistory(pi,hi){ if(!confirm('تمسح؟')) return; let h=debts[pi].history[hi]; if(h.kind.includes('سداد')){debts[pi].paid-=h.amount; debts[pi].remaining+=h.amount;} else {debts[pi].total-=h.amount; debts[pi].remaining-=h.amount;} debts[pi].history.splice(hi,1); saveDaily(); openLedger(pi); renderDebt(); }
+function addDebt(){
+  let name=document.getElementById('debtName').value, amt=parseFloat(document.getElementById('debtAmount').value), type=document.getElementById('debtType').value;
+  if(!name||!amt) return;
+  debtsData.push({name, remaining:amt, type, id:Date.now()}); saveDaily(); renderDebt();
+  // عشان خانة الصيدلية تفضل يدوي، مش بنربطها
+}
+function delDebt(idx){ debtsData.splice(idx,1); saveDaily(); renderDebt(); }
+
+function todayKey(){ return new Date().toISOString().slice(0,10); }
