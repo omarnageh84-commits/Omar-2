@@ -1,4 +1,3 @@
-// js/daily.js - نسخة SLIM مضغوطة احترافية
 let daily = JSON.parse(localStorage.getItem('daily_v4') || '{"income":[],"exp":[],"debt":[],"cats":{"income":["مبيعات","حوافز","سلفة"],"exp":["مواصلات","أكل","شحن","قهوة","مصروف بيت"],"debt":["عليّ","ليّ"]}}');
 if(!daily.cats) daily.cats={income:["مبيعات"],exp:["مواصلات","أكل"],debt:["عليّ","ليّ"]};
 let dailyView = localStorage.getItem('daily_view') || 'today';
@@ -21,15 +20,11 @@ function renderList(type){
   let total=list.reduce((s,x)=>s+(x.amount||0),0);
   let cats=daily.cats[type];
   let isExp=type==='exp', isInc=type==='income';
-
   el.innerHTML=`
   <div style="zoom:0.88">
-    <!-- فلتر -->
     <div style="display:flex;gap:3px;background:#f1f5f9;padding:2px;border-radius:99px;margin-bottom:6px">
       ${[['today','اليوم'],['week','أسبوع'],['month','شهر'],['all','الكل']].map(([k,l])=>`<button onclick="dailyView='${k}';saveDaily();renderList('${type}')" style="flex:1;border:0;padding:4px;border-radius:99px;font-size:8px;font-weight:700;cursor:pointer;background:${dailyView===k?'#000':'transparent'};color:${dailyView===k?'#fff':'#64748b'}">${l}</button>`).join('')}
     </div>
-
-    <!-- اجمالي SLIM -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
       <div style="background:${isExp?'#fef2f2':isInc?'#000':'#f8fafc'};color:${isExp?'#dc2626':isInc?'#fff':'#000'};border-radius:10px;padding:6px 8px;border:1px solid ${isExp?'#fecaca':'#e5e7eb'};display:flex;justify-content:space-between;align-items:center">
         <div><div style="font-size:6px;opacity:.7">${list.length} عملية</div><div style="font-size:12px;font-weight:900;font-family:monospace">${total.toLocaleString('en-US')} ج</div></div>
@@ -40,8 +35,6 @@ function renderList(type){
         <div style="font-size:8px;color:#10b981">● مباشر</div>
       </div>
     </div>
-
-    <!-- فورم SLIM -->
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:6px;margin-bottom:6px;box-shadow:0 2px 6px rgba(0,0,0,.03)">
       <div style="display:flex;gap:4px;margin-bottom:4px">
         <div style="flex:1.2;position:relative">
@@ -54,10 +47,8 @@ function renderList(type){
         <button onclick="addDaily('${type}')" style="background:#000;color:#fff;border:0;border-radius:8px;padding:0 12px;font-weight:900;font-size:10px;cursor:pointer">+ حفظ</button>
       </div>
       <div style="display:flex;gap:4px">
-        <input id="${type}Note" placeholder="ملاحظة... (اختياري)" style="flex:1;background:#f8fafc;border:1px solid #f1f5f9;border-radius:99px;padding:4px 8px;font-size:8px;outline:none;color:#000">
+        <input id="${type}Note" placeholder="ملاحظة..." style="flex:1;background:#f8fafc;border:1px solid #f1f5f9;border-radius:99px;padding:4px 8px;font-size:8px;outline:none;color:#000">
       </div>
-
-      <!-- فئات SLIM -->
       <details style="margin-top:6px;background:#f8fafc;border-radius:8px;padding:4px 6px">
         <summary style="font-size:8px;font-weight:800;cursor:pointer;list-style:none;display:flex;justify-content:space-between">⚙️ إدارة الفئات (${cats.length}) <span style="color:#64748b;font-size:7px">▼</span></summary>
         <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px">
@@ -69,8 +60,6 @@ function renderList(type){
         </div>
       </details>
     </div>
-
-    <!-- ليست SLIM -->
     <div style="display:flex;flex-direction:column;gap:3px">
       ${list.slice().reverse().map(x=>{
         let rIdx=all.indexOf(x);
@@ -92,15 +81,19 @@ function renderList(type){
     </div>
   </div>`;
 }
-
 function addDaily(type){
   let amtEl=document.getElementById(type+'Amount'); let amt=parseFloat(amtEl.value);
   if(!amt||amt<=0){ amtEl.style.outline='2px solid #ef4444'; return; }
   let cat=document.getElementById(type+'Cat').value;
   let note=document.getElementById(type+'Note').value.trim();
   let now=new Date();
-  daily[type].push({amount:amt,cat,note,date:now.toLocaleDateString('ar-EG'),time:now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),fullDate:now.toISOString()});
-  saveDaily(); renderList(type); if(typeof renderDashboard==='function') renderDashboard();
+  let item={amount:amt,cat,note,date:now.toLocaleDateString('ar-EG'),time:now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),fullDate:now.toISOString()};
+  daily[type].push(item);
+  saveDaily();
+  if(type==='exp' && window.ارسل_مصروف) ارسل_مصروف(amt,cat,note);
+  if(type==='income' && window.ارسل_دخل) ارسل_دخل(amt,cat,note);
+  if(type==='debt' && window.ارسل_دين) ارسل_دين(amt,cat,note);
+  renderList(type); if(typeof renderDashboard==='function') renderDashboard();
   document.getElementById(type+'Amount').value=''; document.getElementById(type+'Note').value='';
 }
 function deleteDaily(type,i){
