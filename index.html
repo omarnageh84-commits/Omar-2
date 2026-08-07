@@ -2,125 +2,103 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>يومياتي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Tajawal,system-ui}
-body{background:#f8fafc}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Tajawal',system-ui}
+body{background:#f1f5f9;color:#1e293b}
 .hidden{display:none!important}
-.active{font-weight:900}
-.tab{display:none;padding:14px;padding-bottom:90px}
+.tab{display:none;padding:16px;padding-bottom:100px}
 .tab.active{display:block}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 0 14px;border-top:1px solid #e5e7eb;z-index:99}
-.nav-btn{border:0;background:0;font-size:11px;color:#9ca3af;text-align:center}
-.nav-btn.active{color:#10b981}
-.pill{padding:8px 16px;border-radius:99px;border:0;background:#eef2ff;font-size:13px;font-weight:700}
-.pill.active{background:#10b981;color:#fff}
-.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.input{width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:8px;font-size:14px}
-.btn{width:100%;padding:12px;border:0;border-radius:12px;background:#10b981;color:#fff;font-weight:800;font-size:14px}
-.btn2{padding:8px 12px;border-radius:10px;border:0;background:#e5e7eb;font-size:12px}
+.top{position:sticky;top:0;z-index:50;background:#059669;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.input{width:100%;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:10px;font-size:14px;background:#fff}
+.btn{width:100%;padding:12px;border:0;border-radius:8px;background:#059669;color:#fff;font-weight:800;cursor:pointer}
+.btn:active{background:#047857}
+.subbar{display:flex;gap:8px;background:#e2e8f0;padding:4px;border-radius:8px;margin:12px 0}
+.subbar button{flex:1;padding:8px;border:0;border-radius:6px;background:transparent;font-weight:700;color:#64748b}
+.subbar button.active{background:#fff;color:#059669;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.cat-row{display:flex;gap:8px;margin-bottom:12px}
+.cat-row select{flex:1}
+.icon-btn{width:40px;height:40px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e8f0;display:flex;padding:6px 0;z-index:99}
+.nav button{flex:1;border:0;background:0;color:#94a3b8;font-size:11px;padding:6px}
+.nav button.active{color:#059669;font-weight:800}
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #f1f5f9}
+.item:last-child{border:0}
 </style>
 </head>
 <body>
+<div class="top"><span id="date"></span><b>يومياتي 💼</b></div>
 
-<!-- Header -->
-<div style="background:#10b981;color:#fff;padding:16px 18px;border-radius:0 0 22px 22px;display:flex;justify-content:space-between;align-items:center">
-  <b id="date">الجمعة، ٧ أغسطس</b>
-  <b>💼 يومياتي</b>
-</div>
-
-<!-- Tabs -->
-<!-- الرئيسية -->
 <div id="tab-home" class="tab active">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-    <div class="card"><div style="font-size:12px;color:#6b7280">المصاريف</div><b id="total-exp">0 ج</b></div>
-    <div class="card"><div style="font-size:12px;color:#6b7280">الدخل</div><b id="total-income">0 ج</b></div>
-    <div class="card"><div style="font-size:12px;color:#6b7280">الديون</div><b id="total-debt">0 ج</b></div>
-    <div class="card"><div style="font-size:12px;color:#6b7280">الرصيد</div><b id="balance">0 ج</b></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+    <div class="card"><div style="font-size:12px;color:#64748b">المصاريف</div><div id="total-exp" style="font-size:20px;font-weight:800">0 ج</div></div>
+    <div class="card"><div style="font-size:12px;color:#64748b">الدخل</div><div id="total-income" style="font-size:20px;font-weight:800">0 ج</div></div>
+    <div class="card"><div style="font-size:12px;color:#64748b">الرصيد</div><div id="balance" style="font-size:20px;font-weight:800;color:#059669">0 ج</div></div>
+    <div class="card"><div style="font-size:12px;color:#64748b">الديون</div><div id="total-debt" style="font-size:20px;font-weight:800">0 ج</div></div>
   </div>
 </div>
 
-<!-- اليومية - مصاريف -->
 <div id="tab-daily" class="tab">
-  <div style="display:flex;gap:6px;background:#eef2ff;padding:6px;border-radius:99px;margin:12px 0">
-    <button id="p-exp" class="pill active" style="flex:1" onclick="setDaily('exp')">المصاريف</button>
-    <button id="p-income" class="pill" style="flex:1" onclick="setDaily('income')">الدخل</button>
-    <button id="p-debt" class="pill" style="flex:1" onclick="setDaily('debt')">الديون</button>
-  </div>
-
-  <div id="daily-exp">
-    <input id="exp-title" class="input" placeholder="اسم المصروف">
-    <input id="exp-amount" class="input" type="number" placeholder="المبلغ">
-    <input id="exp-cat" class="input" placeholder="الفئة (بيت، شغل...)">
-    <button class="btn" onclick="addDaily('exp')">إضافة مصروف</button>
-    <div id="exp-list" style="margin-top:14px"></div>
-  </div>
-  <div id="daily-income" class="hidden">
-    <input id="income-title" class="input" placeholder="مصدر الدخل">
-    <input id="income-amount" class="input" type="number" placeholder="المبلغ">
-    <input id="income-cat" class="input" placeholder="الفئة">
-    <button class="btn" onclick="addDaily('income')">إضافة دخل</button>
-    <div id="income-list" style="margin-top:14px"></div>
-  </div>
-  <div id="daily-debt" class="hidden">
-    <input id="debt-title" class="input" placeholder="اسم الدين">
-    <input id="debt-amount" class="input" type="number" placeholder="المبلغ">
-    <input id="debt-cat" class="input" placeholder="لمن؟">
-    <button class="btn" onclick="addDaily('debt')">إضافة دين</button>
-    <div id="debt-list" style="margin-top:14px"></div>
-  </div>
+  <div class="subbar"><button id="p-exp" class="active" onclick="setDaily('exp')">المصاريف</button><button id="p-income" onclick="setDaily('income')">الدخل</button><button id="p-debt" onclick="setDaily('debt')">الديون</button></div>
+  <div id="daily-exp"><input id="exp-title" class="input" placeholder="اسم المصروف"><input id="exp-amount" type="number" class="input" placeholder="المبلغ"><input id="exp-cat" class="input" placeholder="الفئة (بيت، شغل)"><button class="btn" onclick="addDaily('exp')">إضافة</button><div id="exp-list" style="margin-top:12px"></div></div>
+  <div id="daily-income" class="hidden"><input id="income-title" class="input" placeholder="المصدر"><input id="income-amount" type="number" class="input" placeholder="المبلغ"><input id="income-cat" class="input" placeholder="الفئة"><button class="btn" onclick="addDaily('income')">إضافة</button><div id="income-list"></div></div>
+  <div id="daily-debt" class="hidden"><input id="debt-title" class="input" placeholder="اسم الدين"><input id="debt-amount" type="number" class="input" placeholder="المبلغ"><input id="debt-cat" class="input" placeholder="لمن؟"><button class="btn" onclick="addDaily('debt')">إضافة</button><div id="debt-list"></div></div>
 </div>
 
-<!-- الحضور -->
 <div id="tab-att" class="tab">
-  <div id="att-list" style="margin-top:12px"></div>
-  <button class="btn" style="margin-top:12px" onclick="addAtt()">تسجيل حضور الآن</button>
+  <div id="att-list"></div>
+  <button class="btn" onclick="addAtt()" style="margin-top:12px">تسجيل حضور الآن</button>
 </div>
 
-<!-- ملاحظات - بفئات -->
 <div id="tab-notes" class="tab">
-  <div id="note-cats"></div>
-  <div class="card" style="margin-top:10px">
+  <div class="cat-row">
+    <select id="note-filter" class="input" style="margin:0" onchange="currentNoteFilter=this.value;renderNotes()"></select>
+    <button class="icon-btn" onclick="addNoteCat()">+ فئة</button>
+  </div>
+  <div class="card">
     <select id="note-cat-select" class="input"></select>
     <textarea id="note-text" class="input" rows="3" placeholder="اكتب الملاحظة..."></textarea>
     <input type="hidden" id="note-img-base"><input type="hidden" id="note-aud-base">
-    <div style="display:flex;gap:6px;margin-bottom:8px">
-      <label class="btn2">📷 صورة<input type="file" id="note-img-file" accept="image/*" hidden onchange="onNoteImg(this)"></label>
-      <button id="note-mic-btn" class="btn2" onclick="toggleNoteMic()">🎤</button>
-      <label class="btn2">🎵 صوت<input type="file" id="note-aud-file" accept="audio/*" hidden onchange="onNoteAud(this)"></label>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <label style="flex:1;text-align:center;padding:8px;border:1px dashed #cbd5e1;border-radius:8px;font-size:12px">📷 صورة<input type="file" id="note-img-file" accept="image/*" hidden onchange="onNoteImg(this)"></label>
+      <button id="note-mic-btn" style="flex:1;padding:8px;border:1px dashed #cbd5e1;border-radius:8px;background:#fff" onclick="toggleNoteMic()">🎤 تسجيل</button>
+      <label style="flex:1;text-align:center;padding:8px;border:1px dashed #cbd5e1;border-radius:8px;font-size:12px">🎵 صوت<input type="file" id="note-aud-file" accept="audio/*" hidden onchange="onNoteAud(this)"></label>
     </div>
     <div id="note-preview"></div>
-    <button id="note-btn" class="btn" style="margin-top:8px" onclick="addNote()">إضافة ملاحظة</button>
+    <button id="note-btn" class="btn" onclick="addNote()">حفظ الملاحظة</button>
   </div>
-  <div id="notes-list" style="margin-top:12px"></div>
+  <div id="notes-list"></div>
 </div>
 
-<!-- مهام - بفئات -->
 <div id="tab-tasks" class="tab">
-  <div id="task-cats"></div>
-  <div class="card" style="margin-top:10px">
+  <div class="cat-row">
+    <select id="task-filter" class="input" style="margin:0" onchange="currentTaskFilter=this.value;renderTasks()"></select>
+    <button class="icon-btn" onclick="addTaskCat()">+ فئة</button>
+  </div>
+  <div class="card">
     <select id="task-cat-select" class="input"></select>
-    <input id="task-text" class="input" placeholder="اكتب المهمة...">
+    <input id="task-text" class="input" placeholder="المهمة...">
     <input type="hidden" id="task-img-base"><input type="hidden" id="task-aud-base">
-    <div style="display:flex;gap:6px;margin-bottom:8px">
-      <label class="btn2">📷<input type="file" accept="image/*" hidden onchange="onTaskImg(this)"></label>
-      <button id="task-mic-btn" class="btn2" onclick="toggleTaskMic()">🎤</button>
-      <label class="btn2">🎵<input type="file" id="task-aud-file" accept="audio/*" hidden onchange="onTaskAud(this)"></label>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <label style="flex:1;text-align:center;padding:8px;border:1px dashed #cbd5e1;border-radius:8px;font-size:12px">📷<input type="file" hidden accept="image/*" onchange="onTaskImg(this)"></label>
+      <button id="task-mic-btn" style="flex:1;padding:8px;border:1px dashed #cbd5e1;border-radius:8px;background:#fff" onclick="toggleTaskMic()">🎤</button>
+      <label style="flex:1;text-align:center;padding:8px;border:1px dashed #cbd5e1;border-radius:8px;font-size:12px">🎵<input type="file" id="task-aud-file" hidden accept="audio/*" onchange="onTaskAud(this)"></label>
     </div>
     <div id="task-preview"></div>
-    <button id="task-btn" class="btn" onclick="addTask()">إضافة مهمة</button>
+    <button id="task-btn" class="btn" onclick="addTask()">حفظ المهمة</button>
   </div>
-  <div id="tasks-list" style="margin-top:12px"></div>
+  <div id="tasks-list"></div>
 </div>
 
-<!-- Nav -->
 <div class="nav">
-  <button class="nav-btn" onclick="openTab(event,'home')">🏠<br>الرئيسية</button>
-  <button class="nav-btn active" onclick="openTab(event,'daily')">💰<br>اليومية</button>
-  <button class="nav-btn" onclick="openTab(event,'att')">⏰<br>الحضور</button>
-  <button class="nav-btn" onclick="openTab(event,'notes')">📝<br>ملاحظات</button>
-  <button class="nav-btn" onclick="openTab(event,'tasks')">✅<br>مهام</button>
+  <button class="active" onclick="openTab(event,'home')">🏠<br>الرئيسية</button>
+  <button onclick="openTab(event,'daily')">💰<br>اليومية</button>
+  <button onclick="openTab(event,'att')">⏰<br>الحضور</button>
+  <button onclick="openTab(event,'notes')">📝<br>ملاحظات</button>
+  <button onclick="openTab(event,'tasks')">✅<br>مهام</button>
 </div>
 
 <script src="js/app.js"></script>
@@ -129,8 +107,8 @@ body{background:#f8fafc}
 <script src="js/tasks.js"></script>
 <script>
 let att=JSON.parse(localStorage.getItem('omar_att')||'[]');
-function addAtt(){ att.unshift({id:Date.now(),time:new Date().toLocaleString('ar-EG')}); localStorage.setItem('omar_att',JSON.stringify(att)); renderAtt(); }
-function renderAtt(){ const l=document.getElementById('att-list'); if(!l) return; if(att.length==0) l.innerHTML='<div style="text-align:center;color:#9ca3af;padding:20px">مفيش حضور</div>'; else l.innerHTML=att.map(a=>`<div class="card" style="display:flex;justify-content:space-between"><span>${a.time}</span><b onclick="att=att.filter(x=>x.id!==${a.id});localStorage.setItem('omar_att',JSON.stringify(att));renderAtt()" style="color:red">✕</b></div>`).join(''); }
+function addAtt(){att.unshift({id:Date.now(),time:new Date().toLocaleString('ar-EG')});localStorage.setItem('omar_att',JSON.stringify(att));renderAtt()}
+function renderAtt(){let l=document.getElementById('att-list');if(!l)return;if(!att.length)l.innerHTML='<div class="card" style="text-align:center;color:#94a3b8">لا يوجد حضور</div>';else l.innerHTML=att.map(a=>`<div class="card" style="display:flex;justify-content:space-between"><span>${a.time}</span><b onclick="att=att.filter(x=>x.id!==${a.id});localStorage.setItem('omar_att',JSON.stringify(att));renderAtt()" style="color:#ef4444;cursor:pointer">حذف</b></div>`).join('')}
 </script>
 </body>
 </html>
