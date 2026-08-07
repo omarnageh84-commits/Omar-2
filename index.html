@@ -1,7 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>يومياتي - صيدلية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/style.css">
-...
+<style>
+  *{box-sizing:border-box;font-family:'Cairo',sans-serif}
+  body{margin:0;background:#f1f5f9}
+  .app{max-width:420px;margin:auto;background:#fff;min-height:100vh;padding-bottom:85px}
+  header{background:var(--primary,#10b981);color:#fff;padding:10px 14px;height:48px;display:flex;justify-content:space-between;align-items:center;border-radius:0 0 16px 16px}
+  header h1{margin:0;font-size:16px} header small{font-size:10px;opacity:.9}
+  .tab{display:none;padding:10px}.tab.active{display:block}
+  .pills{display:flex;background:#f1f5f9;padding:3px;border-radius:99px;margin-bottom:10px}
+  .pill{flex:1;border:0;padding:7px;border-radius:99px;cursor:pointer;font-size:12px}
+  .pill.active{background:#fff;font-weight:700;color:#047857;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+  .card{border:1px solid #e2e8f0;border-radius:12px;padding:8px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;background:#fff;font-size:13px}
+  .input-row{display:flex;gap:5px;background:#f8fafc;padding:8px;border-radius:12px;margin-bottom:8px;flex-wrap:wrap}
+  input,select{border:1px solid #e2e8f0;border-radius:8px;padding:6px;flex:1;font-size:12px}
+  .btn{border:0;background:var(--primary,#10b981);color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px}
+  .btn-small{border:0;background:#e2e8f0;padding:5px 8px;border-radius:7px;font-size:11px;cursor:pointer}
+  nav{position:fixed;bottom:0;max-width:420px;width:100%;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:5px 0;z-index:100}
+  .nav-btn{border:0;background:none;font-size:10px;line-height:1.2;cursor:pointer;color:#64748b}
+  .nav-btn.active{color:var(--primary,#10b981);font-weight:700}
+  .hidden{display:none!important}
+  .stat{padding:10px;border-radius:12px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>💼 يومياتي</h1>
+    <small id="date"></small>
+  </header>
+
+  <main>
+    <section id="tab-home" class="tab active"></section>
+
+    <section id="tab-daily" class="tab">
+      <div class="pills">
+        <button onclick="setDaily('income')" id="p-income" class="pill active">الدخل</button>
+        <button onclick="setDaily('exp')" id="p-exp" class="pill">المصاريف</button>
+        <button onclick="setDaily('debt')" id="p-debt" class="pill">الديون</button>
+      </div>
+      <div id="daily-income"></div>
+      <div id="daily-exp" class="hidden"></div>
+      <div id="daily-debt" class="hidden"></div>
+    </section>
+
+    <section id="tab-att" class="tab"></section>
+    <section id="tab-notes" class="tab"></section>
+    <section id="tab-tasks" class="tab"></section>
+  </main>
+
+  <nav>
+    <button onclick="openTab(event,'home')" class="nav-btn active">🏠<br>الرئيسية</button>
+    <button onclick="openTab(event,'daily')" class="nav-btn">💰<br>اليومية</button>
+    <button onclick="openTab(event,'att')" class="nav-btn">⏰<br>الحضور</button>
+    <button onclick="openTab(event,'notes')" class="nav-btn">📝<br>ملاحظات</button>
+    <button onclick="openTab(event,'tasks')" class="nav-btn">✅<br>مهام</button>
+  </nav>
+</div>
+
+<!-- الترتيب مهم -->
 <script src="js/config.js"></script>
 <script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
 <script src="js/daily.js"></script>
-<!-- باقي الملفات -->
+<script src="js/attendance.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/tasks.js"></script>
+</body>
+</html>
