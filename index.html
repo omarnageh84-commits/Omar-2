@@ -1,25 +1,142 @@
-<!-- نفس الكود اللي فات بس هنزود دالتين جداد -->
-
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>يومياتي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:'Cairo',sans-serif}
+body{margin:0;background:#f1f5f9}
+.app{max-width:420px;margin:auto;background:#fff;min-height:100vh;padding-bottom:90px;position:relative;box-shadow:0 0 30px rgba(0,0,0,.08)}
+header{background:#10b981;color:#fff;padding:10px 16px;border-radius:0 0 18px 18px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:18px}
+header small{font-size:11px;opacity:.9}
+.tab{display:none;padding:16px}.tab.active{display:block}
+.pills{display:flex;background:#f1f5f9;padding:4px;border-radius:99px;margin-bottom:16px}
+.pill{flex:1;border:0;padding:8px;border-radius:99px;cursor:pointer}
+.pill.active{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);font-weight:700;color:#047857}
+.card{border:1px solid #e2e8f0;border-radius:16px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;background:#fff;align-items:center}
+.input-row{display:flex;gap:6px;background:#f8fafc;padding:10px;border-radius:16px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+input,select{border:1px solid #e2e8f0;border-radius:10px;padding:8px;flex:1;min-width:70px}
+.btn{border:0;background:#10b981;color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+.btn-small{border:0;background:#e2e8f0;color:#334155;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px}
+nav{position:fixed;bottom:0;max-width:420px;width:100%;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;border-radius:16px 16px 0 0}
+.nav-btn{border:0;background:none;font-size:11px;cursor:pointer;line-height:1.2}.nav-btn.active{color:#10b981;font-weight:700}
+.hidden{display:none!important}
+.stat{padding:14px;border-radius:16px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>💼 يومياتي</h1><small id="date"></small></header>
+<main>
+<section id="tab-home" class="tab active"></section>
+<section id="tab-daily" class="tab">
+<div class="pills">
+<button onclick="setDaily('income')" id="p-income" class="pill active">الدخل</button>
+<button onclick="setDaily('exp')" id="p-exp" class="pill">المصاريف</button>
+<button onclick="setDaily('debt')" id="p-debt" class="pill">الديون</button>
+</div>
+<div id="daily-income"></div>
+<div id="daily-exp" class="hidden"></div>
+<div id="daily-debt" class="hidden"></div>
+</section>
+<section id="tab-att" class="tab"></section>
+<section id="tab-notes" class="tab"></section>
+<section id="tab-tasks" class="tab"></section>
+</main>
+<nav>
+<button onclick="openTab(event,'home')" class="nav-btn active">🏠<br>الرئيسية</button>
+<button onclick="openTab(event,'daily')" class="nav-btn">💰<br>اليومية</button>
+<button onclick="openTab(event,'att')" class="nav-btn">⏰<br>الحضور</button>
+<button onclick="openTab(event,'notes')" class="nav-btn">📝<br>ملاحظات</button>
+<button onclick="openTab(event,'tasks')" class="nav-btn">✅<br>مهام</button>
+</nav>
+</div>
 <script>
-// ... نفس المتغيرات catsIncome, catsExp ...
+let incomes=JSON.parse(localStorage.getItem('incomes')||'[]');
+let expenses=JSON.parse(localStorage.getItem('expenses')||'[]');
+let debts=JSON.parse(localStorage.getItem('debts')||'[]');
+let catsIncome=JSON.parse(localStorage.getItem('catsIncome')||'["راتب","مبيعات","تحويل","أخرى"]');
+let catsExp=JSON.parse(localStorage.getItem('catsExp')||'["أكل","إيجار","مواصلات","فواتير","أخرى"]');
+let att=JSON.parse(localStorage.getItem('att')||'[]');
+let notes=JSON.parse(localStorage.getItem('notes')||'[]');
+let tasks=JSON.parse(localStorage.getItem('tasks')||'[]');
 
+function saveAll(){
+ localStorage.setItem('incomes',JSON.stringify(incomes));
+ localStorage.setItem('expenses',JSON.stringify(expenses));
+ localStorage.setItem('debts',JSON.stringify(debts));
+ localStorage.setItem('catsIncome',JSON.stringify(catsIncome));
+ localStorage.setItem('catsExp',JSON.stringify(catsExp));
+ localStorage.setItem('att',JSON.stringify(att));
+ localStorage.setItem('notes',JSON.stringify(notes));
+ localStorage.setItem('tasks',JSON.stringify(tasks));
+ renderHome();
+}
+function openTab(e,id){
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ document.getElementById('tab-'+id).classList.add('active');
+ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+ e.currentTarget.classList.add('active');
+ if(id==='home')renderHome();if(id==='att')renderAtt();if(id==='notes')renderNotes();if(id==='tasks')renderTasks();
+}
+function setDaily(t){
+ document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+ document.getElementById('p-'+t).classList.add('active');
+ document.getElementById('daily-income').classList.toggle('hidden',t!=='income');
+ document.getElementById('daily-exp').classList.toggle('hidden',t!=='exp');
+ document.getElementById('daily-debt').classList.toggle('hidden',t!=='debt');
+ if(t==='income')renderIncome();if(t==='exp')renderExp();if(t==='debt')renderDebt();
+}
+function renderHome(){
+ let inc=incomes.reduce((s,x)=>s+ +x.amount,0);
+ let exp=expenses.reduce((s,x)=>s+ +x.amount,0);
+ let forMe=debts.filter(d=>d.type==='لي'&&d.status!=='مسدد').reduce((s,x)=>s+ +x.amount,0);
+ let onMe=debts.filter(d=>d.type==='عليّ'&&d.status!=='مسدد').reduce((s,x)=>s+ +x.amount,0);
+ document.getElementById('tab-home').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="stat" style="background:#ecfdf5">دخل<br><b>${inc} ج.م</b></div><div class="stat" style="background:#fef2f2">مصروف<br><b>${exp} ج.م</b></div><div class="stat" style="background:#0f172a;color:#fff">الصافي<br><b>${inc-exp} ج.م</b></div><div class="stat" style="background:#fffbeb">ديون<br><small>لك ${forMe} / عليك ${onMe}</small></div></div>`;
+}
+function renderIncome(){
+ let opts=catsIncome.map(c=>`<option>${c}</option>`).join('');
+ document.getElementById('daily-income').innerHTML=`
+ <div class="input-row">
+   <input id="in-a" type="number" placeholder="المبلغ">
+   <select id="in-c">${opts}</select>
+   <button class="btn" onclick="addIncome()">+</button>
+ </div>
+ <div style="display:flex;gap:6px;margin-bottom:10px">
+   <button class="btn-small" onclick="addCat('income')">+ فئة جديدة</button>
+   <button class="btn-small" onclick="manageCats('income')">⚙️ تعديل / مسح الفئات</button>
+ </div>
+ <b>الإجمالي: ${incomes.reduce((s,x)=>s+ +x.amount,0)} ج.م</b>
+ ${incomes.map((x,i)=>`<div class="card"><span>${x.cat} - ${x.date}</span><b style="color:#10b981">${x.amount} ج.م <span onclick="delI(${i})" style="cursor:pointer">❌</span></b></div>`).join('')}`;
+}
+function renderExp(){
+ let opts=catsExp.map(c=>`<option>${c}</option>`).join('');
+ document.getElementById('daily-exp').innerHTML=`
+ <div class="input-row">
+   <input id="ex-a" type="number" placeholder="المبلغ">
+   <select id="ex-c">${opts}</select>
+   <button class="btn" style="background:#ef4444" onclick="addExp()">+</button>
+ </div>
+ <div style="display:flex;gap:6px;margin-bottom:10px">
+   <button class="btn-small" onclick="addCat('exp')">+ فئة جديدة</button>
+   <button class="btn-small" onclick="manageCats('exp')">⚙️ تعديل / مسح الفئات</button>
+ </div>
+ <b>الإجمالي: ${expenses.reduce((s,x)=>s+ +x.amount,0)} ج.م</b>
+ ${expenses.map((x,i)=>`<div class="card"><span>${x.cat}</span><b style="color:#ef4444">${x.amount} ج.م <span onclick="delE(${i})" style="cursor:pointer">❌</span></b></div>`).join('')}`;
+}
 function addCat(type){
- let name=prompt('اسم الفئة الجديدة:'); if(!name) return;
- if(type==='income') catsIncome.push(name); else catsExp.push(name);
- saveAll(); if(type==='income') renderIncome(); else renderExp();
+ let name=prompt('اكتب اسم الفئة الجديدة:'); if(!name) return;
+ if(type==='income'){catsIncome.push(name); renderIncome();} else {catsExp.push(name); renderExp();}
+ saveAll();
 }
 function manageCats(type){
  let list = type==='income'? catsIncome : catsExp;
- let html = list.map((c,i)=>`
-  <div class="card">
-    <span>${c}</span>
-    <div>
-      <button class="btn-small" onclick="editCat('${type}',${i})">✏️</button>
-      <button class="btn-small" style="background:#fee2e2;color:#b91c1c" onclick="deleteCat('${type}',${i})">🗑️</button>
-    </div>
-  </div>`).join('');
+ let html = list.map((c,i)=>`<div class="card"><span>${c}</span><div style="display:flex;gap:4px"><button class="btn-small" onclick="editCat('${type}',${i})">✏️ تعديل</button><button class="btn-small" style="background:#fee2e2;color:#b91c1c" onclick="deleteCat('${type}',${i})">🗑️ مسح</button></div></div>`).join('');
  let target = type==='income'? 'daily-income' : 'daily-exp';
- document.getElementById(target).innerHTML += `<div style="margin-top:12px;border-top:1px dashed #e2e8f0;padding-top:10px"><b>إدارة الفئات:</b>${html}<button class="btn" style="width:100%;margin-top:8px;background:#334155" onclick="${type==='income'?'renderIncome()':'renderExp()'}">رجوع</button></div>`;
+ document.getElementById(target).innerHTML = `<div><b>إدارة الفئات - ${type==='income'?'الدخل':'المصاريف'}</b>${html}<button class="btn" style="width:100%;margin-top:10px;background:#334155" onclick="${type==='income'?'renderIncome()':'renderExp()'}">رجوع</button></div>`;
 }
 function editCat(type,i){
  let oldName = type==='income'? catsIncome[i] : catsExp[i];
@@ -28,36 +145,29 @@ function editCat(type,i){
  saveAll(); if(type==='income') renderIncome(); else renderExp();
 }
 function deleteCat(type,i){
- if(!confirm('تمسح الفئة دي؟')) return;
+ if(!confirm('متأكد تمسح الفئة دي؟')) return;
  if(type==='income') catsIncome.splice(i,1); else catsExp.splice(i,1);
  saveAll(); if(type==='income') renderIncome(); else renderExp();
 }
-
-// وعدل renderIncome و renderExp يبقوا كده:
-function renderIncome(){
- let opts=catsIncome.map(c=>`<option>${c}</option>`).join('');
- document.getElementById('daily-income').innerHTML=`
- <div class="input-row">
-   <input id="in-a" type="number" placeholder="المبلغ">
-   <select id="in-c">${opts}</select>
-   <button class="btn-small" onclick="addCat('income')">+ إضافة</button>
-   <button class="btn-small" onclick="manageCats('income')">⚙️ إدارة</button>
-   <button class="btn" onclick="addIncome()">حفظ</button>
- </div>
- <b>الإجمالي: ${incomes.reduce((s,x)=>s+ +x.amount,0)} ج.م</b>
- ${incomes.map((x,i)=>`<div class="card"><span>${x.cat} - ${x.date}</span><b style="color:#10b981">${x.amount} ج.م <span onclick="delI(${i})">❌</span></b></div>`).join('')}`;
-}
-function renderExp(){
- let opts=catsExp.map(c=>`<option>${c}</option>`).join('');
- document.getElementById('daily-exp').innerHTML=`
- <div class="input-row">
-   <input id="ex-a" type="number" placeholder="المبلغ">
-   <select id="ex-c">${opts}</select>
-   <button class="btn-small" onclick="addCat('exp')">+ إضافة</button>
-   <button class="btn-small" onclick="manageCats('exp')">⚙️ إدارة</button>
-   <button class="btn" style="background:#ef4444" onclick="addExp()">حفظ</button>
- </div>
- <b>الإجمالي: ${expenses.reduce((s,x)=>s+ +x.amount,0)} ج.م</b>
- ${expenses.map((x,i)=>`<div class="card"><span>${x.cat}</span><b style="color:#ef4444">${x.amount} ج.م <span onclick="delE(${i})">❌</span></b></div>`).join('')}`;
-}
+function addIncome(){let a=document.getElementById('in-a').value;if(!a)return;incomes.push({amount:a,cat:document.getElementById('in-c').value,date:new Date().toLocaleDateString('ar-EG')});saveAll();renderIncome();}
+function delI(i){incomes.splice(i,1);saveAll();renderIncome();}
+function addExp(){let a=document.getElementById('ex-a').value;if(!a)return;expenses.push({amount:a,cat:document.getElementById('ex-c').value});saveAll();renderExp();}
+function delE(i){expenses.splice(i,1);saveAll();renderExp();}
+function renderDebt(){let forMe=debts.filter(d=>d.type==='لي'&&d.status!=='مسدد').reduce((s,x)=>s+ +x.amount,0);let onMe=debts.filter(d=>d.type==='عليّ'&&d.status!=='مسدد').reduce((s,x)=>s+ +x.amount,0);document.getElementById('daily-debt').innerHTML=`<div class="input-row"><input id="d-n" placeholder="اسم الشخص"><input id="d-a" type="number" placeholder="المبلغ"><select id="d-t"><option>لي</option><option>عليّ</option></select><select id="d-s"><option>معلق</option><option>مسدد</option></select><button class="btn" style="background:#f59e0b;width:100%" onclick="addDebt()">إضافة</button></div><div style="display:flex;gap:8px;margin-bottom:10px"><div class="stat" style="flex:1;background:#dcfce7">لك ${forMe} ج.م</div><div class="stat" style="flex:1;background:#fee2e2">عليك ${onMe} ج.م</div></div>${debts.map((d,i)=>`<div class="card" style="background:${d.type==='لي'?'#f0fdf4':'#fef2f2'}"><div><b>${d.name}</b><br><small>${d.type}-${d.status}</small></div><b>${d.amount} ج.م <span onclick="delD(${i})">❌</span></b></div>`).join('')}`;}
+function addDebt(){let n=document.getElementById('d-n').value,a=document.getElementById('d-a').value;if(!n||!a)return;debts.push({name:n,amount:a,type:document.getElementById('d-t').value,status:document.getElementById('d-s').value});saveAll();renderDebt();}
+function delD(i){debts.splice(i,1);saveAll();renderDebt();}
+function renderAtt(){document.getElementById('tab-att').innerHTML=`<div style="display:flex;gap:10px"><button class="btn" style="flex:1;padding:30px" onclick="checkIn()">حضور ✅</button><button class="btn" style="flex:1;padding:30px;background:#334155" onclick="checkOut()">انصراف</button></div><div style="margin-top:12px">${att.slice(-10).reverse().map(a=>`<div class="card"><span>${a.date}</span><span>${a.in} - ${a.out}</span></div>`).join('')}</div>`;}
+function checkIn(){att.push({date:new Date().toLocaleDateString('ar-EG'),in:new Date().toLocaleTimeString('ar-EG'),out:'...'});localStorage.setItem('att',JSON.stringify(att));renderAtt();}
+function checkOut(){if(att.length)att[att.length-1].out=new Date().toLocaleTimeString('ar-EG');localStorage.setItem('att',JSON.stringify(att));renderAtt();}
+function renderNotes(){document.getElementById('tab-notes').innerHTML=`<div class="input-row"><input id="n-t" placeholder="ملاحظة..."><button class="btn" onclick="addNote()">+</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${notes.map((n,i)=>`<div style="background:#fef9c3;padding:10px;border-radius:12px">${n.text}<br><small onclick="delN(${i})" style="cursor:pointer">❌</small></div>`).join('')}</div>`;}
+function addNote(){let t=document.getElementById('n-t').value;if(!t)return;notes.push({text:t});saveAll();renderNotes();}
+function delN(i){notes.splice(i,1);saveAll();renderNotes();}
+function renderTasks(){document.getElementById('tab-tasks').innerHTML=`<div class="input-row"><input id="t-t" placeholder="مهمة..."><button class="btn" onclick="addTask()">+</button></div>${tasks.map((t,i)=>`<div class="card"><label><input type="checkbox" ${t.done?'checked':''} onchange="toggleT(${i})"> ${t.text}</label><span onclick="delT(${i})">❌</span></div>`).join('')}`;}
+function addTask(){let t=document.getElementById('t-t').value;if(!t)return;tasks.push({text:t,done:false});saveAll();renderTasks();}
+function delT(i){tasks.splice(i,1);saveAll();renderTasks();}
+function toggleT(i){tasks[i].done=!tasks[i].done;saveAll();renderTasks();}
+document.getElementById('date').innerText=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+renderHome();renderIncome();renderAtt();renderNotes();renderTasks();
 </script>
+</body>
+</html>
