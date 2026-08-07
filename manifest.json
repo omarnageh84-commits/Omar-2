@@ -1,3 +1,4 @@
+
 {
   "name": "يومياتي - صيدلية",
   "short_name": "يومياتي",
@@ -5,5 +6,12 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
-  "orientation": "portrait-primary"
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3652/3652191.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
