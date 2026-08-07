@@ -1,4 +1,3 @@
-// js/tasks.js - برو ماكس مهام فرعية + صورة + صوت
 let tasks=JSON.parse(localStorage.getItem('tasks_pro')||'[]');
 let taskFilter='all';
 function saveTasks(){ localStorage.setItem('tasks_pro', JSON.stringify(tasks)); }
@@ -10,7 +9,6 @@ function renderTasks(){
     if(taskFilter==='todo' && t.done) return false;
     return true;
   }).sort((a,b)=>a.done-b.done || b.id-a.id);
-
   el.innerHTML=`
   <div style="zoom:0.96">
     <div style="background:#000;color:#fff;border-radius:16px;padding:12px;margin-bottom:8px">
@@ -36,13 +34,13 @@ function renderTasks(){
             <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${t.id})" style="width:18px;height:18px">
             <div style="flex:1">
               <div style="font-size:11px;font-weight:800;text-decoration:${t.done?'line-through':''};display:flex;gap:4px">${t.pri==='high'?'🔥':''} ${t.text}</div>
-              ${sTotal? `<div style="margin-top:4px"><div style="height:3px;background:#e2e8f0;border-radius:99px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:#000"></div></div><div style="font-size:7px;color:#64748b;margin-top:2px">${sDone}/${sTotal} • ${sPct}% من المهمة دي</div></div>`:''}
+              ${sTotal? `<div style="margin-top:4px"><div style="height:3px;background:#e2e8f0;border-radius:99px;overflow:hidden"><div style="height:100%;width:${sPct}%;background:#000"></div></div><div style="font-size:7px;color:#64748b;margin-top:2px">${sDone}/${sTotal} • ${sPct}%</div></div>`:''}
               ${t.subs? t.subs.map((s,i)=>`<div style="display:flex;gap:4px;align-items:center;margin-top:4px;background:#f8fafc;padding:4px 6px;border-radius:8px"><input type="checkbox" ${s.done?'checked':''} onchange="toggleSubTask(${t.id},${i})"><span style="font-size:10px;flex:1;text-decoration:${s.done?'line-through':''}">${s.text}</span><b onclick="delSubTask(${t.id},${i})" style="color:#ef4444;cursor:pointer;font-size:10px">✕</b></div>`).join(''):''}
             </div>
             <button onclick="deleteTask(${t.id})" style="border:0;background:#fee2e2;width:26px;height:26px;border-radius:8px">🗑️</button>
           </div>
           <div style="display:flex;gap:4px;margin-top:6px">
-            <input id="subTaskIn${t.id}" placeholder="+ مهمة فرعية" style="flex:1;font-size:9px;padding:4px 8px;border-radius:99px;border:1px solid #e2e8f0;background:#fff;color:#000">
+            <input id="subTaskIn${t.id}" placeholder="+ فرعية" style="flex:1;font-size:9px;padding:4px 8px;border-radius:99px;border:1px solid #e2e8f0;background:#fff;color:#000">
             <button onclick="addSubTask(${t.id})" style="border:0;background:#000;color:#fff;border-radius:99px;padding:4px 10px;font-size:9px">+</button>
           </div>
         </div>`;
@@ -54,10 +52,11 @@ function addTask(){
   let el=document.getElementById('taskInput'); let v=el.value.trim(); if(!v) return;
   let pri=document.getElementById('taskPri').value;
   tasks.push({id:Date.now(),text:v,done:false,pri,subs:[],date:new Date().toLocaleDateString('ar-EG')});
+  if(window.ارسل_مهمة) ارسل_مهمة(v, pri);
   el.value=''; saveTasks(); renderTasks();
 }
-function toggleTask(id){ let t=tasks.find(x=>x.id===id); t.done=!t.done; saveTasks(); renderTasks(); if(t.done) { if(navigator.vibrate) navigator.vibrate(50); } }
-function deleteTask(id){ let t=tasks.find(x=>x.id===id); if(!confirm(`⚠️ مسح "${t.text}" ؟`)) return; tasks=tasks.filter(x=>x.id!==id); saveTasks(); renderTasks(); }
+function toggleTask(id){ let t=tasks.find(x=>x.id===id); t.done=!t.done; saveTasks(); renderTasks(); }
+function deleteTask(id){ let t=tasks.find(x=>x.id===id); if(!confirm(`مسح "${t.text}" ؟`)) return; tasks=tasks.filter(x=>x.id!==id); saveTasks(); renderTasks(); }
 function addSubTask(id){ let el=document.getElementById('subTaskIn'+id); let v=el.value.trim(); if(!v) return; let t=tasks.find(x=>x.id===id); if(!t.subs) t.subs=[]; t.subs.push({text:v,done:false}); el.value=''; saveTasks(); renderTasks(); }
-function toggleSubTask(id,i){ let t=tasks.find(x=>x.id===id); t.subs[i].done=!t.subs[i].done; if(t.subs.every(s=>s.done)) { alert(`🎉 خلصت "${t.text}" 100%!`); t.done=true; } saveTasks(); renderTasks(); }
+function toggleSubTask(id,i){ let t=tasks.find(x=>x.id===id); t.subs[i].done=!t.subs[i].done; if(t.subs.every(s=>s.done)) { t.done=true; } saveTasks(); renderTasks(); }
 function delSubTask(id,i){ if(!confirm('مسح الفرعية؟')) return; let t=tasks.find(x=>x.id===id); t.subs.splice(i,1); saveTasks(); renderTasks(); }
