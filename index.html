@@ -1,65 +1,102 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>يومياتي Pro - Single File</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>يومياتي Pro V4 - Single File</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--green:#10b981;--bg:#f4f6f8;--card:#fff;--r:20px}
+:root{--green:#10b981;--bg:#f5f7f6;--card:#fff;--r:18px}
 *{font-family:'Cairo',sans-serif;box-sizing:border-box}body{margin:0;background:var(--bg)}
-.app{max-width:500px;margin:auto;min-height:100vh;background:var(--bg);padding-bottom:90px}
-.top{background:var(--green);color:#fff;padding:16px;border-radius:0 0 22px 22px;font-weight:800;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10}
-.card{background:var(--card);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.06);margin:12px;padding:14px}
-.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:#f1f5f9;padding:6px;border-radius:14px}
-.seg button{border:0;padding:10px;border-radius:10px;font-weight:700;cursor:pointer}.seg button.active{background:var(--green);color:#fff}
-.tbl{overflow:auto}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#fefce8;padding:8px}td{padding:8px;text-align:center;border-top:1px solid #f1f1f1}
-.inp{display:flex;gap:6px;margin:8px 0}.inp input,.inp select,.inp textarea{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:12px}
-.btn{background:var(--green);color:#fff;border:0;padding:12px;border-radius:12px;font-weight:800;width:100%;cursor:pointer}
-.att{grid-template-columns:26px 1fr 1fr 44px;display:grid;gap:5px;align-items:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:6px;margin:5px 0}
-.nav{position:fixed;bottom:0;max-width:500px;width:100%;background:#fff;display:grid;grid-template-columns:repeat(5,1fr);border-radius:20px 20px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.app{max-width:520px;margin:auto;min-height:100vh;background:var(--bg);padding-bottom:95px}
+.top{background:var(--green);color:#fff;padding:14px 16px;border-radius:0 0 22px 22px;font-weight:800;display:flex;justify-content:space-between;position:sticky;top:0;z-index:20}
+.card{background:var(--card);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.06);margin:10px;padding:12px}
+.h-scroll{overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.h-scroll::-webkit-scrollbar{height:6px}.h-scroll::-webkit-scrollbar-thumb{background:#10b981;border-radius:10px}
+table{border-collapse:collapse;font-size:11px;min-width:700px}th{background:#fff9c4;padding:8px 10px;position:sticky;top:0}td{padding:8px;text-align:center;border-top:1px solid #f1f1f1}
+.inp{display:flex;gap:6px;margin:6px 0}.inp input,.inp select{flex:1;padding:11px;border:1px solid #e5e7eb;border-radius:12px}
+.btn{background:var(--green);color:#fff;border:0;padding:12px;border-radius:12px;font-weight:800;cursor:pointer}
+.att{display:grid;grid-template-columns:24px 1fr 1fr 46px;gap:4px;align-items:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:6px;margin:5px 0;font-size:12px}
+.now{background:#eef2ff;border:1px dashed #6366f1;border-radius:8px;font-size:9px;padding:4px}
+.nav{position:fixed;bottom:0;max-width:520px;width:100%;background:#fff;display:grid;grid-template-columns:repeat(5,1fr);border-radius:20px 20px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:99}
 .nav button{border:0;background:0;padding:14px 2px;font-size:11px}.nav button.active{color:var(--green);font-weight:800;border-top:3px solid var(--green)}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;background:#f1f5f9;padding:5px;border-radius:12px;margin:8px 0}.seg button{border:0;padding:8px;border-radius:8px;font-weight:700}.seg button.active{background:var(--green);color:#fff}
+.notion{border:1px solid #e9e9e7;border-radius:12px;padding:10px;margin:6px 0;background:#fff;transition:.2s}.notion:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.prop{display:inline-flex;gap:4px;background:#f7f7f5;padding:3px 8px;border-radius:6px;font-size:10px;margin:2px}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="top"><span id="date"></span><span>💼 يومياتي Pro</span></div>
+<div class="top"><span id="date"></span><span>💼 يومياتي Pro V4</span></div>
 <div id="root"></div>
 <div class="nav">
-<button data-t="home" class="active">الرئيسية</button><button data-t="daily">اليومية</button><button data-t="att">الحضور</button><button data-t="notes">ملاحظات</button><button data-t="tasks">مهام</button>
+<button data-t="home" class="active">الرئيسية</button><button data-t="daily">اليومية</button><button data-t="att">الحضور</button><button data-t="notes">نوتس</button><button data-t="tasks">تاسكس</button>
 </div>
 </div>
 <script>
 const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v)), L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
 const calc=(a,b)=>{if(!a||!b)return 0;let[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);let x=(h2*60+m2)-(h1*60+m1);if(x<0)x+=1440;return +(x/60).toFixed(2)};
-document.getElementById('date').innerText=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
-let cur='home', dTab='income';
+document.getElementById('date').innerText=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'short'});
+let cur='home', dTab='income', notionView='board';
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{cur=b.dataset.t; document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active'); R();});
-function R(){if(cur==='home'){let t=L('att',[]).reduce((s,r)=>s+(r.h||0),0); root.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff"><h3>أهلا يا عمر</h3>${t.toFixed(1)} ساعة</div>`} if(cur==='daily') RD(); if(cur==='att') RA(); if(cur==='notes') RN(); if(cur==='tasks') RT();}
+function R(){ if(cur==='home') RH(); if(cur==='daily') RD(); if(cur==='att') RA(); if(cur==='notes') RN(); if(cur==='tasks') RT();}
 
+// ===== الرئيسية =====
+function RH(){let t=L('att',[]).reduce((s,r)=>s+(r.h||0),0); root.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff"><h3 style="margin:0">يومياتي V4 - Single File</h3><small>كله في فايل واحد - مفيش ملف بيخش على ملف</small><div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="background:rgba(255,255,255,.2);padding:10px;border-radius:12px"><b>${t.toFixed(1)} س</b><br>ساعات الشهر</div><div style="background:rgba(255,255,255,.2);padding:10px;border-radius:12px"><b>${L('daily_v3',[]).length}</b><br>عملية</div></div></div>`;}
+
+// ===== اليومية - زي المصاريف 3 تبويبات =====
 function RD(){
 let rate=L('rate',40.74), pharm=L('pharm',0), data=L('daily_v3',[]), hours=L('att',[]).reduce((s,r)=>s+(r.h||0),0);
-let inc=data.filter(x=>x.t==='دخل').reduce((s,x)=>s+x.a,0), exp=data.filter(x=>x.t==='مصروف').reduce((s,x)=>s+x.a,0), debt=data.filter(x=>x.t==='دين').reduce((s,x)=>s+x.a,0);
-root.innerHTML=`<div class="card"><div class="tbl"><table><tr><th>المتبقي</th><th>ديون للصيدلية</th><th>مطلوب يوميا</th><th>المطلوب</th><th>الصافي</th><th>عدد الساعات</th><th>سعر الساعة</th><th>كم يوم</th><th>الساعة</th></tr><tr><td>${(inc-exp-pharm).toFixed(0)}</td><td>${pharm}</td><td>13.64</td><td>000</td><td>${(inc-exp).toFixed(0)}</td><td>${hours.toFixed(1)}</td><td>${rate}</td><td>${data.length}</td><td>00</td></tr></table></div>
-<div class="inp"><input id="r" value="${rate}" type="number"><input id="ph" value="${pharm}" type="number" placeholder="ديون"><button class="btn" style="width:80px" onclick="S('rate',+r.value);S('pharm',+ph.value);RD()">حفظ</button></div></div>
-<div class="card"><div class="seg"><button class="${dTab==='income'?'active':''}" onclick="dTab='income';RD()">دخل</button><button class="${dTab==='expense'?'active':''}" onclick="dTab='expense';RD()">مصروف</button><button class="${dTab==='debt'?'active':''}" onclick="dTab='debt';RD()">ديون</button></div>
-<div class="inp"><input id="dd" placeholder="الوصف"><input id="da" type="number" placeholder="المبلغ"></div><button class="btn" onclick="AD()">إضافة ${dTab}</button>
-<div>${data.filter(x=>(dTab==='income'&&x.t==='دخل')||(dTab==='expense'&&x.t==='مصروف')||(dTab==='debt'&&x.t==='دين')).map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee"><span>${x.d}</span><b>${x.a}</b></div>`).join('')}</div></div>`;}
-function AD(){let d=dd.value,a=+da.value;if(!d||!a)return;let t=dTab==='income'?'دخل':dTab==='expense'?'مصروف':'دين', all=L('daily_v3',[]); all.unshift({d,a,t,date:new Date().toISOString()}); S('daily_v3',all); RD();}
+let inc=data.filter(x=>x.t==='دخل').reduce((s,x)=>s+x.a,0), exp=data.filter(x=>x.t==='مصروف').reduce((s,x)=>s+x.a,0);
+root.innerHTML=`<div class="card"><div class="seg"><button class="${dTab==='income'?'active':''}" onclick="dTab='income';RD()">دخل 💰</button><button class="${dTab==='expense'?'active':''}" onclick="dTab='expense';RD()">مصروف 💸</button><button class="${dTab==='debt'?'active':''}" onclick="dTab='debt';RD()">ديون 📒</button></div>
+<div class="inp"><input id="dd" placeholder="الوصف"><input id="da" type="number" placeholder="المبلغ"><select id="dc"><option>راتب</option><option>أكل</option><option>دين</option><option>صيدلية</option></select></div>
+<button class="btn" onclick="AD()">إضافة ${dTab}</button>
+<div style="margin-top:10px">${data.filter(x=>(dTab==='income'&&x.t==='دخل')||(dTab==='expense'&&x.t==='مصروف')||(dTab==='debt'&&x.t==='دين')).map(x=>`<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #f1f1f1"><span>${x.d} - <small>${x.c}</small></span><b style="color:${x.t==='مصروف'?'#ef4444':'#10b981'}">${x.t==='مصروف'?'-':'+'}${x.a}</b></div>`).join('')||'<p style="text-align:center;color:#999">فاضي</p>'}</div></div>`;
+}
+function AD(){let d=dd.value,a=+da.value,c=dc.value; if(!d||!a)return; let t=dTab==='income'?'دخل':dTab==='expense'?'مصروف':'دين', all=L('daily_v3',[]); all.unshift({d,a,c,t,date:new Date().toISOString()}); S('daily_v3',all); RD();}
 
+// ===== الحضور - نفس اللي في صورتك بالظبط + احتراف =====
 function RA(){
-let m=L('att',Array.from({length:31},(_,i)=>({day:i+1,in:'',out:'',h:0}))); if(m.length<31)m=Array.from({length:31},(_,i)=>m.find(x=>x.day===i+1)||{day:i+1,in:'',out:'',h:0});
-root.innerHTML=`<div class="card"><b>الحضور - 31 يوم - ${m.reduce((s,r)=>s+(r.h||0),0).toFixed(1)} س</b></div><div class="card">${m.map(r=>`<div class="att"><b>${r.day}</b><div style="display:flex;gap:3px"><input type="time" value="${r.in}" onchange="UA(${r.day},'in',this.value)"><button onclick="NA(${r.day},'in')" style="font-size:9px;border:1px dashed blue;border-radius:6px;background:#eef2ff">الآن</button></div><div style="display:flex;gap:3px"><input type="time" value="${r.out}" onchange="UA(${r.day},'out',this.value)"><button onclick="NA(${r.day},'out')" style="font-size:9px;border:1px dashed blue;border-radius:6px;background:#eef2ff">الآن</button></div><b style="color:#10b981">${r.h||'--'}</b></div>`).join('')}</div>`;}
-function UA(d,t,v){let l=L('att',[]),r=l.find(x=>x.day===d)||{day:d,in:'',out:'',h:0}; r[t]=v; if(r.in&&r.out)r.h=calc(r.in,r.out); let i=l.findIndex(x=>x.day===d); if(i>-1)l[i]=r;else l.push(r); S('att',l); RA();}
+let rate=L('rate',40.74), m=L('att',Array.from({length:31},(_,i)=>({day:i+1,in:'',out:'',h:0}))); if(m.length<31)m=Array.from({length:31},(_,i)=>m.find(x=>x.day===i+1)||{day:i+1,in:'',out:'',h:0});
+let tot=m.reduce((s,r)=>s+(r.h||0),0), salary=tot*rate, target=13.64*31, remain=target-tot;
+root.innerHTML=`
+<div class="card" style="padding:8px">
+<div style="font-weight:800;text-align:center;margin-bottom:6px">💰 ملخص المرتب - أغسطس - الحضور والانصراف</div>
+<div class="h-scroll">
+<table><thead><tr><th>المتبقي</th><th>ديون للصيدلية</th><th>مطلوب يوميا</th><th>المطلوب</th><th>الصافي</th><th>عدد الساعات</th><th>سعر الساعة</th><th>كم يوم</th><th>الساعة</th></tr></thead>
+<tbody><tr><td>${remain.toFixed(1)}</td><td>${L('pharm',0)}</td><td>13.64</td><td>${target.toFixed(0)}</td><td>${salary.toFixed(0)}</td><td>${tot.toFixed(1)}</td><td>${rate}</td><td>${m.filter(x=>x.h>0).length}</td><td>${new Date().getHours()}:00</td></tr></tbody></table>
+</div>
+<div class="inp" style="margin-top:10px"><button class="btn" style="width:80px;background:#10b981" onclick="S('att',m);alert('اتحفظ ✅')">حفظ</button><input type="range" min="0" max="31" value="${m.filter(x=>x.h>0).length}" style="flex:1"><input id="rate2" value="${rate}" style="width:70px;padding:8px;border:1px solid #ddd;border-radius:10px"><span style="font-size:11px">٤.٧٤</span></div>
+</div>
+<div class="card" style="padding:6px"><div style="display:flex;justify-content:space-between;font-weight:800;padding:6px"><span>${tot.toFixed(1)} س</span><span>الحضور - 31 يوم 📅</span></div>
+${m.map(r=>`<div class="att"><b>${r.day}</b><div style="display:flex;gap:3px"><input type="time" value="${r.in}" onchange="UA(${r.day},'in',this.value)" style="flex:1;border:1px solid #eee;border-radius:8px;padding:6px"><button class="now" onclick="NA(${r.day},'in')">الآن</button></div><div style="display:flex;gap:3px"><input type="time" value="${r.out}" onchange="UA(${r.day},'out',this.value)" style="flex:1;border:1px solid #eee;border-radius:8px;padding:6px"><button class="now" onclick="NA(${r.day},'out')">الآن</button></div><b style="color:#10b981">${r.h?r.h.toFixed(2):'--:--'}</b></div>`).join('')}
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;font-size:11px"><div class="card" style="margin:0;text-align:center"><b>ساعات إضافية</b><br>${(tot-target>0?tot-target:0).toFixed(1)}</div><div class="card" style="margin:0;text-align:center"><b>تأخير</b><br>${(remain>0?remain:0).toFixed(1)}</div><div class="card" style="margin:0;text-align:center"><b>الراتب</b><br>${salary.toFixed(0)}</div></div>
+</div>`;
+}
+function UA(d,t,v){let l=L('att',[]),r=l.find(x=>x.day===d)||{day:d,in:'',out:'',h:0}; r[t]=v; if(r.in&&r.out)r.h=calc(r.in,r.out); let i=l.findIndex(x=>x.day===d); if(i>-1)l[i]=r;else l.push(r); S('att',l); if(rate2) S('rate',+rate2.value||40.74); RA();}
 function NA(d,t){UA(d,t,new Date().toTimeString().slice(0,5));}
 
-function RN(){let n=L('notes_notion',[]); root.innerHTML=`<div class="card"><input id="nt" placeholder="عنوان"><textarea id="nb" placeholder="تفاصيل..." style="width:100%;min-height:70px;border:1px solid #eee;border-radius:12px;padding:10px;margin-top:6px"></textarea><button class="btn" style="background:#7c3aed;margin-top:6px" onclick="AN()">حفظ ملاحظة</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px">${n.map((x,i)=>`<div style="background:#fef9c3;border-radius:14px;padding:10px;border:1px solid #eee"><b>${x.title}</b><div style="font-size:12px">${x.body}</div><button onclick="DN(${i})" style="border:0;background:#fee2e2;border-radius:6px;margin-top:6px">حذف</button></div>`).join('')}</div>`;}
-function AN(){let t=nt.value,b=nb.value; if(!t)return; let n=L('notes_notion',[]); n.unshift({title:t,body:b,date:new Date().toISOString()}); S('notes_notion',n); RN();}
-function DN(i){let n=L('notes_notion',[]); n.splice(i,1); S('notes_notion',n); RN();}
+// ===== نوتس زي Notion - احترافي =====
+function RN(){
+let notes=L('notion_notes',[]);
+root.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#111,#333);color:#fff"><h3 style="margin:0">Notion Style 📚</h3><small>قاعدة بيانات - زي برنامج نيشان</small><div class="seg" style="margin-top:10px;background:rgba(255,255,255,.1)"><button class="${notionView==='board'?'active':''}" onclick="notionView='board';RN()" style="color:#fff">Board</button><button class="${notionView==='list'?'active':''}" onclick="notionView='list';RN()" style="color:#fff">List</button><button class="${notionView==='gallery'?'active':''}" onclick="notionView='gallery';RN()" style="color:#fff">Gallery</button></div></div>
+<div class="card"><input id="nTitle" placeholder="New page - عنوان الصفحة" style="width:100%;padding:12px;border:0;font-size:18px;font-weight:800;border-bottom:1px solid #eee"><textarea id="nBody" placeholder="اكتب... / لتحويل لأوامر Notion" style="width:100%;min-height:80px;border:0;padding:10px;margin-top:6px"></textarea><div class="inp"><select id="nStatus"><option>📝 Idea</option><option>⏳ In Progress</option><option>✅ Done</option></select><select id="nTag"><option>#شغل</option><option>#صيدلية</option><option>#شخصي</option><option>#مهم</option></select><input id="nDate" type="date"></div><button class="btn" style="background:#111" onclick="AN()">Create Page +</button></div>
+<div style="margin:10px">${notionView==='board'?`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><h5> Idea</h5>${notes.filter(n=>n.status.includes('Idea')).map((n,i)=>cardNotion(n,i)).join('')}</div><div><h5>In Progress</h5>${notes.filter(n=>n.status.includes('Progress')).map((n,i)=>cardNotion(n,i)).join('')}</div><div><h5>Done</h5>${notes.filter(n=>n.status.includes('Done')).map((n,i)=>cardNotion(n,i)).join('')}</div></div>`:`<div>${notes.map((n,i)=>cardNotion(n,i)).join('')}</div>`}</div>`;
+}
+function cardNotion(n,i){return `<div class="notion"><div style="font-weight:800">📄 ${n.title}</div><div style="font-size:12px;color:#666;margin:6px 0">${n.body.slice(0,80)}</div><div><span class="prop">${n.status}</span><span class="prop">${n.tag}</span><span class="prop">📅 ${n.date||''}</span></div><div style="display:flex;gap:4px;margin-top:8px"><button onclick="DN(${i})" style="flex:1;border:0;background:#fee2e2;border-radius:6px;padding:6px">حذف</button><button onclick="PN(${i})" style="flex:1;border:0;background:#f1f5f9;border-radius:6px;padding:6px">📌</button></div></div>`;}
+function AN(){let t=nTitle.value,b=nBody.value,s=nStatus.value,tag=nTag.value,d=nDate.value; if(!t)return; let n=L('notion_notes',[]); n.unshift({title:t,body:b,status:s,tag,date:d,created:new Date().toISOString()}); S('notion_notes',n); RN();}
+function DN(i){let n=L('notion_notes',[]); n.splice(i,1); S('notion_notes',n); RN();}
+function PN(i){let n=L('notion_notes',[]); n[i].pin=!n[i].pin; S('notion_notes',n); RN();}
 
-function RT(){let t=L('tasks_notion',[]); root.innerHTML=`<div class="card"><div style="display:flex;gap:6px"><input id="tt" placeholder="مهمة..." style="flex:1;padding:10px;border:1px solid #eee;border-radius:10px"><button class="btn" style="width:70px" onclick="AT()">+</button></div></div><div class="card">${t.map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:10px;border:1px solid #eee;border-radius:12px;margin:5px 0"><label><input type="checkbox" ${x.done?'checked':''} onchange="TT(${i})"> ${x.text}</label><button onclick="DT(${i})" style="border:0;background:#fee2e2;border-radius:6px">x</button></div>`).join('')}</div>`;}
-function AT(){let v=tt.value; if(!v)return; let t=L('tasks_notion',[]); t.unshift({text:v,done:false}); S('tasks_notion',t); RT();}
-function TT(i){let t=L('tasks_notion',[]); t[i].done=!t[i].done; S('tasks_notion',t); RT();}
-function DT(i){let t=L('tasks_notion',[]); t.splice(i,1); S('tasks_notion',t); RT();}
+// ===== تاسكس زي Notion =====
+function RT(){
+let t=L('notion_tasks',[]);
+root.innerHTML=`<div class="card" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff"><h3 style="margin:0">Tasks Database - Notion</h3><div class="seg" style="background:rgba(255,255,255,.15);margin-top:8px"><button style="color:#fff">All Tasks</button><button style="color:#fff">By Priority</button><button style="color:#fff">Calendar</button></div></div>
+<div class="card"><div class="inp"><input id="tt" placeholder="Task name..."><select id="tp"><option>🔴 High</option><option>🟡 Medium</option><option>🟢 Low</option></select><input id="td" type="date"></div><button class="btn" style="background:#0ea5e9" onclick="AT()">Add to Database +</button></div>
+<div style="margin:10px">${t.map((x,i)=>`<div class="notion" style="display:flex;justify-content:space-between;align-items:center"><div><b>${x.done?'✅':''} ${x.text}</b><div><span class="prop">${x.p}</span><span class="prop">📅 ${x.d||''}</span></div></div><div style="display:flex;gap:4px"><input type="checkbox" ${x.done?'checked':''} onchange="TT(${i})"><button onclick="DT(${i})" style="border:0;background:#fee2e2;border-radius:6px;padding:4px 8px">x</button></div></div>`).join('')}</div>`;
+}
+function AT(){let v=tt.value,p=tp.value,d=td.value; if(!v)return; let t=L('notion_tasks',[]); t.unshift({text:v,p,d,done:false}); S('notion_tasks',t); RT();}
+function TT(i){let t=L('notion_tasks',[]); t[i].done=!t[i].done; S('notion_tasks',t); RT();}
+function DT(i){let t=L('notion_tasks',[]); t.splice(i,1); S('notion_tasks',t); RT();}
 
 R();
 </script>
