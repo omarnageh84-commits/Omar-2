@@ -18,28 +18,29 @@ const routes={
   tasks:{r:renderTasks,h:handleTasks}
 };
 
-let isTyping = false;
-
 function draw(){
   try{
     if(!root) return;
-    // لو بتكتب في الحضور متعملش رندر خالص
-    if(isTyping && cur === 'attendance') return;
-
+    // لو في input مفتوح متعملش رندر خالص
+    const active = document.activeElement;
+    if(active && active.tagName === 'INPUT' && root.contains(active) && cur === 'attendance'){
+      return;
+    }
     const fn = routes[cur]?.r;
     if(!fn){ root.innerHTML='<div class=card>الصفحة غير موجودة</div>'; return; }
     root.innerHTML=fn();
     document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.t===cur));
   }catch(err){
     console.error('Render error in',cur,err);
-    if(root) root.innerHTML=`<div class="card" style="color:#e11d48">حصل خطأ في ${cur}: ${err.message}<br><button class="btn-sm btn-dark" onclick="localStorage.clear();location.reload()">مسح وإعادة تحميل</button></div>`;
+    root.innerHTML=`<div class="card" style="color:#e11d48">حصل خطأ في ${cur}: ${err.message}<br><button class="btn-sm btn-dark" onclick="localStorage.clear();location.reload()">مسح وإعادة تحميل</button></div>`;
   }
 }
 
 document.querySelector('.nav')?.addEventListener('click',e=>{
   let b=e.target.closest('button[data-t]'); if(!b) return;
-  isTyping = false;
-  cur=b.dataset.t; draw();
+  cur=b.dataset.t;
+  // استنى الكيبورد يقفل وبعدين اعمل رسم
+  setTimeout(draw, 50);
 });
 
 function handleEvent(e){
@@ -49,42 +50,30 @@ function handleEvent(e){
   if(!b &&!isAtt) return;
   if(!b) b=t;
 
-  const isInputEvent = e.type === 'input';
-  if(isInputEvent) isTyping = true;
+  const isInput = e.type === 'input';
 
   try{
-    // في حالة الكتابة منعملش draw خالص
-    const rerenderFn = isInputEvent? ()=>{} : ()=>{ isTyping = false; setTimeout(draw, 20); };
-    routes[cur].h?.(b,e,rerenderFn);
+    if(isInput){
+      // وانت بتكتب احفظ بس متعملش اي رندر
+      routes[cur].h?.(b,e,()=>{});
+    } else {
+      // لما تخلص (change) اعمل رندر متأخر
+      routes[cur].h?.(b,e,()=> setTimeout(draw, 100));
+    }
   }catch(err){ console.error(err); }
 }
 
-root?.addEventListener('click', handleEvent);
-root?.addEventListener('change', (e)=>{
-  isTyping = false;
+// مهم جدا: لو بتدوس على input متعملش اي حاجة في الـ click
+root?.addEventListener('click', (e)=>{
+  if(e.target.tagName === 'INPUT') return;
   handleEvent(e);
 });
 
-// ده الحل الاساسي - نوقف الـ draw وانت بتكتب
+root?.addEventListener('change', handleEvent);
 root?.addEventListener('input', handleEvent);
-
-// لما تخلص كتابة وتطلع من الخانة اعمل حساب
-root?.addEventListener('focusout', (e)=>{
-  const t=e.target;
-  if(t.classList.contains('time-input') || t.classList.contains('inline-edit') || t.dataset.f){
-    setTimeout(()=>{
-      isTyping = false;
-      handleEvent(new Event('change', {bubbles:true}));
-      draw();
-    }, 100);
-  }
-});
 
 draw();
 
 if('serviceWorker' in navigator){
-  // اعمل الغاء للـ SW القديم عشان يحدث
-  navigator.serviceWorker.getRegistrations().then(regs=>{
-    regs.forEach(r=> r.unregister());
-  });
+  navigator.serviceWorker.getRegistrations().then(regs=> regs.forEach(r=> r.unregister()));
 }
