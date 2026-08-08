@@ -4,61 +4,55 @@ const SETTINGS='att_settings_v8';
 const DAILY_KEY='daily_v6';
 const DEFAULT={ totalSalary: 1100, workDays: 26, required: 15000, pharmacyDebt: 4450 };
 
-function getDays(y,m){ const arr=[]; const d=new Date(y,m,1); while(d.getMonth()===m){ arr.push(new Date(d)); d.setDate(d.getDate()+1); } return arr; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function toLocalISO(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function getDays(y,m){
+  const arr=[];
+  const date=new Date(y,m,1);
+  while(date.getMonth()===m){
+    arr.push({ d: new Date(date), iso: toLocalISO(date) });
+    date.setDate(date.getDate()+1);
+  }
+  return arr;
+}
 
 function toEn(str){
   return String(str).replace(/[٠١٢٣٤٥٦٧٨٩]/g, d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٬/g,',').trim();
 }
 
-// حساب دقايق من اي صيغة 7 - 7:00 ص - 7:00 م - 19:00
 function toMinutes(t){
   if(!t) return null;
   let s = toEn(t);
   let isPM = s.includes('م') || /pm/i.test(s);
   let isAM = s.includes('ص') || /am/i.test(s);
-
-  // شيل كل الحروف وخلي ارقام ونقطتين بس
-  s = s.replace(/[^\d:.\s]/g,' ').trim();
-  s = s.replace('.', ':');
-
-  let h=0,m=0;
+  s = s.replace(/[^\d:.\s]/g,' ').trim().replace('.', ':');
+  let h=0,mn=0;
   if(s.includes(':')){
-    let parts = s.split(':');
-    h = parseInt(parts[0])||0;
-    m = parseInt(parts[1])||0;
-  } else if(s){
-    h = parseInt(s)||0;
-    m = 0;
-  }
-
-  // لو كاتب 7 م و 7 ص
-  if(isPM && h < 12) h += 12;
-  if(isAM && h == 12) h = 0;
-  // لو كاتب 19 ده معناه 7 م اصلا
-  if(h>23) h=23; if(m>59) m=59;
-
-  return h*60 + m;
+    let p=s.split(':'); h=parseInt(p[0])||0; mn=parseInt(p[1])||0;
+  } else if(s){ h=parseInt(s)||0; }
+  if(isPM && h<12) h+=12;
+  if(isAM && h==12) h=0;
+  if(h>23) h=23; if(mn>59) mn=59;
+  return h*60+mn;
 }
 
 function calcHours(a,b){
   if(!a||!b) return 0;
-  let pa = toMinutes(a);
-  let pb = toMinutes(b);
+  let pa=toMinutes(a), pb=toMinutes(b);
   if(pa===null||pb===null) return 0;
   if(pa===pb) return 0;
-  let diff = pb - pa;
-  if(diff < 0) diff += 24*60;
+  let diff=pb-pa;
+  if(diff<0) diff+=24*60;
   return diff/60;
 }
 
 function format12(t){
-  let mins = toMinutes(t);
+  let mins=toMinutes(t);
   if(mins===null) return '';
-  let h = Math.floor(mins/60)%24;
-  let m = mins%60;
-  let per = h>=12? 'م' : 'ص';
-  let h12 = h%12; if(h12==0) h12=12;
-  return `${h12}:${String(m).padStart(2,'0')} ${per}`;
+  let h=Math.floor(mins/60)%24, mm=mins%60;
+  let per=h>=12?'م':'ص';
+  let h12=h%12; if(h12==0) h12=12;
+  return `${h12}:${pad(mm)} ${per}`;
 }
 
 function getAutoPharmacyDebt(){
@@ -66,20 +60,20 @@ function getAutoPharmacyDebt(){
 }
 
 function fmtMoney(n){
-  let num = Number(toEn(String(n)).replace(/,/g,''));
+  let num=Number(toEn(String(n)).replace(/,/g,''));
   if(isNaN(num)) return '0';
   return num.toLocaleString('en-US');
 }
 
 function smartParse(v){
   if(!v) return '';
-  v = toEn(v).replace(/[صم]/g,'').trim().replace(',', '.');
+  v=toEn(v).replace(/[صم]/g,'').trim().replace(',', '.');
   if(/^\d{1,2}$/.test(v)){
-    let h=parseInt(v); if(h<=23) return `${String(h).padStart(2,'0')}:00`;
+    let h=parseInt(v); if(h<=23) return `${pad(h)}:00`;
   }
   if(v.includes(':')){
     let [h,m]=v.split(':'); h=parseInt(h)||0; m=parseInt(m)||0;
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    return `${pad(h)}:${pad(m)}`;
   }
   return v;
 }
@@ -94,13 +88,14 @@ export function renderAttendance(){
   let required = Number(toEn(String(st.required)).replace(/,/g,''))||15000;
 
   let pricePerHour = workDays? totalSalary/workDays : 0;
-
-  const now=new Date(), y=now.getFullYear(), m=now.getMonth(), days=getDays(y,m), cur=`${y}-${String(m+1).padStart(2,'0')}`;
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth(), days=getDays(y,m), cur=`${y}-${pad(m+1)}`;
 
   let totalHours=0;
   data.forEach(x=>{
-    if((x.date||'').slice(0,7)===cur){
-      totalHours += calcHours(x.in, x.out);
+    // ده السطر اللي كان عامل المشكلة - دلوقتي بيقارن بالتاريخ المحلي
+    let dStr = (x.date||'').slice(0,7);
+    if(dStr===cur || (x.date||'').includes(cur)){
+      totalHours+=calcHours(x.in, x.out);
     }
   });
 
@@ -130,12 +125,12 @@ export function renderAttendance(){
     </div>
     <div class="card" style="margin:0; padding:0; overflow:hidden; border-radius:10px; border:1px solid #e5e7eb; flex:1 1 auto; display:flex; flex-direction:column; min-height:0">
       <div style="display:flex; justify-content:space-between; padding:3px 8px; background:#f9fafb; border-bottom:1px solid #e5e7eb; font-size:8px; font-weight:700; flex:0 0 auto"><span>${cur} - ${totalHours.toFixed(1)}س - ${fmtMoney(net.toFixed(0))}ج</span><span style="background:#10b981; color:#fff; padding:1px 6px; border-radius:20px">75% ادخال</span></div>
-      <div style="overflow:auto; flex:1 1 auto"><table class="pro-table" style="margin:0; width:100%; border:0; font-size:10px"><thead style="position:sticky; top:0; background:#fff"><tr style="font-size:7px; color:#9ca3af"><th style="padding:2px; width:24px">ي</th><th style="padding:2px; width:30%">حضور</th><th style="padding:2px; width:30%">انصراف</th><th style="padding:2px; width:28px">س</th><th style="padding:2px">م</th></tr></thead><tbody>${days.map(d=>{
-        const iso=d.toISOString().slice(0,10);
-        const rec=data.find(x=>(x.date||'').slice(0,10)===iso)||{id:uid(), date:d.toISOString(), in:'', out:'', hours:0, note:''};
+      <div style="overflow:auto; flex:1 1 auto"><table class="pro-table" style="margin:0; width:100%; border:0; font-size:10px"><thead style="position:sticky; top:0; background:#fff"><tr style="font-size:7px; color:#9ca3af"><th style="padding:2px; width:24px">ي</th><th style="padding:2px; width:30%">حضور</th><th style="padding:2px; width:30%">انصراف</th><th style="padding:2px; width:28px">س</th><th style="padding:2px">م</th></tr></thead><tbody>${days.map(obj=>{
+        const iso=obj.iso;
+        const rec=data.find(x=> toLocalISO(new Date((x.date||iso)))===iso || (x.date||'').slice(0,10)===iso )||{id:uid(), date:iso, in:'', out:'', hours:0, note:''};
         const dayHours = calcHours(rec.in, rec.out);
         return `<tr style="border-top:1px solid #f9fafb">
-          <td style="padding:1px; text-align:center"><b style="font-size:8px">${d.getDate()}</b></td>
+          <td style="padding:1px; text-align:center"><b style="font-size:8px">${obj.d.getDate()}</b></td>
           <td style="padding:1px"><input type="text" placeholder="7 ص" value="${rec.in? format12(rec.in) : ''}" data-d="${iso}" data-f="in" class="time-input" style="width:100%; padding:3px 1px; border:1px solid ${rec.in?'#a7f3d0':'#e5e7eb'}; border-radius:4px; font-size:9px; text-align:center; height:18px"></td>
           <td style="padding:1px"><input type="text" placeholder="7 م" value="${rec.out? format12(rec.out) : ''}" data-d="${iso}" data-f="out" class="time-input" style="width:100%; padding:3px 1px; border:1px solid ${rec.out?'#fecaca':'#e5e7eb'}; border-radius:4px; font-size:9px; text-align:center; height:18px"></td>
           <td style="padding:1px; text-align:center; font-weight:800; font-size:8px; color:${dayHours>0?'#059669':'#9ca3af'}">${dayHours>0?dayHours.toFixed(1):'-'}</td>
@@ -159,8 +154,8 @@ export function handleAttendance(btn,e,rerender){
   }
   if(t.classList.contains('time-input')){
     const iso=t.dataset.d, f=t.dataset.f;
-    let rec=data.find(x=>(x.date||'').slice(0,10)===iso);
-    if(!rec){ rec={id:uid(), date:new Date(iso).toISOString(), in:'', out:'', hours:0, note:''}; data.push(rec); }
+    let rec=data.find(x=> (x.date||'').slice(0,10)===iso || toLocalISO(new Date(x.date))===iso);
+    if(!rec){ rec={id:uid(), date:iso, in:'', out:'', hours:0, note:''}; data.push(rec); }
     if(e.type === 'input'){ rec[f]=t.value; S(KEY,data); }
     else {
       let p=smartParse(t.value);
@@ -172,8 +167,8 @@ export function handleAttendance(btn,e,rerender){
   }
   if(t.dataset.f==='note'){
     const iso=t.dataset.d;
-    let rec=data.find(x=>(x.date||'').slice(0,10)===iso);
-    if(!rec){ rec={id:uid(), date:new Date(iso).toISOString(), in:'', out:'', hours:0, note:''}; data.push(rec); }
+    let rec=data.find(x=> (x.date||'').slice(0,10)===iso || toLocalISO(new Date(x.date))===iso);
+    if(!rec){ rec={id:uid(), date:iso, in:'', out:'', hours:0, note:''}; data.push(rec); }
     rec.note=t.value; S(KEY,data); return;
   }
-            }
+}
