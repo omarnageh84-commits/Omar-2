@@ -1,52 +1,86 @@
-import { L, S } from './utils.js';
-import { sync } from './sheets.js';
+// daily.js - V6 Pro - اليومية فقط
+import { L, S, uid, formatEGP } from './utils.js';
+import { syncToSheet } from './sheets.js';
 
-let tab='income';
+const KEY = 'daily_v6';
+const CATS_KEY = 'cats_daily_v6';
+let activeTab = 'income';
+
+export function getDailyState(){ return activeTab; }
+export function setDailyState(t){ activeTab = t; }
+
 export function renderDaily(){
-  let data=L('daily_v5',[]);
-  let cats=L('cats_daily',{income:['راتب','مكافأة'],expense:['أكل','مواصلات','صيدلية'],debt:['دين لي','دين علي']});
-  let curCats = tab==='income'?cats.income:tab==='expense'?cats.expense:cats.debt;
-  let filtered=data.filter(x=> (tab==='income'&&x.t==='دخل')||(tab==='expense'&&x.t==='مصروف')||(tab==='debt'&&x.t==='دين'));
+  const data = L(KEY, []);
+  const cats = L(CATS_KEY, {income:['راتب','مكافأة'], expense:['أكل','مواصلات','صيدلية'], debt:['دين لي','دين علي']});
+  const curCats = cats[activeTab] || [];
+  const typeMap = {income:'income', expense:'expense', debt:'debt'};
+  const labelMap = {income:'دخل', expense:'مصروف', debt:'دين'};
 
-  // تقرير الفئات
-  let report={}; curCats.forEach(c=>report[c]=filtered.filter(x=>x.c===c).reduce((s,x)=>s+x.a,0));
+  const filtered = data.filter(x=>x.type===typeMap[activeTab]);
+  const report = {};
+  curCats.forEach(c=> report[c]=filtered.filter(x=>x.category===c).reduce((s,x)=>s+x.amount,0));
 
   return `
-  <div class="card">
-    <div class="seg">
-      <button class="${tab==='income'?'active':''}" onclick="window.setDailyTab('income')">دخل 💰</button>
-      <button class="${tab==='expense'?'active':''}" onclick="window.setDailyTab('expense')">مصروف 💸</button>
-      <button class="${tab==='debt'?'active':''}" onclick="window.setDailyTab('debt')">ديون 📒</button>
+    <div class="card">
+      <div class="seg">
+        <button class="${activeTab==='income'?'active':''}" data-action="setDailyTab" data-tab="income">دخل</button>
+        <button class="${activeTab==='expense'?'active':''}" data-action="setDailyTab" data-tab="expense">مصروف</button>
+        <button class="${activeTab==='debt'?'active':''}" data-action="setDailyTab" data-tab="debt">ديون</button>
+      </div>
+      <div><b>فئات ${labelMap[activeTab]}:</b><br>
+        ${curCats.map(c=>`<span class="cat">${c} <b data-action="delCat" data-type="${activeTab}" data-cat="${c}">x</b></span>`).join('')}
+        <div class="inp"><input id="newCat" placeholder="فئة جديدة"><button class="btn-sm" style="background:var(--green);color:#fff" data-action="addCat" data-type="${activeTab}">+ إضافة</button></div>
+      </div>
     </div>
-    <div style="margin:8px 0"><b>فئات ${tab}:</b> ${curCats.map(c=>`<span class="cat">${c} <b onclick="window.delCat('${tab}','${c}')">x</b></span>`).join('')}
-      <div class="inp"><input id="newCat" placeholder="فئة جديدة"><button class="btn-sm" style="background:var(--green);color:#fff" onclick="window.addCat('${tab}')">+ إضافة فئة</button></div>
+
+    <div class="card">
+      <div class="inp"><input id="dDesc" placeholder="الوصف"><input id="dAmount" type="number" placeholder="المبلغ"></div>
+      <div class="inp"><select id="dCat">${curCats.map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <button class="btn" data-action="addDaily">إضافة ${labelMap[activeTab]}</button>
     </div>
-    <div class="inp"><input id="dDesc" placeholder="الوصف"><input id="dAmount" type="number" placeholder="المبلغ"><select id="dCat">${curCats.map(c=>`<option>${c}</option>`).join('')}</select></div>
-    <button class="btn" onclick="window.addDaily()">إضافة ${tab}</button>
-  </div>
 
-  <div class="card"><b>📊 تقرير ${tab} - حسب الفئة</b>
-    <div class="h-scroll"><table class="report"><tr><th>الفئة</th><th>الإجمالي</th><th>العدد</th></tr>
-    ${curCats.map(c=>`<tr><td>${c}</td><td>${report[c]||0}</td><td>${filtered.filter(x=>x.c===c).length}</td></tr>`).join('')}
-    </table></div>
-  </div>
+    <div class="card"><b>التقرير</b>
+      <div class="h-scroll"><table class="report"><tr><th>الفئة</th><th>الإجمالي</th></tr>
+      ${Object.entries(report).map(([k,v])=>`<tr><td>${k}</td><td>${formatEGP(v)}</td></tr>`).join('')}
+      </table></div>
+    </div>
 
-  <div class="card">${filtered.map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #eee"><span>${x.d} - <small>${x.c}</small></span><span><b>${x.a}</b> <b onclick="window.delDaily(${L('daily_v5',[]).indexOf(x)})" style="color:red;cursor:pointer">حذف</b></span></div>`).join('')||'فاضي'}</div>
+    <div style="margin:10px">
+      ${filtered.map(x=>`
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin:6px 0">
+          <div><b>${x.desc}</b><br><small>${x.category} • ${new Date(x.date).toLocaleDateString('ar-EG')}</small></div>
+          <div style="display:flex; gap:8px; align-items:center"><b>${formatEGP(x.amount)}</b><button class="btn-sm" style="background:#fee2e2" data-action="delDaily" data-id="${x.id}">x</button></div>
+        </div>`).join('')}
+    </div>
   `;
 }
 
-export function bindDaily(){
-  window.setDailyTab = (t)=>{ tab=t; document.getElementById('root').innerHTML=renderDaily(); bindDaily(); };
-  window.addCat = (type)=>{
-    let v=document.getElementById('newCat').value.trim(); if(!v) return;
-    let cats=L('cats_daily',{income:[],expense:[],debt:[]}); cats[type].push(v); S('cats_daily',cats); document.getElementById('root').innerHTML=renderDaily(); bindDaily();
-  };
-  window.delCat = (type,cat)=>{
-    let cats=L('cats_daily',{income:[],expense:[],debt:[]}); cats[type]=cats[type].filter(c=>c!==cat); S('cats_daily',cats); document.getElementById('root').innerHTML=renderDaily(); bindDaily();
-  };
-  window.addDaily = ()=>{
-    let d=dDesc.value,a=+dAmount.value,c=dCat.value; if(!d||!a) return;
-    let t=tab==='income'?'دخل':tab==='expense'?'مصروف':'دين', all=L('daily_v5',[]); all.unshift({d,a,c,t,date:new Date().toISOString()}); S('daily_v5',all); sync('daily',{d,a,c,t}); document.getElementById('root').innerHTML=renderDaily(); bindDaily();
-  };
-  window.delDaily = (i)=>{ let all=L('daily_v5',[]); all.splice(i,1); S('daily_v5',all); document.getElementById('root').innerHTML=renderDaily(); bindDaily(); };
+export function bindDailyEvents(root, rerender){
+  root.addEventListener('click', e=>{
+    const btn = e.target.closest('[data-action]'); if(!btn) return;
+    const action = btn.dataset.action;
+    if(action==='setDailyTab'){ setDailyState(btn.dataset.tab); rerender(); }
+    if(action==='addCat'){
+      const v = document.getElementById('newCat')?.value.trim(); if(!v) return;
+      const cats = L(CATS_KEY, {income:[],expense:[],debt:[]});
+      cats[btn.dataset.type].push(v); S(CATS_KEY, cats); rerender();
+    }
+    if(action==='delCat'){
+      const cats = L(CATS_KEY, {income:[],expense:[],debt:[]});
+      cats[btn.dataset.type] = cats[btn.dataset.type].filter(c=>c!==btn.dataset.cat);
+      S(CATS_KEY, cats); rerender();
+    }
+    if(action==='addDaily'){
+      const desc = document.getElementById('dDesc')?.value.trim();
+      const amount = +document.getElementById('dAmount')?.value;
+      const cat = document.getElementById('dCat')?.value;
+      if(!desc||!amount) return alert('كمل البيانات');
+      const all = L(KEY, []);
+      const item = {id:uid(), desc, amount, category:cat, type:activeTab, date:new Date().toISOString()};
+      all.unshift(item); S(KEY, all); syncToSheet('daily', item); rerender();
+    }
+    if(action==='delDaily'){
+      let all = L(KEY, []); all = all.filter(x=>x.id!==btn.dataset.id); S(KEY, all); rerender();
+    }
+  });
 }
