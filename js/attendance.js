@@ -1,76 +1,31 @@
 import { L, S, uid, fmtNum } from './utils.js';
 const KEY='attendance_v7';
 const SETTINGS='att_settings_v8';
-const DEFAULT={ totalSalary: 1200, workDays: 26, required: 15000, pharmacyDebt: 14765 };
+const DEFAULT={ totalSalary: 1200, workDays: 26, required: 15000, pharmacyDebt: 0 };
 
 function pad(n){ return String(n).padStart(2,'0'); }
 function toLocalISO(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-function getDays(y,m){
-  const arr=[]; const date=new Date(y,m,1);
-  while(date.getMonth()===m){
-    arr.push({ d: new Date(date), iso: toLocalISO(date) });
-    date.setDate(date.getDate()+1);
-  }
-  return arr;
-}
+function getDays(y,m){ const arr=[]; const date=new Date(y,m,1); while(date.getMonth()===m){ arr.push({ d: new Date(date), iso: toLocalISO(date) }); date.setDate(date.getDate()+1); } return arr; }
 function toEn(str){ return String(str).replace(/[٠١٢٣٤٥٦٧٨٩]/g, d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٬/g,',').trim(); }
-
-function toMinutes(t, isOut=false){
-  if(!t) return null;
-  let s=toEn(t).toLowerCase();
-  let isPM = s.includes('م') || s.includes('p');
-  let isAM = s.includes('ص') || s.includes('a');
-  // لو مش كاتب ص/م : الحضور افتراضي صباحا والانصراف مساءا
-  if(!isPM &&!isAM) { isPM = isOut; isAM =!isOut; }
-  s=s.replace(/[^\d:.\s]/g,' ').trim().replace('.', ':');
-  let h=0,mn=0;
-  if(s.includes(':')){ let p=s.split(':'); h=parseInt(p[0])||0; mn=parseInt(p[1])||0; }
-  else if(s) h=parseInt(s)||0;
-  if(isPM&&h<12) h+=12; if(isAM&&h==12) h=0;
-  if(h>23) h=23; if(mn>59) mn=59;
-  return h*60+mn;
-}
-function calcHours(a,b){
-  if(!a||!b) return 0;
-  let pa=toMinutes(a,false), pb=toMinutes(b,true);
-  if(pa===null||pb===null) return 0;
-  if(pa===pb) return 0;
-  let diff=pb-pa; if(diff<0) diff+=24*60;
-  return diff/60;
-}
-function format12(t, isOut=false){
-  let mins=toMinutes(t, isOut); if(mins===null) return t||'';
-  let h=Math.floor(mins/60)%24, mm=mins%60;
-  let per=h>=12?'م':'ص'; let h12=h%12; if(h12==0) h12=12;
-  return `${h12}:${pad(mm)} ${per}`;
-}
+function parseNum(v, def){ let s=toEn(String(v)).replace(/,/g,'').trim(); if(s===''||s==='0') return 0; let n=Number(s); return isNaN(n)? def : n; }
+function toMinutes(t, isOut=false){ if(!t) return null; let s=toEn(t).toLowerCase(); let isPM=s.includes('م')||s.includes('p'); let isAM=s.includes('ص')||s.includes('a'); if(!isPM&&!isAM){ isPM=isOut; isAM=!isOut; } s=s.replace(/[^\d:.\s]/g,' ').trim().replace('.', ':'); let h=0,mn=0; if(s.includes(':')){ let p=s.split(':'); h=parseInt(p[0])||0; mn=parseInt(p[1])||0; } else if(s) h=parseInt(s)||0; if(isPM&&h<12) h+=12; if(isAM&&h==12) h=0; return h*60+mn; }
+function calcHours(a,b){ if(!a||!b) return 0; let pa=toMinutes(a,false), pb=toMinutes(b,true); if(pa===null||pb===null) return 0; if(pa===pb) return 0; let diff=pb-pa; if(diff<0) diff+=24*60; return diff/60; }
+function format12(t, isOut=false){ let mins=toMinutes(t, isOut); if(mins===null) return t||''; let h=Math.floor(mins/60)%24, mm=mins%60; let per=h>=12?'م':'ص'; let h12=h%12; if(h12==0) h12=12; return `${h12}:${pad(mm)} ${per}`; }
 function fmtMoney(n){ let num=Number(toEn(String(n)).replace(/,/g,'')); return isNaN(num)?'0':num.toLocaleString('en-US'); }
-function smartParse(v, isOut=false){
-  if(!v) return '';
-  let raw=toEn(v).trim();
-  // لو لسه بيكتب رقم واحد سيبه
-  if(/^\d{1,2}$/.test(raw)) return raw;
-  raw=raw.replace(/[صم]/g,'').trim().replace(',', '.');
-  if(v.includes(':')){
-    let [h,m]=raw.split(':'); h=parseInt(h)||0; m=parseInt(m)||0;
-    return `${pad(h)}:${pad(m)}`;
-  }
-  return raw;
-}
+function smartParse(v, isOut=false){ if(!v) return ''; let raw=toEn(v).trim(); if(/^\d{1,2}$/.test(raw)) return raw; raw=raw.replace(/[صم]/g,'').trim().replace(',', '.'); if(v.includes(':')){ let [h,m]=raw.split(':'); return `${pad(parseInt(h)||0)}:${pad(parseInt(m)||0)}`; } return raw; }
 
 export function renderAttendance(){
   const data=L(KEY,[]); let st=L(SETTINGS, DEFAULT);
-  let pharmacyDebt=Number(toEn(String(st.pharmacyDebt)).replace(/,/g,''))||14765;
-  let totalSalary=Number(toEn(String(st.totalSalary)).replace(/,/g,''))||1200;
-  let workDays=Number(toEn(String(st.workDays)).replace(/,/g,''))||26;
-  let required=Number(toEn(String(st.required)).replace(/,/g,''))||15000;
+  let pharmacyDebt=parseNum(st.pharmacyDebt, 0);
+  let totalSalary=parseNum(st.totalSalary, 1200);
+  let workDays=parseNum(st.workDays, 26);
+  let required=parseNum(st.required, 15000);
   let pricePerHour=workDays? totalSalary/workDays : 0;
   const now=new Date(), y=now.getFullYear(), m=now.getMonth(), days=getDays(y,m), cur=`${y}-${pad(m+1)}`;
   let totalHours=0; data.forEach(x=>{ if((x.date||'').slice(0,7)===cur) totalHours+=calcHours(x.in, x.out); });
   let net=pricePerHour*totalHours;
   let dailyNeeded=(pricePerHour*workDays)? required/(pricePerHour*workDays) : 0;
   let remain=net-pharmacyDebt;
-
   return `<div style="padding:2px; height:100dvh; display:flex; flex-direction:column; gap:3px">
     <div class="card" style="margin:0; padding:0; overflow:hidden; border-radius:10px; border:1px solid #e5e7eb; flex:0 0 auto">
       <div style="background:#0f172a; color:#fff; padding:4px; font-size:9px; font-weight:700; text-align:center">الحسابات - ربع صفحة</div>
@@ -85,12 +40,11 @@ export function renderAttendance(){
         <div style="display:flex; flex-direction:column">
           <div style="display:flex; justify-content:space-between; align-items:center; padding:0 6px; height:24px; border-bottom:1px solid #f3f4f6"><span style="font-size:9px">المطلوب</span><input data-k="required" class="inline-edit" type="text" value="${fmtMoney(required)}" style="width:70px; height:20px; border:1px solid #e5e7eb; border-radius:6px; font-size:10px; text-align:center; font-weight:700"></div>
           <div style="display:flex; justify-content:space-between; align-items:center; padding:0 6px; height:24px; border-bottom:1px solid #f3f4f6"><span style="font-size:9px; color:#64748b">مطلوب يومه</span><span style="font-size:10px; font-weight:700; color:#f59e0b">${dailyNeeded.toFixed(2)}</span></div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:0 6px; height:24px; border-bottom:1px solid #f3f4f6"><span style="font-size:9px">ديون صيدليه</span><input data-k="pharmacyDebt" class="inline-edit" type="text" value="${fmtMoney(pharmacyDebt)}" style="width:70px; height:20px; border:1px solid #e5e7eb; border-radius:6px; font-size:10px; text-align:center; font-weight:700"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0 6px; height:24px; border-bottom:1px solid #f3f4f6"><span style="font-size:9px">ديون صيدليه</span><input data-k="pharmacyDebt" class="inline-edit" type="text" value="${pharmacyDebt===0?'0':fmtMoney(pharmacyDebt)}" style="width:70px; height:20px; border:1px solid #e5e7eb; border-radius:6px; font-size:10px; text-align:center; font-weight:700"></div>
           <div style="height:22px; border-bottom:1px solid #f3f4f6"></div>
           <div style="display:flex; justify-content:space-between; align-items:center; padding:0 6px; height:24px; background:#fff1f2"><span style="font-size:8px; font-weight:700">المتبقي</span><span style="font-size:12px; font-weight:900; color:${remain<0?'#e11d48':'#059669'}">${fmtMoney(remain.toFixed(0))}</span></div>
         </div>
       </div>
-    </div>
     <div class="card" style="margin:0; padding:0; overflow:hidden; border-radius:10px; border:1px solid #e5e7eb; flex:1 1 auto; display:flex; flex-direction:column; min-height:0">
       <div style="display:flex; justify-content:space-between; padding:4px 8px; background:#f9fafb; border-bottom:1px solid #e5e7eb; font-size:8px; font-weight:700;"><span>${cur} - ${totalHours.toFixed(1)}س - ${fmtMoney(net.toFixed(0))}ج</span><span style="background:#10b981; color:#fff; padding:1px 8px; border-radius:20px">75%</span></div>
       <div style="overflow:auto; flex:1 1 auto"><table class="pro-table" style="margin:0; width:100%; border:0; font-size:10px"><thead style="position:sticky; top:0; background:#fff"><tr style="font-size:8px; color:#9ca3af"><th style="padding:4px; width:28px">ي</th><th style="padding:4px; width:32%">حضور</th><th style="padding:4px; width:32%">انصراف</th><th style="padding:4px; width:36px">س</th><th style="padding:4px">م</th></tr></thead><tbody>${days.map(obj=>{
@@ -105,37 +59,18 @@ export function renderAttendance(){
     </div>
   </div>`;
 }
-
 export function handleAttendance(btn,e,rerender){
   let st=L(SETTINGS, DEFAULT); let data=L(KEY,[]); const t=e.target;
   if(t.classList.contains('inline-edit')){
-    let raw=toEn(t.value).replace(/,/g,''); st[t.dataset.k]=raw===''?'0':parseFloat(raw)||0; S(SETTINGS,st);
-    if(e.type==='change'){ t.value=fmtMoney(st[t.dataset.k]); rerender(); } return;
+    let raw=toEn(t.value).replace(/,/g,'').trim();
+    if(raw==='') st[t.dataset.k]=0; else st[t.dataset.k]=parseFloat(raw)||0;
+    S(SETTINGS,st);
+    if(e.type==='change'){ t.value=st[t.dataset.k]===0?'0':fmtMoney(st[t.dataset.k]); rerender(); } return;
   }
   if(t.classList.contains('time-input')){
-    const iso=t.dataset.d, f=t.dataset.f;
-    let rec=data.find(x=> (x.date||'').slice(0,10)===iso);
-    if(!rec){ rec={id:uid(), date:iso, in:'', out:'', hours:0, note:''}; data.push(rec); }
-    if(e.type==='input'){
-      // سيبه يكتب براحته
-      rec[f]=t.value; S(KEY,data);
-      // متعملش رندر هنا عشان ميقطعش الكتابة، بس حدث الارقام فوق
-      const totalEl=document.querySelectorAll('span');
-      return;
-    } else {
-      // لما يخلص كتابة اعمل فورمات
-      let p=smartParse(t.value, f==='out');
-      if(p){
-        // لو كاتب رقمين بس حولهم لـ 7:00
-        if(/^\d{1,2}$/.test(p)){
-          let h=parseInt(p); rec[f]=`${pad(h)}:00`;
-        } else rec[f]=p;
-        t.value=format12(rec[f], f==='out');
-      }
-      rec.hours=calcHours(rec.in, rec.out);
-      S(KEY,data); rerender();
-    }
-    return;
+    const iso=t.dataset.d, f=t.dataset.f; let rec=data.find(x=> (x.date||'').slice(0,10)===iso); if(!rec){ rec={id:uid(), date:iso, in:'', out:'', hours:0, note:''}; data.push(rec); }
+    if(e.type==='input'){ rec[f]=t.value; S(KEY,data); return; }
+    else { let p=smartParse(t.value, f==='out'); if(p){ if(/^\d{1,2}$/.test(p)){ let h=parseInt(p); rec[f]=`${pad(h)}:00`; } else rec[f]=p; t.value=format12(rec[f], f==='out'); } rec.hours=calcHours(rec.in, rec.out); S(KEY,data); rerender(); } return;
   }
   if(t.dataset.f==='note'){ const iso=t.dataset.d; let rec=data.find(x=> (x.date||'').slice(0,10)===iso); if(!rec){ rec={id:uid(), date:iso, in:'', out:'', hours:0, note:''}; data.push(rec); } rec.note=t.value; S(KEY,data); return; }
 }
