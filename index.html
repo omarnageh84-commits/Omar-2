@@ -4,119 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d9b6e">
-<title>يومياتي Pro Ultra</title>
+<title>يومياتي Pro Ultra V7</title>
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --green:#10b981; --green-2:#0d9b6e; --green-light:#d8f5e8;
-  --bg:#f4f7f6; --card:#ffffff; --text:#0f172a; --muted:#64748b;
-  --border:#eef2f0; --r:22px; --r-sm:14px;
-  --shadow:0 8px 24px rgba(16,185,129,.08);
-  --shadow-lg:0 16px 40px rgba(0,0,0,.10);
-}
-*{font-family:'Cairo',sans-serif;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text)}
-.app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:110px;position:relative}
-
-/* Top Bar Premium */
-.top{
-  background:linear-gradient(135deg,#0d9b6e 0%,#10b981 50%,#34d399 100%);
-  color:#fff; padding:18px 20px; border-radius:0 0 28px 28px;
-  display:flex; justify-content:space-between; align-items:center;
-  position:sticky; top:0; z-index:20; box-shadow:var(--shadow-lg);
-}
-.top b{font-size:17px; letter-spacing:.3px}
-.top small{opacity:.9; font-size:11px; background:rgba(255,255,255,.18); padding:4px 10px; border-radius:20px}
-
-/* Cards Glass */
-.card{
-  background:rgba(255,255,255,.96); backdrop-filter:blur(12px);
-  border-radius:var(--r); box-shadow:var(--shadow);
-  margin:14px; padding:18px; border:1px solid rgba(255,255,255,.8);
-  animation:up.35s ease;
-}
-@keyframes up{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
-.card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
-.card-head b{font-size:15px}
-.card-head span{font-size:11px; color:var(--muted); background:#f1f5f9; padding:5px 12px; border-radius:20px}
-
-/* Inputs Pro */
-.inp{display:flex; gap:10px; margin:10px 0}
-.inp input,.inp select,.inp textarea{
-  flex:1; padding:14px 16px; border:1.6px solid var(--border); border-radius:var(--r-sm);
-  background:#fcfdfc; outline:none; font-size:14px; font-weight:600; transition:.22s;
-}
-.inp input:focus,.inp select:focus,.inp textarea:focus{
-  background:#fff; border-color:var(--green); box-shadow:0 0 0 4px var(--green-light);
-}
-.inp input::placeholder{color:#94a3b8; font-weight:500}
-
-/* Buttons Pro */
-.btn{
-  background:linear-gradient(135deg,var(--green),var(--green-2));
-  color:#fff; border:0; padding:14px 20px; border-radius:var(--r-sm);
-  font-weight:800; width:100%; cursor:pointer; font-size:14.5px;
-  box-shadow:0 8px 20px rgba(16,185,129,.35); transition:.2s;
-}
-.btn:active{transform:scale(.97)}
-.btn-sm{
-  padding:7px 14px; border-radius:10px; border:0; font-weight:800; font-size:12px;
-  cursor:pointer; transition:.2s; background:#f1f5f9;
-}
-.btn-sm.primary{background:var(--green); color:#fff; box-shadow:0 4px 12px rgba(16,185,129,.3)}
-.btn-sm.danger{background:#fff1f2; color:#e11d48}
-
-/* Segments Pro */
-.seg{display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; background:#eef2f0; padding:6px; border-radius:16px}
-.seg button{border:0; padding:11px; border-radius:12px; font-weight:700; background:transparent; color:var(--muted); cursor:pointer; transition:.2s}
-.seg button.active{background:#fff; color:var(--green); box-shadow:var(--shadow); font-weight:800}
-
-/* Category Chips */
-.cat{
-  display:inline-flex; align-items:center; gap:8px; background:#fff;
-  border:1.5px solid var(--border); padding:7px 14px; border-radius:100px;
-  font-size:12px; font-weight:700; margin:4px; box-shadow:0 2px 8px rgba(0,0,0,.04)
-}
-.cat b{width:20px; height:20px; background:#fff1f2; color:#e11d48; border-radius:50%; display:grid; place-items:center; cursor:pointer}
-
-/* Attendance Pro */
-.att{
-  display:grid; grid-template-columns:36px 1fr 1fr auto; gap:10px; align-items:center;
-  background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:12px; margin:8px 0;
-  transition:.2s;
-}
-.att:focus-within{border-color:var(--green); box-shadow:0 0 0 4px var(--green-light)}
-.att b{background:#f8fafc; width:36px; height:42px; display:grid; place-items:center; border-radius:12px; font-size:14px}
-.att input[type="time"]{border:1.5px solid var(--border); border-radius:12px; padding:10px; text-align:center; font-weight:800; background:#fcfdfc}
-.now{border:1.5px solid #e0e7ff; background:#eef2ff; color:#6366f1; padding:8px 14px; border-radius:12px; font-weight:800; font-size:11px; cursor:pointer}
-
-/* Nav Floating Pro */
-.nav{
-  position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
-  width:calc(100% - 28px); max-width:520px; background:rgba(255,255,255,.92);
-  backdrop-filter:blur(24px); display:grid; grid-template-columns:repeat(5,1fr);
-  border-radius:24px; box-shadow:0 12px 40px rgba(0,0,0,.14);
-  border:1px solid rgba(255,255,255,.9); padding:8px; z-index:50;
-}
-.nav button{border:0; background:transparent; padding:10px 4px; border-radius:16px; color:#94a3b8; font-size:10.5px; font-weight:700; line-height:1.2; cursor:pointer; transition:.25s}
-.nav button span{font-size:18px; display:block; margin-bottom:2px}
-.nav button.active{background:linear-gradient(135deg,var(--green),var(--green-2)); color:#fff; box-shadow:0 8px 20px rgba(16,185,129,.4); transform:translateY(-2px)}
-
-/* Stats */
-.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 14px}
-.stat{background:#fff; border-radius:18px; padding:16px; box-shadow:var(--shadow); border:1px solid var(--border)}
-.stat small{color:var(--muted); font-size:11px; font-weight:700}
-.stat b{font-size:20px; display:block; margin-top:4px}
-
-/* Empty */
-.empty{text-align:center; padding:36px 16px; color:var(--muted)}
-.empty i{font-size:40px; display:block; margin-bottom:10px; font-style:normal}
-</style>
+<link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
 <div class="app">
-  <div class="top"><div><small id="dateTop"></small><div style="font-size:18px; margin-top:2px">يومياتي Pro</div></div><b>💎 ULTRA</b></div>
-  <div id="root"></div>
+  <div class="top"><small id="dateTop"></small><b>💎 يومياتي ULTRA V7</b></div>
+  <main id="root"></main>
   <nav class="nav">
     <button data-t="dashboard" class="active"><span>🏠</span>الرئيسية</button>
     <button data-t="daily"><span>💳</span>اليومية</button>
@@ -125,77 +21,6 @@ body{margin:0;background:var(--bg);color:var(--text)}
     <button data-t="tasks"><span>✅</span>مهام</button>
   </nav>
 </div>
-<script>
-const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-const L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
-const calc=(a,b)=>{if(!a||!b)return 0;let[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);let x=(h2*60+m2)-(h1*60+m1);if(x<0)x+=1440;return +(x/60).toFixed(2)};
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
-const fmt=n=>new Intl.NumberFormat('ar-EG',{maximumFractionDigits:0}).format(n||0)+' ج';
-document.getElementById('dateTop').innerText=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
-let curTab='dashboard', dailyTab='income';
-
-function render(){
-  let h='';
-  if(curTab==='dashboard'){
-    let d=L('daily_v6',[]), att=L('att_v6',[]), tasks=L('tasks_v6',[]);
-    let tot=att.reduce((s,r)=>s+(r.h||0),0);
-    let inc=d.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
-    let exp=d.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
-    h=`<div class="card" style="background:linear-gradient(135deg,#0d9b6e,#10b981);color:#fff;border:0">
-      <div style="display:flex;justify-content:space-between"><div><div style="opacity:.9;font-size:12px">أهلاً يا عمر 👋</div><h2 style="margin:4px 0 0">الصافي: ${fmt(inc-exp)}</h2></div><div style="text-align:left"><div style="background:rgba(255,255,255,.2);padding:8px 14px;border-radius:14px;font-size:12px">⏱️ ${tot.toFixed(1)} ساعة</div></div></div>
-      <div class="stat-grid" style="margin:16px 0 0; gap:10px"><div style="background:rgba(255,255,255,.16);padding:12px;border-radius:14px"><small style="color:#fff">دخل</small><b style="color:#fff">+${fmt(inc)}</b></div><div style="background:rgba(255,255,255,.16);padding:12px;border-radius:14px"><small style="color:#fff">مصروف</small><b style="color:#fff">-${fmt(exp)}</b></div></div>
-    </div>
-    <div class="stat-grid"><div class="stat"><small>مهام</small><b>${tasks.filter(t=>!t.done).length} متبقية</b></div><div class="stat"><small>حركات</small><b>${d.length} عملية</b></div></div>
-    <div class="card"><div class="card-head"><b>آخر الحركات</b><span>${d.length}</span></div>${d.slice(0,5).map(x=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #f1f5f9"><div><b style="font-size:13px">${x.desc}</b><br><small style="color:#94a3b8">${x.category} • ${x.type}</small></div><b style="color:${x.type==='income'?'#10b981':'#e11d48'}">${x.type==='income'?'+':''}${fmt(x.amount)}</b></div>`).join('')||'<div class="empty"><i>📭</i>لا يوجد حركات</div>'}</div>`;
-  }
-  if(curTab==='daily'){
-    let data=L('daily_v6',[]), cats=L('cats_daily_v6',{income:['راتب','مكافأة'],expense:['أكل','مواصلات','صيدلية'],debt:['دين لي','دين علي']});
-    let curCats=cats[dailyTab]||[]; let filtered=data.filter(x=>x.type===dailyTab);
-    h=`<div class="card"><div class="seg"><button class="${dailyTab==='income'?'active':''}" onclick="setDailyTab('income')">دخل</button><button class="${dailyTab==='expense'?'active':''}" onclick="setDailyTab('expense')">مصروف</button><button class="${dailyTab==='debt'?'active':''}" onclick="setDailyTab('debt')">دين</button></div>
-    <div style="margin-top:14px">${curCats.map(c=>`<span class="cat">${c} <b onclick="delCat('${c}')">✕</b></span>`).join('')}</div><div class="inp"><input id="newCat" placeholder="فئة جديدة..."><button class="btn-sm primary" onclick="addCat()">+ إضافة</button></div></div>
-    <div class="card"><div class="card-head"><b>إضافة ${dailyTab==='income'?'دخل':dailyTab==='expense'?'مصروف':'دين'}</b></div><div class="inp"><input id="dDesc" placeholder="الوصف مثلاً: راتب الصيدلية"><input id="dAmount" type="number" placeholder="المبلغ"></div><div class="inp"><select id="dCat">${curCats.map(c=>`<option>${c}</option>`).join('')}</select></div><button class="btn" onclick="addDaily()">💾 حفظ العملية</button></div>
-    <div style="margin:0 14px">${filtered.map(x=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center;margin:8px 0"><div><b style="font-size:13px">${x.desc}</b><br><small style="color:#64748b">${x.category}</small></div><div style="display:flex;gap:8px;align-items:center"><b>${fmt(x.amount)}</b><button class="btn-sm danger" onclick="delDaily('${x.id}')">✕</button></div></div>`).join('')}</div>`;
-  }
-  if(curTab==='attendance'){
-    let list=L('att_v6',[]), rate=L('rate_v6',40.74); let total=list.reduce((s,r)=>s+(r.h||0),0);
-    h=`<div class="card"><div class="card-head"><b>⚙️ الحضور والانصراف</b><span>${total.toFixed(1)} ساعة</span></div><div class="inp"><input id="rateIn" type="number" value="${rate}" placeholder="سعر الساعة"><button class="btn-sm primary" onclick="saveRate()">حفظ</button></div><div class="stat-grid" style="margin:12px 0 0"><div class="stat" style="text-align:center"><small>الساعات</small><b style="color:#10b981">${total.toFixed(2)}</b></div><div class="stat" style="text-align:center"><small>المستحق</small><b style="color:#0d9b6e">${fmt(total*rate)}</b></div></div></div>
-    <div style="margin:0 14px"><div style="display:grid;grid-template-columns:36px 1fr 1fr auto;gap:8px;padding:0 12px 8px;color:#94a3b8;font-size:11px;font-weight:700"><span>يوم</span><span style="text-align:center">دخول</span><span style="text-align:center">خروج</span><span></span></div>
-    ${Array.from({length:31},(_,i)=>{let d=i+1,r=list.find(x=>x.day==d)||{day:d,in:'',out:'',h:0};return `<div class="att"><b>${d}</b><input type="time" value="${r.in}" onchange="upAtt(${d},'in',this.value)"><input type="time" value="${r.out}" onchange="upAtt(${d},'out',this.value)"><div style="display:flex;gap:6px;align-items:center">${r.h?`<span style="background:#d8f5e8;color:#0d9b6e;padding:6px 10px;border-radius:10px;font-weight:800;font-size:12px">${r.h}س</span>`:''}<button class="now" onclick="nowAtt(${d},'in')">الآن</button></div></div>`}).join('')}</div>`;
-  }
-  if(curTab==='notes'){
-    let notes=L('notes_v6',[]), cats=L('cats_notes_v6',['شغل','شخصي','أفكار']);
-    h=`<div class="card"><div style="display:flex;flex-wrap:wrap">${cats.map(c=>`<span class="cat">${c} <b onclick="delNCat('${c}')">✕</b></span>`).join('')}</div><div class="inp"><input id="newNCat" placeholder="فئة جديدة"><button class="btn-sm primary" onclick="addNCat()">+</button></div></div>
-    <div class="card"><div class="inp"><input id="nT" placeholder="عنوان الملاحظة..."><select id="nC">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div><div class="inp"><textarea id="nB" rows="3" placeholder="اكتب التفاصيل هنا..."></textarea></div><button class="btn" onclick="addN()">📌 حفظ الملاحظة</button></div>
-    <div style="margin:0 14px">${notes.map(n=>`<div class="card"><div class="card-head"><b>${n.title}</b><span>${n.cat}</span></div><p style="font-size:13px;color:#475569;white-space:pre-wrap;margin:0 0 10px">${n.body||''}</p><div style="text-align:left"><button class="btn-sm danger" onclick="delN('${n.id}')">حذف</button></div></div>`).join('')||'<div class="empty"><i>📝</i>لا ملاحظات بعد</div>'}</div>`;
-  }
-  if(curTab==='tasks'){
-    let tasks=L('tasks_v6',[]), cats=L('cats_tasks_v6',['عاجل','مهم','عادي']);
-    h=`<div class="card"><div style="display:flex;flex-wrap:wrap">${cats.map(c=>`<span class="cat">${c} <b onclick="delTCat('${c}')">✕</b></span>`).join('')}</div><div class="inp"><input id="newTCat" placeholder="فئة جديدة"><button class="btn-sm primary" style="background:#0ea5e9" onclick="addTCat()">+</button></div></div>
-    <div class="card"><div class="inp"><input id="tT" placeholder="مهمة جديدة..."><select id="tC">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div><button class="btn" style="background:#0ea5e9" onclick="addT()">➕ إضافة مهمة</button></div>
-    <div style="margin:0 14px">${tasks.map(t=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center;${t.done?'opacity:.6':''}"><div style="display:flex;gap:10px;align-items:center"><input type="checkbox" ${t.done?'checked':''} onchange="toggleT('${t.id}')" style="width:20px;height:20px"><span style="${t.done?'text-decoration:line-through':''}"><b style="font-size:13px">${t.text}</b> <small style="background:#f1f5f9;padding:3px 8px;border-radius:20px;font-size:10px">${t.cat}</small></span></div><button class="btn-sm danger" onclick="delT('${t.id}')">✕</button></div>`).join('')||'<div class="empty"><i>🎯</i>لا مهام حالياً</div>'}</div>`;
-  }
-  document.getElementById('root').innerHTML=h;
-}
-function setDailyTab(t){dailyTab=t; render();}
-function addCat(){let v=newCat.value.trim(); if(!v)return; let c=L('cats_daily_v6',{income:[],expense:[],debt:[]}); c[dailyTab].push(v); S('cats_daily_v6',c); render();}
-function delCat(cat){let c=L('cats_daily_v6',{income:[],expense:[],debt:[]}); c[dailyTab]=c[dailyTab].filter(x=>x!==cat); S('cats_daily_v6',c); render();}
-function addDaily(){let d=dDesc.value.trim(), a=+dAmount.value, cat=dCat.value; if(!d||!a)return alert('كمل البيانات'); let all=L('daily_v6',[]); all.unshift({id:uid(),desc:d,amount:a,category:cat,type:dailyTab,date:new Date().toISOString()}); S('daily_v6',all); render();}
-function delDaily(id){S('daily_v6',L('daily_v6',[]).filter(x=>x.id!==id)); render();}
-function saveRate(){S('rate_v6',+rateIn.value||0); render();}
-function upAtt(day,type,val){let l=L('att_v6',[]), r=l.find(x=>x.day===day)||{day,in:'',out:'',h:0}; r[type]=val; if(r.in&&r.out) r.h=calc(r.in,r.out); let i=l.findIndex(x=>x.day===day); if(i>-1)l[i]=r; else l.push(r); l.sort((a,b)=>a.day-b.day); S('att_v6',l); render();}
-function nowAtt(d,t){upAtt(d,t,new Date().toTimeString().slice(0,5));}
-function addNCat(){let v=newNCat.value.trim(); if(!v)return; let c=L('cats_notes_v6',['شغل']); c.push(v); S('cats_notes_v6',c); render();}
-function delNCat(cat){S('cats_notes_v6',L('cats_notes_v6',[]).filter(x=>x!==cat)); render();}
-function addN(){let t=nT.value.trim(); if(!t)return; let n=L('notes_v6',[]); n.unshift({id:uid(),title:t,body:nB.value,cat:nC.value,date:new Date().toISOString()}); S('notes_v6',n); render();}
-function delN(id){S('notes_v6',L('notes_v6',[]).filter(x=>x.id!==id)); render();}
-function addTCat(){let v=newTCat.value.trim(); if(!v)return; let c=L('cats_tasks_v6',['عاجل']); c.push(v); S('cats_tasks_v6',c); render();}
-function delTCat(cat){S('cats_tasks_v6',L('cats_tasks_v6',[]).filter(x=>x!==cat)); render();}
-function addT(){let v=tT.value.trim(); if(!v)return; let t=L('tasks_v6',[]); t.unshift({id:uid(),text:v,cat:tC.value,done:false}); S('tasks_v6',t); render();}
-function toggleT(id){let t=L('tasks_v6',[]); let x=t.find(a=>a.id===id); if(x){x.done=!x.done; S('tasks_v6',t); render();}}
-function delT(id){S('tasks_v6',L('tasks_v6',[]).filter(x=>x.id!==id)); render();}
-
-document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{curTab=b.dataset.t; document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(); window.scrollTo({top:0,behavior:'smooth'});}));
-render();
-</script>
+<script type="module" src="js/app.js?v=7"></script>
 </body>
 </html>
