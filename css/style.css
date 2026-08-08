@@ -1,58 +1,12 @@
-/* V7.1 FULLSCREEN FIX + PRO TABLES */
-:root{
-  --green:#10b981; --green-2:#0d9b6e; --green-light:#d8f5e8;
-  --bg:#f4f7f6; --card:#fff; --text:#0f172a; --muted:#94a3b8; --muted-2:#64748b;
-  --border:#eef2f0; --r:18px; --r-sm:12px; --shadow:0 8px 24px rgba(16,185,129,.08);
-  --shadow-lg:0 16px 40px rgba(0,0,0,.12); --font:'Cairo',sans-serif;
-}
-*{font-family:var(--font); box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-html,body{margin:0; padding:0; width:100%; height:100%; background:var(--bg); overflow-x:hidden}
-body{padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom)}
-.app{width:100%; max-width:100%!important; margin:0!important; min-height:100dvh; padding-bottom:110px; background:var(--bg)}
-
-/* Top full width */
-.top{
-  width:100%; background:linear-gradient(135deg,var(--green-2),var(--green));
-  color:#fff; padding:18px 16px; display:flex; justify-content:space-between; align-items:center;
-  position:sticky; top:0; z-index:20; box-shadow:var(--shadow-lg); border-radius:0 0 20px 20px;
-}
-.card{background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); margin:12px; padding:16px; border:1px solid #fff; animation:up.25s ease}
-@keyframes up{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
-
-/* Inputs */
-.inp{display:flex; gap:8px; margin:8px 0}
-.inp input,.inp select{flex:1; padding:13px 14px; border:1.6px solid var(--border); border-radius:12px; background:#fcfdfc; font-weight:700; outline:none}
-.inp input:focus{border-color:var(--green); box-shadow:0 0 0 4px var(--green-light); background:#fff}
-.btn{background:linear-gradient(135deg,var(--green),var(--green-2)); color:#fff; border:0; padding:13px; border-radius:12px; font-weight:800; width:100%; cursor:pointer}
-.btn-sm{padding:7px 12px; border-radius:10px; border:0; font-weight:800; font-size:11px; cursor:pointer}
-
-/* Seg - RTL fix - الإجمالي آخر واحد على الشمال */
-.seg{display:grid; gap:5px; background:#eef2f0; padding:5px; border-radius:14px}
-.seg.cols-5{grid-template-columns:repeat(5,1fr)}
-.seg button{border:0; padding:10px 4px; border-radius:10px; font-weight:700; background:transparent; color:var(--muted-2); font-size:12px; cursor:pointer; white-space:nowrap}
-.seg button.active{background:#fff; color:var(--green); box-shadow:0 2px 8px rgba(0,0,0,.08); font-weight:800}
-
-/* PRO TABLE */
-.pro-table{width:100%; border-collapse:separate; border-spacing:0; font-size:12.5px; margin-top:10px; background:#fff; border-radius:14px; overflow:hidden; border:1.5px solid var(--border)}
-.pro-table th{background:#f8fafc; padding:10px 12px; text-align:right; font-weight:800; font-size:11px; color:var(--muted-2); border-bottom:1.5px solid var(--border)}
-.pro-table td{padding:10px 12px; border-top:1px solid #f1f5f9; font-weight:600}
-.pro-table tr:hover td{background:#f8fffe}
-.table-actions{display:flex; gap:6px}
-.table-actions button{width:28px; height:28px; border-radius:8px; border:0; cursor:pointer; display:grid; place-items:center; font-size:12px}
-.btn-edit{background:#eef2ff; color:#6366f1}
-.btn-del{background:#fff1f2; color:#e11d48}
-
-.cat{display:inline-flex; gap:6px; background:#fff; border:1.5px solid var(--border); padding:6px 12px; border-radius:100px; font-size:11px; font-weight:700; margin:3px}
-.cat b{cursor:pointer; color:#e11d48}
-
-/* Bottom Nav Full Width */
-.nav{
-  position:fixed; bottom:0; left:0; right:0; width:100%; max-width:100%!important;
-  background:rgba(255,255,255,.96); backdrop-filter:blur(20px);
-  display:grid; grid-template-columns:repeat(5,1fr); padding:10px 6px calc(10px + env(safe-area-inset-bottom));
-  box-shadow:0 -8px 24px rgba(0,0,0,.08); border-top:1px solid var(--border); z-index:50; transform:none!important;
-}
-.nav button{border:0; background:transparent; padding:6px 2px; color:#94a3b8; font-size:10px; font-weight:700}
-.nav button span{font-size:18px; display:block}
-.nav button.active{color:var(--green)}
-.nav button.active span{transform:scale(1.15)}
+/* تصغير احترافي V7.2 */
+.card{margin:8px; padding:12px}
+.pro-table{font-size:11.5px}
+.pro-table th{padding:8px 10px; font-size:10px}
+.pro-table td{padding:8px 10px; font-size:11.5px}
+.inp input, .inp select, select{font-size:12px; padding:10px 12px}
+.cat{font-size:10.5px; padding:5px 10px}
+.seg button{font-size:11px; padding:8px 4px}
+.btn{font-size:12.5px; padding:11px}
+.btn-sm{font-size:10px; padding:6px 10px}
+.pro-table tfoot td{background:#f8fafc; border-top:1.5px dashed #e2e8f0}
+.pro-table tfoot input{border:1.2px solid #e2e8f0; border-radius:8px; padding:8px 10px; font-size:11px; width:100%}
