@@ -142,4 +142,4 @@ export function handleTasks(btn,e,rerender){
   if(btn.dataset.action==='savePage'){ const t=tasks.find(x=>x.id===btn.dataset.id); if(!t) return; t.text=document.getElementById('tTitlePage')?.value||t.text; t.cat=document.getElementById('tCatPage')?.value||t.cat; t.priority=document.getElementById('tPrioPage')?.value||t.priority; S(KEY,tasks); openId=null; rerender(); return; }
   if(btn.dataset.action==='clearDraw'){ const cv=document.getElementById('drawCanvas'); if(cv) cv.getContext('2d').clearRect(0,0,cv.width,cv.height); return; }
   if(btn.dataset.action==='saveDraw'){ const cv=document.getElementById('drawCanvas'); const t=tasks.find(x=>x.id===btn.dataset.id); if(cv&&t){ t.drawing=cv.toDataURL(); S(KEY,tasks); alert('تم حفظ الرسم'); } return; }
-  }
+    }
