@@ -1,99 +1,176 @@
 import { L, S, uid, fmt } from './utils.js';
-const KEY='daily_v6', CATS='cats_v7_master';
+
+const KEY='daily_v6';
+const CATS='cats_final_v1';
 const DEFAULT={
-  income:['راتب صيدلية','مكافأة','شفت إضافي'],
-  expense:['أكل','مواصلات','إيجار','صيدلية','سوبر ماركت','شحن'],
-  due:['دين مستحق - سلفة','دين مستحق - جمعية','ذمم'],
-  deferred:['دين مؤجل - قرض','دين مؤجل - تقسيط','أقساط']
+  income:['راتب صيدلية','مكافأة'],
+  expense:['أكل','مواصلات','إيجار','صيدلية'],
+  due:['دين مستحق - سلفة','دين مستحق - جمعية'],
+  deferred:['دين مؤجل - قرض','أقساط']
 };
-let tab='income'; // ترتيب: income, expense, due, deferred, total (total آخر واحد شمال)
+
+let tab='income'; // income | expense | debts | total
+let debtType='due'; // due | deferred - جوه تبويب الديون
 
 const getCats=()=>L(CATS, DEFAULT);
 const saveCats=c=>S(CATS,c);
 
 export function renderDaily(){
-  const data=L(KEY,[]), cats=getCats();
-  const by = t => data.filter(x=>x.type===t);
-  const sum = arr => arr.reduce((s,x)=>s+x.amount,0);
+  const data=L(KEY,[]);
+  const cats=getCats();
 
-  // الإجمالي آخر تبويب على الشمال - جواه 4 جداول
+  // الإجمالي - صافي كل شهر
   if(tab==='total'){
+    // تجميع حسب الشهر
+    const months={};
+    data.forEach(r=>{
+      const m = (r.date||r.created||new Date().toISOString()).slice(0,7); // YYYY-MM
+      if(!months[m]) months[m]={income:0,expense:0,due:0,deferred:0};
+      months[m][r.type]+=r.amount;
+    });
+    const sortedMonths=Object.keys(months).sort().reverse();
+
     return `
-    <div class="card" style="background:#0f172a; color:#fff; border:0">
-      <b>📊 الإجمالي - الماستر</b><br><small style="opacity:.6">كل الجداول بتغذي الصفحات التانية</small>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px">
-        <div style="background:rgba(255,255,255,.08); padding:10px; border-radius:12px"><small>دخل</small><br><b style="color:#34d399">${fmt(sum(by('income')))}</b></div>
-        <div style="background:rgba(255,255,255,.08); padding:10px; border-radius:12px"><small>مصروف</small><br><b style="color:#fb7185">${fmt(sum(by('expense')))}</b></div>
-        <div style="background:rgba(255,255,255,.08); padding:10px; border-radius:12px"><small>مستحق</small><br><b style="color:#fbbf24">${fmt(sum(by('due')))}</b></div>
-        <div style="background:rgba(255,255,255,.08); padding:10px; border-radius:12px"><small>مؤجل</small><br><b style="color:#a78bfa">${fmt(sum(by('deferred')))}</b></div>
+    <div class="card" style="padding:10px">
+      <div class="seg" style="grid-template-columns:repeat(4,1fr)">
+        <button data-action="setTab" data-tab="income">دخل</button>
+        <button data-action="setTab" data-tab="expense">مصروف</button>
+        <button data-action="setTab" data-tab="debts">الديون</button>
+        <button class="active" data-action="setTab" data-tab="total">الإجمالي</button>
       </div>
     </div>
 
-    ${renderMasterTable('الدخل','income','income','🟢','الدخل',by('income'))}
-    ${renderMasterTable('المصروفات','expense','expense','🔴','المصروف',by('expense'))}
-    ${renderMasterTable('الديون المستحقة','due','due','🟡','دين مستحق',by('due'))}
-    ${renderMasterTable('الديون المؤجلة','deferred','deferred','🟣','دين مؤجل',by('deferred'))}
+    <div class="card" style="background:#0f172a; color:#fff; border:0">
+      <b>📊 الإجمالي - الصافي لكل شهر</b>
+      <div style="font-size:11px; opacity:.7; margin-top:4px">صافي الدخل والمصروف والديون المستحقة والمؤجلة</div>
+    </div>
+
+    <table class="pro-table">
+      <tr><th>الشهر</th><th>دخل</th><th>مصروف</th><th>صافي</th><th>مستحقة</th><th>مؤجلة</th></tr>
+      ${sortedMonths.map(m=>{
+        const row=months[m];
+        const net=row.income-row.expense;
+        return `<tr>
+          <td><b>${m}</b></td>
+          <td style="color:#10b981">${fmt(row.income)}</td>
+          <td style="color:#e11d48">${fmt(row.expense)}</td>
+          <td style="background:${net>=0?'#ecfdf5':'#fff1f2'}; font-weight:800; color:${net>=0?'#065f46':'#9f1239'}">${fmt(net)}</td>
+          <td style="color:#d97706">${fmt(row.due)}</td>
+          <td style="color:#6366f1">${fmt(row.deferred)}</td>
+        </tr>`
+      }).join('') || `<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8">لا يوجد بيانات بعد</td></tr>`}
+      <tr style="background:#f8fafc; font-weight:800; border-top:2px solid #0f172a">
+        <td>الإجمالي الكلي</td>
+        <td style="color:#10b981">${fmt(data.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0))}</td>
+        <td style="color:#e11d48">${fmt(data.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0))}</td>
+        <td>${fmt(data.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0) - data.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0))}</td>
+        <td style="color:#d97706">${fmt(data.filter(x=>x.type==='due').reduce((s,x)=>s+x.amount,0))}</td>
+        <td style="color:#6366f1">${fmt(data.filter(x=>x.type==='deferred').reduce((s,x)=>s+x.amount,0))}</td>
+      </tr>
+    </table>
     `;
   }
 
-  // الصفحات العادية
-  const map={income:{title:'دخل',c:cats.income,d:by('income'),col:'#10b981'}, expense:{title:'مصروف',c:cats.expense,d:by('expense'),col:'#e11d48'}, due:{title:'دين مستحق',c:cats.due,d:by('due'),col:'#f59e0b'}, deferred:{title:'دين مؤجل',c:cats.deferred,d:by('deferred'),col:'#6366f1'}};
-  const cur=map[tab];
+  // التبويبات الـ 3 الاحترافية
+  let curCats=[], curData=[], title='', color='';
+  if(tab==='income'){ curCats=cats.income; curData=data.filter(x=>x.type==='income'); title='الدخل'; color='#10b981'; }
+  if(tab==='expense'){ curCats=cats.expense; curData=data.filter(x=>x.type==='expense'); title='المصروف'; color='#e11d48'; }
+  if(tab==='debts'){
+    curCats = debtType==='due'? cats.due : cats.deferred;
+    curData = data.filter(x=>x.type===debtType);
+    title = debtType==='due'? 'الديون المستحقة' : 'الديون المؤجلة';
+    color = debtType==='due'? '#f59e0b' : '#6366f1';
+  }
+
   return `
   <div class="card" style="padding:10px">
-    <div class="seg cols-5">
-      <button class="${tab==='income'?'active':''}" data-action="setTab" data-tab="income">دخل</button>
-      <button class="${tab==='expense'?'active':''}" data-action="setTab" data-tab="expense">مصروف</button>
-      <button class="${tab==='due'?'active':''}" data-action="setTab" data-tab="due">مستحقة</button>
-      <button class="${tab==='deferred'?'active':''}" data-action="setTab" data-tab="deferred">مؤجلة</button>
+    <div class="seg" style="grid-template-columns:repeat(4,1fr)">
+      <button class="${tab==='income'?'active':''}" data-action="setTab" data-tab="income">الدخل</button>
+      <button class="${tab==='expense'?'active':''}" data-action="setTab" data-tab="expense">المصروف</button>
+      <button class="${tab==='debts'?'active':''}" data-action="setTab" data-tab="debts">الديون</button>
       <button class="${tab==='total'?'active':''}" data-action="setTab" data-tab="total">الإجمالي</button>
     </div>
-    <div style="margin-top:8px; font-size:10px; color:#64748b; background:#f8fafc; padding:6px 10px; border-radius:8px">الفئات من الإجمالي - ${cur.c.length} فئة</div>
+    ${tab==='debts'?`
+    <div class="seg" style="margin-top:8px; grid-template-columns:1fr 1fr">
+      <button class="${debtType==='due'?'active':''}" data-action="setDebtType" data-type="due">⏳ مستحقة</button>
+      <button class="${debtType==='deferred'?'active':''}" data-action="setDebtType" data-type="deferred">🏦 مؤجلة</button>
+    </div>`:''}
   </div>
+
   <div class="card">
-    <b style="color:${cur.col}">+ ${cur.title}</b>
-    <div class="inp"><input id="dDesc" placeholder="الوصف"><input id="dAmount" type="number" placeholder="المبلغ"></div>
-    <div class="inp"><select id="dCat">${cur.c.map(x=>`<option>${x}</option>`).join('')}</select><input id="dDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
-    <button class="btn" style="background:${cur.col}" data-action="addRow">حفظ</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+      <b style="color:${color}">📁 بنود ${title}</b><span style="font-size:11px; background:#f1f5f9; padding:4px 10px; border-radius:20px">${curCats.length} بند</span>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px">
+      ${curCats.map(c=>`<span class="cat">${c} <b data-action="editCat" data-cat="${c}">✏️</b> <b data-action="delCat" data-cat="${c}">✕</b></span>`).join('') || `<small style="color:#94a3b8">لا يوجد بنود - أضف واحد</small>`}
+    </div>
+    <div class="inp">
+      <input id="newCatInput" placeholder="إضافة بند جديد...">
+      <button class="btn-sm" style="background:${color}; color:#fff; padding:12px 18px" data-action="addCat">+ إضافة بند</button>
+    </div>
   </div>
-  <table class="pro-table"><tr><th>الوصف</th><th>الفئة</th><th>المبلغ</th><th></th></tr>
-  ${cur.d.map(r=>`<tr><td>${r.desc}<br><small style="color:#94a3b8">${r.date?.slice(0,10)||''}</small></td><td>${r.category}</td><td><b>${fmt(r.amount)}</b></td><td><div class="table-actions"><button class="btn-edit" data-action="editRow" data-id="${r.id}">✏️</button><button class="btn-del" data-action="delRow" data-id="${r.id}">✕</button></div></td></tr>`).join('') || `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:20px">لا يوجد</td></tr>`}
+
+  <div class="card" style="border:1.5px solid ${color}20; background:linear-gradient(180deg,#fff,#fcfdfe)">
+    <b style="color:${color}">＋ إضافة ${title}</b>
+    <div class="inp" style="margin-top:12px">
+      <select id="dCat" style="flex:1; padding:13px; border-radius:12px; border:1.6px solid #eef2f0; font-weight:700"><option value="">اختر البند...</option>${curCats.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+      <input id="dAmount" type="number" placeholder="المبلغ" style="flex:.7">
+    </div>
+    <div class="inp">
+      <input id="dDesc" placeholder="وصف (اختياري)" style="flex:1">
+      <input id="dDate" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:.7">
+    </div>
+    <button class="btn" style="background:${color}; margin-top:8px" data-action="addRow">💾 حفظ ${title}</button>
+  </div>
+
+  <table class="pro-table">
+    <tr><th>البند</th><th>المبلغ</th><th>التاريخ</th><th></th></tr>
+    ${curData.map(r=>`<tr>
+      <td><b>${r.category}</b><br><small style="color:#94a3b8">${r.desc||''}</small></td>
+      <td><b style="color:${color}">${fmt(r.amount)}</b></td>
+      <td style="font-size:11px">${(r.date||'').slice(0,10)}</td>
+      <td><div style="display:flex; gap:4px"><button class="btn-sm" style="background:#eef2ff" data-action="editRow" data-id="${r.id}">✏️</button><button class="btn-sm" style="background:#fff1f2; color:#e11d48" data-action="delRow" data-id="${r.id}">✕</button></div></td>
+    </tr>`).join('') || `<tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8">لا يوجد ${title} بعد</td></tr>`}
   </table>
   `;
 }
 
-function renderMasterTable(title,key,type,icon,label,rows){
-  const cats=getCats();
-  const sum=rows.reduce((s,x)=>s+x.amount,0);
-  return `
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px"><b>${icon} جدول ${title}</b><span style="background:#f1f5f9; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:800">${rows.length} صف • ${fmt(sum)}</span></div>
-    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px">
-      ${cats[key].map(c=>`<span class="cat">${c} <b data-action="editCat" data-key="${key}" data-old="${c}">✏️</b> <b data-action="delCat" data-key="${key}" data-cat="${c}">✕</b></span>`).join('')}
-    </div>
-    <div class="inp"><input id="new-${key}" placeholder="إضافة فئة ${label}..."><button class="btn-sm" style="background:#0f172a; color:#fff" data-action="addCat" data-key="${key}">+ إضافة فئة</button></div>
-    <table class="pro-table">
-      <tr><th>الاسم</th><th>الوصف</th><th>المبلغ</th><th>إجراءات</th></tr>
-      ${rows.map(r=>`<tr><td><b>${r.category}</b></td><td>${r.desc}</td><td><b style="color:${type==='income'?'#10b981':type==='expense'?'#e11d48':type==='due'?'#f59e0b':'#6366f1'}">${fmt(r.amount)}</b></td><td><div class="table-actions"><button class="btn-edit" data-action="editRowMaster" data-id="${r.id}">✏️</button><button class="btn-del" data-action="delRow" data-id="${r.id}">✕</button></div></td></tr>`).join('') || `<tr><td colspan="4" style="text-align:center; color:#94a3b8">فارغ - ضيف أول صف من تبويب ${label}</td></tr>`}
-    </table>
-  </div>`;
-}
-
 export function handleDaily(btn,e,rerender){
   const cats=getCats();
+  const getCurKey=()=> tab==='income'? 'income' : tab==='expense'? 'expense' : debtType;
+
   if(btn.dataset.action==='setTab'){ tab=btn.dataset.tab; rerender(); return; }
-  if(btn.dataset.action==='addCat'){ const k=btn.dataset.key; const v=document.getElementById(`new-${k}`)?.value.trim(); if(!v) return; cats[k].push(v); saveCats(cats); rerender(); return; }
-  if(btn.dataset.action==='delCat'){ if(!confirm('حذف الفئة؟')) return; const {key,cat}=btn.dataset; cats[key]=cats[key].filter(x=>x!==cat); saveCats(cats); rerender(); return; }
-  if(btn.dataset.action==='editCat'){ const {key,old}=btn.dataset; const nv=prompt('الاسم الجديد:',old); if(!nv?.trim()) return; cats[key]=cats[key].map(x=>x===old?nv.trim():x); saveCats(cats); let all=L(KEY,[]); all.forEach(o=>{ if(o.category===old && o.type===key) o.category=nv.trim(); }); S(KEY,all); rerender(); return; }
+  if(btn.dataset.action==='setDebtType'){ debtType=btn.dataset.type; rerender(); return; }
+
+  if(btn.dataset.action==='addCat'){
+    const v=document.getElementById('newCatInput')?.value.trim(); if(!v) return;
+    const key=getCurKey(); cats[key].push(v); saveCats(cats); rerender(); return;
+  }
+  if(btn.dataset.action==='delCat'){
+    if(!confirm('حذف البند؟')) return;
+    const key=getCurKey(); cats[key]=cats[key].filter(x=>x!==btn.dataset.cat); saveCats(cats); rerender(); return;
+  }
+  if(btn.dataset.action==='editCat'){
+    const key=getCurKey(); const old=btn.dataset.cat; const nv=prompt('تعديل البند:',old); if(!nv?.trim()) return;
+    cats[key]=cats[key].map(x=>x===old?nv.trim():x); saveCats(cats);
+    // عدل كل العمليات القديمة
+    let all=L(KEY,[]); all.forEach(o=>{ if(o.category===old && o.type===key) o.category=nv.trim(); }); S(KEY,all);
+    rerender(); return;
+  }
   if(btn.dataset.action==='addRow'){
-    const desc=document.getElementById('dDesc')?.value.trim(), amount=+document.getElementById('dAmount')?.value, cat=document.getElementById('dCat')?.value, date=document.getElementById('dDate')?.value;
-    if(!desc||!amount) return alert('كمل البيانات');
-    const all=L(KEY,[]); all.unshift({id:uid(), desc, amount, category:cat, type:tab, date:date?new Date(date).toISOString():new Date().toISOString()}); S(KEY,all); rerender(); return;
+    const cat=document.getElementById('dCat')?.value, amount=+document.getElementById('dAmount')?.value;
+    const desc=document.getElementById('dDesc')?.value.trim(), date=document.getElementById('dDate')?.value;
+    if(!cat) return alert('اختر البند من القائمة');
+    if(!amount) return alert('ادخل المبلغ');
+    const all=L(KEY,[]);
+    const type = tab==='debts'? debtType : tab;
+    all.unshift({id:uid(), category:cat, amount, desc, type, date:date?new Date(date).toISOString():new Date().toISOString()});
+    S(KEY,all); rerender(); return;
   }
   if(btn.dataset.action==='delRow'){ if(!confirm('حذف الصف؟')) return; S(KEY, L(KEY,[]).filter(x=>x.id!==btn.dataset.id)); rerender(); return; }
-  if(btn.dataset.action==='editRow' || btn.dataset.action==='editRowMaster'){
+  if(btn.dataset.action==='editRow'){
     const all=L(KEY,[]); const item=all.find(x=>x.id===btn.dataset.id); if(!item) return;
-    const nd=prompt('الوصف:',item.desc); if(nd===null) return; const na=prompt('المبلغ:',item.amount); if(na===null) return;
-    item.desc=nd.trim()||item.desc; item.amount=+na||item.amount; S(KEY,all); rerender(); return;
+    const na=prompt('المبلغ الجديد:',item.amount); if(na===null) return; const nd=prompt('الوصف:',item.desc||''); if(nd===null) return;
+    item.amount=+na||item.amount; item.desc=nd.trim(); S(KEY,all); rerender(); return;
   }
 }
