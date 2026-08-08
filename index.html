@@ -4,14 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>يومياتي Pro</title>
-<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<style>
+:root{--green:#10b981;--bg:#f6f8f6;--card:#fff;--shadow:0 10px 30px rgba(0,0,0,.06);--radius:20px}
+*{font-family:'Cairo',sans-serif;box-sizing:border-box} body{margin:0;background:var(--bg)}
+.app{max-width:480px;margin:auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:85px}
+.top-bar{background:var(--green);color:#fff;padding:18px 20px;border-radius:0 0 22px 22px;font-weight:800;font-size:19px;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin:12px}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.summary-grid div{background:#f0fdf4;border-radius:14px;padding:10px 4px}
+.summary-grid b{display:block;color:var(--green)}
+.input-row{display:flex;gap:8px;margin:8px 0}.input-row input,.input-row select,.input-row textarea{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:12px}
+.btn{background:var(--green);color:#fff;border:0;padding:12px;border-radius:12px;font-weight:800;width:100%;cursor:pointer}
+.att-row{display:grid;grid-template-columns:28px 1fr 1fr 45px;gap:6px;align-items:center;margin:7px 0;background:#fff;border-radius:12px;padding:8px;border:1px solid #eee}
+.now-btn{background:#eef2ff;border:1px dashed #6366f1;border-radius:8px;font-size:10px;padding:5px;cursor:pointer}
+.bottom-nav{position:fixed;bottom:0;max-width:480px;width:100%;background:#fff;display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -5px 20px rgba(0,0,0,.08);border-radius:20px 20px 0 0;z-index:99}
+.bottom-nav button{border:0;background:transparent;padding:14px 2px;font-size:11px;cursor:pointer}
+.bottom-nav button.active{color:var(--green);font-weight:800;border-top:3px solid var(--green)}
+.negative{color:#ef4444;font-weight:800}.positive{color:var(--green);font-weight:800}
+</style>
 </head>
 <body>
 <div class="app">
-  <header class="top-bar" id="topBar">يومياتي Pro 💼</header>
-  <main id="appContent"></main>
+  <div class="top-bar"><span id="topDate"></span><span>💼 يومياتي Pro</span></div>
+  <div id="content"></div>
   <nav class="bottom-nav">
     <button data-tab="dashboard" class="active">الرئيسية</button>
     <button data-tab="daily">اليومية</button>
@@ -20,6 +36,114 @@
     <button data-tab="tasks">مهام</button>
   </nav>
 </div>
-<script type="module" src="js/app.js"></script>
+
+<script>
+// ===== STORAGE & UTILS =====
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
+const calc=(a,b)=>{if(!a||!b)return 0;let[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);let diff=(h2*60+m2)-(h1*60+m1);if(diff<0)diff+=1440;return +(diff/60).toFixed(2)};
+document.getElementById('topDate').innerText=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+
+// ===== TABS =====
+let currentTab='dashboard';
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  if(tab==='dashboard') renderDashboard();
+  if(tab==='daily') renderDaily();
+  if(tab==='attendance') renderAttendance();
+  if(tab==='notes') renderNotes();
+  if(tab==='tasks') renderTasks();
+}
+document.querySelectorAll('.bottom-nav button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  let att=load('attendance',[]); let total=att.reduce((s,r)=>s+(r.hours||0),0);
+  let daily=load('daily_records',[]);
+  document.getElementById('content').innerHTML=`
+  <div class="card" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff">
+    <h3 style="margin:0">أهلا يا عمر 👋</h3><p style="margin:6px 0 0;opacity:.9">اشتغلت ${total.toFixed(1)} ساعة الشهر ده</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+      <div style="background:rgba(255,255,255,.2);padding:12px;border-radius:14px"><b>${(total*40.74).toFixed(0)} جنيه</b><br><small>صافي متوقع</small></div>
+      <div style="background:rgba(255,255,255,.2);padding:12px;border-radius:14px"><b>${daily.length}</b><br><small>عملية يومية</small></div>
+    </div>
+  </div>
+  <div class="card"><h4>الوصول السريع</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <button class="btn" onclick="switchTab('attendance')">+ تسجيل حضور</button>
+    <button class="btn" style="background:#f59e0b" onclick="switchTab('daily')">+ يومية جديدة</button>
+  </div></div>`;
+}
+
+// ===== DAILY - زي تطبيق المصاريف =====
+function renderDaily(){
+  let rate=load('rate',40.74); let pharmacy=load('pharmacy',0); let records=load('daily_records',[]);
+  let totalHours=load('attendance',[]).reduce((s,r)=>s+(r.hours||0),0);
+  let net=totalHours*rate - pharmacy;
+  document.getElementById('content').innerHTML=`
+  <div class="card"><h4 style="margin:0">💰 ملخص المرتب - ${new Date().toLocaleString('ar-EG',{month:'long'})}</h4>
+    <div class="summary-grid" style="margin-top:10px">
+      <div><small>سعر الساعة</small><b>${rate}</b></div>
+      <div><small>عدد الساعات</small><b>${totalHours.toFixed(1)}</b></div>
+      <div><small>الصافي</small><b class="positive">${net.toFixed(0)}</b></div>
+      <div><small>المتبقي</small><b class="${net<0?'negative':'positive'}">${net.toFixed(0)}</b></div>
+    </div>
+    <div class="input-row"><input id="rateIn" type="number" value="${rate}"><input id="pharmIn" type="number" value="${pharmacy}" placeholder="ديون صيدلية"></div>
+    <button class="btn" onclick="saveDailySettings()">حفظ الإعدادات</button>
+  </div>
+  <div class="card"><h4>إضافة عملية</h4>
+    <div class="input-row"><input id="d_desc" placeholder="الوصف"><input id="d_amount" type="number" placeholder="المبلغ"></div>
+    <div class="input-row"><select id="d_type"><option>دخل</option><option>مصروف</option><option>دين صيدلية</option></select><button class="btn" style="width:100px" onclick="addDaily()">إضافة</button></div>
+    <div>${records.map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee"><span>${r.desc} - ${r.type}</span><b class="${r.type==='مصروف'?'negative':'positive'}">${r.amount}</b><button onclick="delDaily(${i})" style="border:0;background:#fee2e2;border-radius:6px">x</button></div>`).join('')}</div>
+  </div>`;
+}
+function saveDailySettings(){save('rate',+document.getElementById('rateIn').value);save('pharmacy',+document.getElementById('pharmIn').value);renderDaily();}
+function addDaily(){let d=document.getElementById('d_desc').value, a=document.getElementById('d_amount').value, t=document.getElementById('d_type').value; if(!d||!a)return;let r=load('daily_records',[]);r.unshift({desc:d,amount:+a,type:t,date:new Date().toISOString()});save('daily_records',r);renderDaily();}
+function delDaily(i){let r=load('daily_records',[]);r.splice(i,1);save('daily_records',r);renderDaily();}
+
+// ===== ATTENDANCE - اللي في الصورة بس Pro =====
+function renderAttendance(){
+  let month=load('attendance',Array.from({length:31},(_,i)=>({day:i+1,in:'',out:'',hours:0})));
+  if(month.length<31){month=Array.from({length:31},(_,i)=>month.find(x=>x.day===i+1)||{day:i+1,in:'',out:'',hours:0})}
+  let total=month.reduce((s,r)=>s+(r.hours||0),0);
+  document.getElementById('content').innerHTML=`
+  <div class="card"><div style="display:flex;justify-content:space-between"><b>${total.toFixed(1)} س</b><b>الحضور - 31 يوم 📅</b></div></div>
+  <div class="card">${month.map(r=>`
+    <div class="att-row"><b>${r.day}</b>
+      <div style="display:flex;gap:3px"><input type="time" value="${r.in}" onchange="updateAtt(${r.day},'in',this.value)"><button class="now-btn" onclick="setNow(${r.day},'in')">الآن</button></div>
+      <div style="display:flex;gap:3px"><input type="time" value="${r.out}" onchange="updateAtt(${r.day},'out',this.value)"><button class="now-btn" onclick="setNow(${r.day},'out')">الآن</button></div>
+      <b style="color:#10b981">${r.hours||'--'}</b>
+    </div>`).join('')}<div style="text-align:center;margin-top:10px;font-weight:800">الإجمالي: ${total.toFixed(2)} ساعة</div></div>`;
+}
+function updateAtt(day,type,val){let list=load('attendance',[]);let row=list.find(x=>x.day===day)||{day,in:'',out:'',hours:0};row[type]=val;if(row.in&&row.out)row.hours=calc(row.in,row.out);save('attendance',list);renderAttendance();}
+function setNow(day,type){let now=new Date().toTimeString().slice(0,5);updateAtt(day,type,now);}
+
+// ===== NOTES =====
+function renderNotes(){
+  let notes=load('notes_pro',[]);
+  document.getElementById('content').innerHTML=`
+  <div class="card"><textarea id="n_text" placeholder="ملاحظة جديدة..." style="width:100%;min-height:80px;border:1px solid #eee;border-radius:12px;padding:10px"></textarea>
+  <button class="btn" style="background:#f59e0b;margin-top:8px" onclick="addNote()">حفظ 📝</button></div>
+  <div class="card"><input id="n_search" placeholder="بحث..." style="width:100%;padding:10px;border:1px solid #eee;border-radius:10px" oninput="searchNotes(this.value)">
+  <div id="notesGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">${notes.map((n,i)=>`<div style="background:#fffbeb;border-radius:14px;padding:10px;border:1px solid #eee"><div>${n.text}</div><small>${new Date(n.created).toLocaleDateString('ar-EG')}</small><br><button onclick="delNote(${i})" style="border:0;background:#fee2e2;border-radius:6px;margin-top:6px">حذف</button></div>`).join('')}</div></div>`;
+}
+function addNote(){let t=document.getElementById('n_text').value.trim();if(!t)return;let n=load('notes_pro',[]);n.unshift({id:Date.now(),text:t,created:new Date().toISOString()});save('notes_pro',n);renderNotes();}
+function delNote(i){let n=load('notes_pro',[]);n.splice(i,1);save('notes_pro',n);renderNotes();}
+function searchNotes(q){let notes=load('notes_pro',[]).filter(x=>x.text.includes(q));document.getElementById('notesGrid').innerHTML=notes.map((n,i)=>`<div style="background:#fffbeb;border-radius:14px;padding:10px">${n.text}<br><button onclick="delNote(${i})">حذف</button></div>`).join('');}
+
+// ===== TASKS =====
+function renderTasks(){
+  let tasks=load('tasks_pro',[]);
+  document.getElementById('content').innerHTML=`
+  <div class="card"><div class="input-row"><input id="t_text" placeholder="مهمة جديدة..."><button class="btn" style="width:80px" onclick="addTask()">+</button></div></div>
+  <div class="card"><div>${tasks.map((t,i)=>`<div style="display:flex;justify-content:space-between;padding:12px;border:1px solid #eee;border-radius:12px;margin:6px 0;background:${t.done?'#f0fdf4':''}"><label><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})"> <span style="${t.done?'text-decoration:line-through':''}">${t.text}</span></label><button onclick="delTask(${i})" style="border:0;background:#fee2e2;border-radius:6px">x</button></div>`).join('')}</div></div>`;
+}
+function addTask(){let v=document.getElementById('t_text').value.trim();if(!v)return;let t=load('tasks_pro',[]);t.unshift({id:Date.now(),text:v,done:false});save('tasks_pro',t);renderTasks();}
+function toggleTask(i){let t=load('tasks_pro',[]);t[i].done=!t[i].done;save('tasks_pro',t);renderTasks();}
+function delTask(i){let t=load('tasks_pro',[]);t.splice(i,1);save('tasks_pro',t);renderTasks();}
+
+// INIT
+renderDashboard();
+</script>
 </body>
 </html>
