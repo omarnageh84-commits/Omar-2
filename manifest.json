@@ -1,1 +1,11 @@
-
+{
+  "name": "يومياتي Pro Ultra V7",
+  "short_name": "يومياتي",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#0d9b6e",
+  "icons": [
+    {"src": "https://cdn-icons-png.flaticon.com/512/3652/3652191.png","sizes": "512x512","type": "image/png"}
+  ]
+}
