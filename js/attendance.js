@@ -1,33 +1,59 @@
+// attendance.js - V6 Pro - الحضور فقط
 import { L, S, calc } from './utils.js';
+import { syncToSheet } from './sheets.js';
+
+const KEY = 'att_v6';
 
 export function renderAttendance(){
-  let rate=L('rate',40.74), pharm=L('pharm',0), target=L('target',423), m=L('att',Array.from({length:31},(_,i)=>({day:i+1,in:'',out:'',h:0})));
-  if(m.length<31) m=Array.from({length:31},(_,i)=>m.find(x=>x.day===i+1)||{day:i+1,in:'',out:'',h:0});
-  let tot=m.reduce((s,r)=>s+(r.h||0),0), remain=422.8 - tot;
+  const pharm = L('pharm_v6',0), rate = L('rate_v6',40.74), target = L('target_v6',423);
+  const list = L(KEY, []);
+  const days = Array.from({length:31},(_,i)=>i+1);
+  const total = list.reduce((s,r)=>s+(r.h||0),0);
 
   return `
-  <div class="card" style="padding:8px">
-    <div style="font-weight:800;text-align:center">💰 ملخص المرتب - أغسطس - الحضور والانصراف</div>
-    <div class="h-scroll" style="margin-top:8px">
-      <table>
-        <tr><th>عدد الساعات</th><th>الصافي</th><th>المطلوب</th><th>مطلوب يوميا</th><th>ديون للصيدلية</th><th>المتبقي</th></tr>
-        <tr><td>${tot.toFixed(1)}</td><td>${(tot*rate).toFixed(0)}</td><td><input id="targetIn" value="${target}" style="width:60px;border:1px solid #ddd;border-radius:6px;text-align:center"></td><td>13.64</td><td><input id="pharmIn" value="${pharm}" style="width:60px;border:1px solid #ddd;border-radius:6px;text-align:center"></td><td>${remain.toFixed(1)}</td></tr>
-      </table>
+    <div class="card">
+      <div class="inp"><input id="pharmIn" type="number" value="${pharm}" placeholder="صيدلية"><input id="rateIn" type="number" value="${rate}" placeholder="الساعة"><input id="targetIn" type="number" value="${target}" placeholder="التارجت"></div>
+      <button class="btn" data-action="saveAttHeader">حفظ الإعدادات</button>
+      <div style="margin-top:10px; font-size:12px">الإجمالي: <b>${total.toFixed(2)} ساعة</b></div>
     </div>
-    <div class="inp" style="margin-top:10px">
-      <button class="btn" style="width:90px" onclick="window.saveAttHeader()">حفظ</button>
-      <input id="rateIn" value="${rate}" style="flex:1;border:1px solid #ddd;border-radius:10px;padding:8px;text-align:center"><span style="font-size:11px">٤.٧٤</span>
-      <input type="range" min="20" max="60" value="${rate}" oninput="rateIn.value=this.value" style="flex:1">
+    <div style="margin:10px">
+      ${days.map(d=>{
+        const row = list.find(x=>x.day===d) || {day:d,in:'',out:'',h:0};
+        return `<div class="att">
+          <b>${d}</b>
+          <input type="time" value="${row.in}" data-action="upAtt" data-day="${d}" data-type="in">
+          <input type="time" value="${row.out}" data-action="upAtt" data-day="${d}" data-type="out">
+          <span>${row.h?row.h+'س':''} <button class="now" data-action="nowAtt" data-day="${d}" data-type="in">الآن</button></span>
+        </div>`;
+      }).join('')}
     </div>
-  </div>
-  <div class="card" style="padding:6px">
-    <div style="display:flex;justify-content:space-between;font-weight:800;padding:4px"><span>${tot.toFixed(1)} س</span><span>الحضور - 31 يوم</span></div>
-    ${m.map(r=>`<div class="att"><b>${r.day}</b><div style="display:flex;gap:2px"><input type="time" value="${r.in}" onchange="window.upAtt(${r.day},'in',this.value)" style="flex:1;border:1px solid #eee;border-radius:8px;padding:4px"><button class="now" onclick="window.nowAtt(${r.day},'in')">الآن</button></div><div style="display:flex;gap:2px"><input type="time" value="${r.out}" onchange="window.upAtt(${r.day},'out',this.value)" style="flex:1;border:1px solid #eee;border-radius:8px;padding:4px"><button class="now" onclick="window.nowAtt(${r.day},'out')">الآن</button></div><b style="color:#10b981">${r.h?r.h.toFixed(2):'--'}</b></div>`).join('')}
-  </div>`;
+  `;
 }
 
-export function bindAttendance(){
-  window.saveAttHeader=()=>{ S('pharm',+pharmIn.value||0); S('rate',+rateIn.value||40.74); S('target',+targetIn.value||423); document.getElementById('root').innerHTML=renderAttendance(); bindAttendance(); };
-  window.upAtt=(day,type,val)=>{ let l=L('att',[]),r=l.find(x=>x.day===day)||{day,in:'',out:'',h:0}; r[type]=val; if(r.in&&r.out) r.h=calc(r.in,r.out); let i=l.findIndex(x=>x.day===day); if(i>-1) l[i]=r; else l.push(r); S('att',l); document.getElementById('root').innerHTML=renderAttendance(); bindAttendance(); };
-  window.nowAtt=(d,t)=>{ window.upAtt(d,t,new Date().toTimeString().slice(0,5)); };
+export function bindAttendanceEvents(root, rerender){
+  root.addEventListener('click', e=>{
+    const b = e.target.closest('[data-action]'); if(!b) return;
+    if(b.dataset.action==='saveAttHeader'){
+      S('pharm_v6', +document.getElementById('pharmIn').value||0);
+      S('rate_v6', +document.getElementById('rateIn').value||0);
+      S('target_v6', +document.getElementById('targetIn').value||0);
+      rerender();
+    }
+    if(b.dataset.action==='nowAtt'){
+      const time = new Date().toTimeString().slice(0,5);
+      upsert(b.dataset.day, b.dataset.type, time); rerender();
+    }
+  });
+  root.addEventListener('change', e=>{
+    const inp = e.target.closest('[data-action="upAtt"]'); if(!inp) return;
+    upsert(inp.dataset.day, inp.dataset.type, inp.value); rerender();
+  });
+  function upsert(day, type, val){
+    let list = L(KEY, []);
+    let row = list.find(x=>x.day==day) || {day:+day,in:'',out:'',h:0};
+    row[type]=val; if(row.in&&row.out) row.h=calc(row.in,row.out);
+    const idx = list.findIndex(x=>x.day==day);
+    if(idx>-1) list[idx]=row; else list.push(row);
+    S(KEY, list); syncToSheet('attendance', row);
+  }
 }
