@@ -1,17 +1,17 @@
-const CACHE_NAME = 'yawmeyati-v3';
+const CACHE_NAME = 'yawmeyati-v4-pro';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './css/style.css',
   './js/app.js',
-  './js/dashboard.js',
+  './js/utils.js',
   './js/sheets.js',
   './js/daily.js',
   './js/attendance.js',
   './js/tasks.js',
   './js/notes.js',
-  './js/utils.js'
+  './js/dashboard.js'
 ];
 
 self.addEventListener('install', e => {
@@ -22,18 +22,11 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null)))
-  );
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k!== CACHE_NAME).map(k => caches.delete(k)))));
 });
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-      return caches.open(CACHE_NAME).then(cache => {
-        cache.put(e.request, res.clone());
-        return res;
-      });
-    }).catch(()=> caches.match('./index.html')))
+    caches.match(e.request).then(res => res || fetch(e.request))
   );
 });
