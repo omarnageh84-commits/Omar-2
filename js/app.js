@@ -35,13 +35,24 @@ document.querySelector('.nav')?.addEventListener('click',e=>{
   let b=e.target.closest('button[data-t]'); if(!b) return;
   cur=b.dataset.t; draw();
 });
-root?.addEventListener('click',e=>{
-  let b=e.target.closest('[data-action]'); if(!b) return;
+
+function handleEvent(e){
+  const t=e.target;
+  const isAttendanceInput = t.classList.contains('inline-edit') || t.classList.contains('time-input') || t.dataset.f || t.id==='catFilter' || t.id==='prioFilter' || t.id==='catSelect' || t.id==='prioSelect';
+  let b=t.closest('[data-action]');
+  if(!b &&!isAttendanceInput) return;
+  if(!b) b=t;
   try{ routes[cur].h?.(b,e,draw); }catch(err){ console.error(err); }
-});
-root?.addEventListener('change',e=>{
-  let b=e.target.closest('[data-action]'); if(!b) return;
-  try{ routes[cur].h?.(b,e,draw); }catch(err){ console.error(err); }
+}
+
+root?.addEventListener('click',handleEvent);
+root?.addEventListener('change',handleEvent);
+root?.addEventListener('blur',handleEvent,true);
+root?.addEventListener('input', (e)=>{
+  const t=e.target;
+  if(t.classList.contains('inline-edit') || t.classList.contains('time-input')){
+    handleEvent(e);
+  }
 });
 
 draw();
