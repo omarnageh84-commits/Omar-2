@@ -18,9 +18,14 @@ const routes={
   tasks:{r:renderTasks,h:handleTasks}
 };
 
+let isTyping = false;
+
 function draw(){
   try{
     if(!root) return;
+    // لو بتكتب في الحضور متعملش رندر خالص
+    if(isTyping && cur === 'attendance') return;
+
     const fn = routes[cur]?.r;
     if(!fn){ root.innerHTML='<div class=card>الصفحة غير موجودة</div>'; return; }
     root.innerHTML=fn();
@@ -33,52 +38,53 @@ function draw(){
 
 document.querySelector('.nav')?.addEventListener('click',e=>{
   let b=e.target.closest('button[data-t]'); if(!b) return;
+  isTyping = false;
   cur=b.dataset.t; draw();
 });
 
-// دالة مساعدة بتأجل الـ draw لبعد ما حدث الـ blur يخلص
-function safeDraw(){
-  setTimeout(()=> draw(), 0);
-}
-
-function handleEvent(e, shouldRerender = true){
+function handleEvent(e){
   const t=e.target;
-  const isAttendanceInput = t.classList.contains('inline-edit') || t.classList.contains('time-input') || t.dataset.f || t.id==='catFilter' || t.id==='prioFilter' || t.id==='catSelect' || t.id==='prioSelect';
+  const isAtt = t.classList.contains('inline-edit') || t.classList.contains('time-input') || t.dataset.f;
   let b=t.closest('[data-action]');
-  if(!b &&!isAttendanceInput) return;
+  if(!b &&!isAtt) return;
   if(!b) b=t;
 
-  if(e.type === 'input') shouldRerender = false;
+  const isInputEvent = e.type === 'input';
+  if(isInputEvent) isTyping = true;
 
   try{
-    const rerenderFn = shouldRerender? safeDraw : ()=>{};
+    // في حالة الكتابة منعملش draw خالص
+    const rerenderFn = isInputEvent? ()=>{} : ()=>{ isTyping = false; setTimeout(draw, 20); };
     routes[cur].h?.(b,e,rerenderFn);
   }catch(err){ console.error(err); }
 }
 
-root?.addEventListener('click', (e)=> handleEvent(e, true));
-root?.addEventListener('change', (e)=> handleEvent(e, true));
-
-// شيلنا الـ blur اللي كان بيعمل مشكلة، وبقينا نعتمد على change فقط
-// ولو عايز تظبط التنسيق عند الخروج اعمله بـ timeout
-root?.addEventListener('focusout', (e)=>{
-  const t=e.target;
-  if(t.classList.contains('time-input') || t.classList.contains('inline-edit')){
-    setTimeout(()=> handleEvent(e, true), 10);
-  }
+root?.addEventListener('click', handleEvent);
+root?.addEventListener('change', (e)=>{
+  isTyping = false;
+  handleEvent(e);
 });
 
-root?.addEventListener('input', (e)=>{
+// ده الحل الاساسي - نوقف الـ draw وانت بتكتب
+root?.addEventListener('input', handleEvent);
+
+// لما تخلص كتابة وتطلع من الخانة اعمل حساب
+root?.addEventListener('focusout', (e)=>{
   const t=e.target;
-  if(t.classList.contains('inline-edit') || t.classList.contains('time-input') || t.dataset.f==='note'){
-    handleEvent(e, false);
+  if(t.classList.contains('time-input') || t.classList.contains('inline-edit') || t.dataset.f){
+    setTimeout(()=>{
+      isTyping = false;
+      handleEvent(new Event('change', {bubbles:true}));
+      draw();
+    }, 100);
   }
 });
 
 draw();
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js').then(r=>console.log('SW ok')).catch(err=>console.warn('SW fail',err));
+  // اعمل الغاء للـ SW القديم عشان يحدث
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=> r.unregister());
   });
 }
