@@ -86,18 +86,20 @@ export function handleAttendance(btn,e,rerender){
   let st=L(SETTINGS, DEFAULT);
   let data=L(KEY,[]);
   const t=e.target;
-  const isInput = e.type === 'input';
+  const type = e.type;
 
+  // 1- الخانات اللي فوق (الساعة - ايام - مطلوب)
   if(t.classList.contains('inline-edit')){
-    // حفظ بس بدون ما نعمل ريندر وانت بتكتب
     st[t.dataset.k]= t.value === ''? 0 : parseFloat(t.value)||0;
     S(SETTINGS,st);
-    if(!isInput){
+    // متعملش ريندر وانت لسه بتكتب، اعمل ريندر بس لما تخلص (change)
+    if(type === 'change'){
       rerender();
     }
     return;
   }
 
+  // 2- خانات الحضور والانصراف
   if(t.classList.contains('time-input')){
     const iso=t.dataset.d, f=t.dataset.f;
     let rec=data.find(x=>(x.date||'').slice(0,10)===iso);
@@ -106,33 +108,23 @@ export function handleAttendance(btn,e,rerender){
       data.push(rec);
     }
 
-    if(isInput){
-      // وانت بتكتب احفظ القيمة الخام بس
+    if(type === 'input'){
+      // وانت بتكتب احفظ بس
       rec[f]=t.value;
+      S(KEY,data);
     } else {
-      // لما تخلص كتابة (change/blur) اعمل فورمات واحسب
+      // لما تخلص كتابة اعمل فورمات واحسب الساعات واعمل ريندر
       let p=smartParse(t.value);
       if(p) t.value=p;
       rec[f]=p||t.value;
       rec.hours=calcHours(rec.in, rec.out);
-    }
-
-    // لو input احسب برضه بس متعملش ريندر
-    if(isInput){
-      // نحاول نحسب حتى لو القيمة خام
-      const tempHours = calcHours(f==='in'? t.value : rec.in, f==='out'? t.value : rec.out);
-      if(tempHours) rec.hours = tempHours;
-    } else {
-      rec.hours=calcHours(rec.in, rec.out);
-    }
-
-    S(KEY,data);
-    if(!isInput){
+      S(KEY,data);
       rerender();
     }
     return;
   }
 
+  // 3- الملاحظات
   if(t.dataset.f==='note'){
     const iso=t.dataset.d;
     let rec=data.find(x=>(x.date||'').slice(0,10)===iso);
