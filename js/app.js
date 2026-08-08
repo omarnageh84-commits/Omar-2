@@ -18,29 +18,45 @@ const routes={
   tasks:{r:renderTasks,h:handleTasks}
 };
 
-function draw(){
+function draw(preserveFocus=false){
   try{
     if(!root) return;
-    // لو في input مفتوح متعملش رندر خالص
-    const active = document.activeElement;
-    if(active && active.tagName === 'INPUT' && root.contains(active) && cur === 'attendance'){
-      return;
+    let activeInfo=null;
+    if(preserveFocus){
+      const a=document.activeElement;
+      if(a && (a.tagName==='INPUT' || a.tagName==='TEXTAREA')){
+        activeInfo={d:a.dataset.d, f:a.dataset.f, k:a.dataset.k, id:a.id, start:a.selectionStart, end:a.selectionEnd, value:a.value};
+      }
     }
     const fn = routes[cur]?.r;
     if(!fn){ root.innerHTML='<div class=card>الصفحة غير موجودة</div>'; return; }
     root.innerHTML=fn();
     document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.t===cur));
+
+    // رجع الفوكس مكان ما كان
+    if(activeInfo){
+      let selector='';
+      if(activeInfo.d && activeInfo.f) selector=`[data-d="${activeInfo.d}"][data-f="${activeInfo.f}"]`;
+      else if(activeInfo.k) selector=`[data-k="${activeInfo.k}"]`;
+      else if(activeInfo.id) selector=`#${activeInfo.id}`;
+      if(selector){
+        const el=root.querySelector(selector);
+        if(el){
+          el.focus();
+          try{ if(activeInfo.start!=null) el.setSelectionRange(activeInfo.start, activeInfo.end); }catch{}
+        }
+      }
+    }
   }catch(err){
     console.error('Render error in',cur,err);
-    root.innerHTML=`<div class="card" style="color:#e11d48">حصل خطأ في ${cur}: ${err.message}<br><button class="btn-sm btn-dark" onclick="localStorage.clear();location.reload()">مسح وإعادة تحميل</button></div>`;
+    root.innerHTML=`<div class="card" style="color:#e11d48">حصل خطأ في ${cur}: ${err.message}<br><button class="btn-sm btn-dark" onclick="localStorage.clear(); caches.keys().then(k=>k.forEach(x=>caches.delete(x))); location.reload(true)">مسح وإعادة تحميل</button></div>`;
   }
 }
 
 document.querySelector('.nav')?.addEventListener('click',e=>{
   let b=e.target.closest('button[data-t]'); if(!b) return;
   cur=b.dataset.t;
-  // استنى الكيبورد يقفل وبعدين اعمل رسم
-  setTimeout(draw, 50);
+  setTimeout(()=>draw(false), 30);
 });
 
 function handleEvent(e){
@@ -49,31 +65,34 @@ function handleEvent(e){
   let b=t.closest('[data-action]');
   if(!b &&!isAtt) return;
   if(!b) b=t;
-
   const isInput = e.type === 'input';
-
   try{
     if(isInput){
-      // وانت بتكتب احفظ بس متعملش اي رندر
+      // وانت بتكتب احفظ واعمل رندر مع حفظ الفوكس
       routes[cur].h?.(b,e,()=>{});
+      if(cur==='attendance'){
+        // اعمل رندر سريع مع حفظ مكان الكتابة
+        draw(true);
+      }
     } else {
-      // لما تخلص (change) اعمل رندر متأخر
-      routes[cur].h?.(b,e,()=> setTimeout(draw, 100));
+      routes[cur].h?.(b,e,()=> setTimeout(()=>draw(false), 80));
     }
   }catch(err){ console.error(err); }
 }
 
-// مهم جدا: لو بتدوس على input متعملش اي حاجة في الـ click
 root?.addEventListener('click', (e)=>{
-  if(e.target.tagName === 'INPUT') return;
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   handleEvent(e);
 });
-
 root?.addEventListener('change', handleEvent);
 root?.addEventListener('input', handleEvent);
 
-draw();
+draw(false);
 
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(regs=> regs.forEach(r=> r.unregister()));
-}
+  navigator.serviceWorker.register('./sw.js?v=10').then(()=>{
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+      regs.forEach(r=>{ if(r.active &&!r.active.scriptURL.includes('v=10')) r.unregister(); });
+    });
+  });
+        }
