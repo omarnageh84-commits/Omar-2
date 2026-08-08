@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10b981">
+<title>يومياتي Pro V6.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--green:#10b981;--bg:#f6f8f7;--card:#fff;--r:20px;--shadow:0 4px 20px rgba(0,0,0,.06)}
+*{font-family:'Cairo',sans-serif;box-sizing:border-box}body{margin:0;background:var(--bg)}
+.app{max-width:540px;margin:auto;min-height:100vh;padding-bottom:100px}
+.top{background:#10b981;color:#fff;padding:16px;border-radius:0 0 22px 22px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10;font-weight:800}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);margin:10px;padding:14px}
+.inp{display:flex;gap:6px;margin:8px 0}.inp input,.inp select,.inp textarea{flex:1;padding:12px;border:1px solid #eee;border-radius:12px}
+.btn{background:var(--green);color:#fff;border:0;padding:12px;border-radius:12px;font-weight:800;width:100%;cursor:pointer}
+.btn-sm{padding:6px 10px;font-size:12px;border-radius:8px;border:0;cursor:pointer}
+.nav{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:520px;background:#fff;display:grid;grid-template-columns:repeat(5,1fr);border-radius:20px;box-shadow:0 -4px 20px rgba(0,0,0,.1);padding:6px}
+.nav button{border:0;background:0;padding:10px 2px;font-size:11px}.nav button.active{color:var(--green);font-weight:800;background:#eef9f3;border-radius:14px}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;background:#f1f5f9;padding:5px;border-radius:12px}.seg button{border:0;padding:8px;border-radius:8px;font-weight:700}.seg button.active{background:var(--green);color:#fff}
+.cat{display:inline-flex;gap:4px;background:#f3f4f6;padding:5px 10px;border-radius:20px;font-size:11px;margin:3px}.cat b{color:#ef4444;cursor:pointer}
+.att{display:grid;grid-template-columns:30px 1fr 1fr auto;gap:6px;align-items:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:8px;margin:5px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><span id="dateTop"></span><span>💼 يومياتي Pro V6.2</span></div>
+  <div id="root"></div>
+  <nav class="nav">
+    <button data-t="dashboard" class="active">الرئيسية</button>
+    <button data-t="daily">اليومية</button>
+    <button data-t="attendance">الحضور</button>
+    <button data-t="notes">ملاحظات</button>
+    <button data-t="tasks">مهام</button>
+  </nav>
+</div>
+<script>
+const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
+const calc=(a,b)=>{if(!a||!b)return 0;let[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);let x=(h2*60+m2)-(h1*60+m1);if(x<0)x+=1440;return +(x/60).toFixed(2)};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+document.getElementById('dateTop').innerText=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'short'});
+let curTab='dashboard', dailyTab='income';
 
+function render(){
+  let h='';
+  if(curTab==='dashboard'){
+    let d=L('daily_v6',[]), att=L('att_v6',[]); let tot=att.reduce((s,r)=>s+(r.h||0),0);
+    h=`<div class="card" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff"><h3 style="margin:0">يومياتي Pro V6.2</h3><p>${tot.toFixed(1)} ساعة • ${d.length} عملية</p></div>
+    <div class="card">${d.slice(0,5).map(x=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #eee"><span>${x.desc}</span><b>${x.amount}</b></div>`).join('')||'لا يوجد'}</div>`;
+  }
+  if(curTab==='daily'){
+    let data=L('daily_v6',[]), cats=L('cats_daily_v6',{income:['راتب'],expense:['أكل','مواصلات'],debt:['دين لي']});
+    let curCats=cats[dailyTab]||[]; let filtered=data.filter(x=>x.type===dailyTab);
+    let report={}; curCats.forEach(c=>report[c]=filtered.filter(x=>x.category===c).reduce((s,x)=>s+x.amount,0));
+    h=`<div class="card"><div class="seg"><button class="${dailyTab==='income'?'active':''}" onclick="setDailyTab('income')">دخل</button><button class="${dailyTab==='expense'?'active':''}" onclick="setDailyTab('expense')">مصروف</button><button class="${dailyTab==='debt'?'active':''}" onclick="setDailyTab('debt')">ديون</button></div>
+    ${curCats.map(c=>`<span class="cat">${c} <b onclick="delCat('${c}')">x</b></span>`).join('')}<div class="inp"><input id="newCat" placeholder="فئة"><button class="btn-sm" style="background:#10b981;color:#fff" onclick="addCat()">+</button></div></div>
+    <div class="card"><div class="inp"><input id="dDesc" placeholder="الوصف"><input id="dAmount" type="number" placeholder="المبلغ"></div><div class="inp"><select id="dCat">${curCats.map(c=>`<option>${c}</option>`).join('')}</select></div><button class="btn" onclick="addDaily()">إضافة</button></div>
+    <div class="card"><b>التقرير</b><div style="overflow-x:auto"><table style="width:100%;font-size:12px"><tr><th>الفئة</th><th>الإجمالي</th></tr>${Object.entries(report).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div></div>
+    <div style="margin:10px">${filtered.map(x=>`<div class="card" style="display:flex;justify-content:space-between;margin:6px 0"><span>${x.desc} - ${x.category}</span><span><b>${x.amount}</b> <button class="btn-sm" style="background:#fee2e2" onclick="delDaily('${x.id}')">x</button></span></div>`).join('')}</div>`;
+  }
+  if(curTab==='attendance'){
+    let list=L('att_v6',[]), rate=L('rate_v6',40.74); let total=list.reduce((s,r)=>s+(r.h||0),0);
+    h=`<div class="card"><div class="inp"><input id="rateIn" type="number" value="${rate}" placeholder="سعر الساعة"></div><button class="btn" onclick="saveRate()">حفظ</button><div style="margin-top:10px">الإجمالي: <b>${total.toFixed(2)} ساعة = ${(total*rate).toFixed(0)} ج</b></div></div>
+    <div style="margin:10px">${Array.from({length:31},(_,i)=>{let d=i+1,r=list.find(x=>x.day==d)||{day:d,in:'',out:'',h:0};return `<div class="att"><b>${d}</b><input type="time" value="${r.in}" onchange="upAtt(${d},'in',this.value)"><input type="time" value="${r.out}" onchange="upAtt(${d},'out',this.value)"><span><button class="btn-sm" onclick="nowAtt(${d},'in')">دخول</button> <button class="btn-sm" onclick="nowAtt(${d},'out')">خروج</button> <b style="color:#10b981">${r.h?r.h+'س':''}</b></span></div>`}).join('')}</div>`;
+  }
+  if(curTab==='notes'){
+    let notes=L('notes_v6',[]), cats=L('cats_notes_v6',['شغل','شخصي']);
+    h=`<div class="card">${cats.map(c=>`<span class="cat">${c} <b onclick="delNCat('${c}')">x</b></span>`).join('')}<div class="inp"><input id="newNCat" placeholder="فئة"><button class="btn-sm" style="background:#10b981;color:#fff" onclick="addNCat()">+</button></div></div>
+    <div class="card"><div class="inp"><input id="nT" placeholder="عنوان"><select id="nC">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div><div class="inp"><textarea id="nB" rows="3" placeholder="تفاصيل"></textarea></div><button class="btn" onclick="addN()">إضافة ملاحظة</button></div>
+    <div style="margin:10px">${notes.map(n=>`<div class="card"><b>${n.title}</b> <small>${n.cat}</small><p>${n.body||''}</p><button class="btn-sm" style="background:#fee2e2" onclick="delN('${n.id}')">حذف</button></div>`).join('')||'لا ملاحظات'}</div>`;
+  }
+  if(curTab==='tasks'){
+    let tasks=L('tasks_v6',[]), cats=L('cats_tasks_v6',['عاجل','مهم','عادي']);
+    h=`<div class="card">${cats.map(c=>`<span class="cat">${c} <b onclick="delTCat('${c}')">x</b></span>`).join('')}<div class="inp"><input id="newTCat" placeholder="فئة"><button class="btn-sm" style="background:#0ea5e9;color:#fff" onclick="addTCat()">+</button></div></div>
+    <div class="card"><div class="inp"><input id="tT" placeholder="مهمة"><select id="tC">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div><button class="btn" style="background:#0ea5e9" onclick="addT()">إضافة</button></div>
+    <div style="margin:10px">${tasks.map(t=>`<div class="card" style="display:flex;justify-content:space-between"><span>${t.done?'✅':''} ${t.text} - ${t.cat}</span><span><input type="checkbox" ${t.done?'checked':''} onchange="toggleT('${t.id}')"> <button class="btn-sm" style="background:#fee2e2" onclick="delT('${t.id}')">x</button></span></div>`).join('')||'لا مهام'}</div>`;
+  }
+  document.getElementById('root').innerHTML=h;
+}
+function setDailyTab(t){dailyTab=t; render();}
+function addCat(){let v=document.getElementById('newCat').value.trim(); if(!v)return; let c=L('cats_daily_v6',{income:[],expense:[],debt:[]}); c[dailyTab].push(v); S('cats_daily_v6',c); render();}
+function delCat(cat){let c=L('cats_daily_v6',{income:[],expense:[],debt:[]}); c[dailyTab]=c[dailyTab].filter(x=>x!==cat); S('cats_daily_v6',c); render();}
+function addDaily(){let d=document.getElementById('dDesc').value, a=+document.getElementById('dAmount').value, cat=document.getElementById('dCat').value; if(!d||!a)return alert('كمل البيانات'); let all=L('daily_v6',[]); all.unshift({id:uid(),desc:d,amount:a,category:cat,type:dailyTab,date:new Date().toISOString()}); S('daily_v6',all); render();}
+function delDaily(id){let all=L('daily_v6',[]).filter(x=>x.id!==id); S('daily_v6',all); render();}
+function saveRate(){S('rate_v6',+document.getElementById('rateIn').value||0); render();}
+function upAtt(day,type,val){let l=L('att_v6',[]), r=l.find(x=>x.day===day)||{day,in:'',out:'',h:0}; r[type]=val; if(r.in&&r.out) r.h=calc(r.in,r.out); let i=l.findIndex(x=>x.day===day); if(i>-1)l[i]=r; else l.push(r); l.sort((a,b)=>a.day-b.day); S('att_v6',l); render();}
+function nowAtt(d,t){upAtt(d,t,new Date().toTimeString().slice(0,5));}
+function addNCat(){let v=document.getElementById('newNCat').value.trim(); if(!v)return; let c=L('cats_notes_v6',['شغل']); c.push(v); S('cats_notes_v6',c); render();}
+function delNCat(cat){let c=L('cats_notes_v6',[]).filter(x=>x!==cat); S('cats_notes_v6',c); render();}
+function addN(){let t=document.getElementById('nT').value,b=document.getElementById('nB').value,cat=document.getElementById('nC').value; if(!t)return; let n=L('notes_v6',[]); n.unshift({id:uid(),title:t,body:b,cat,date:new Date().toISOString()}); S('notes_v6',n); render();}
+function delN(id){let n=L('notes_v6',[]).filter(x=>x.id!==id); S('notes_v6',n); render();}
+function addTCat(){let v=document.getElementById('newTCat').value.trim(); if(!v)return; let c=L('cats_tasks_v6',['عاجل']); c.push(v); S('cats_tasks_v6',c); render();}
+function delTCat(cat){let c=L('cats_tasks_v6',[]).filter(x=>x!==cat); S('cats_tasks_v6',c); render();}
+function addT(){let v=document.getElementById('tT').value,cat=document.getElementById('tC').value; if(!v)return; let t=L('tasks_v6',[]); t.unshift({id:uid(),text:v,cat,done:false}); S('tasks_v6',t); render();}
+function toggleT(id){let t=L('tasks_v6',[]); let x=t.find(a=>a.id===id); if(x){x.done=!x.done; S('tasks_v6',t); render();}}
+function delT(id){let t=L('tasks_v6',[]).filter(x=>x.id!==id); S('tasks_v6',t); render();}
+
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{curTab=b.dataset.t; document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render();}));
+render();
+</script>
+</body>
+</html>
