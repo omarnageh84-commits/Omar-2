@@ -1,26 +1,34 @@
 import { L, S, uid } from './utils.js';
-const KEY='tasks_v7';
+const KEY='tasks_v7'; let tab='all'; let openId=null;
+const CATS=['عمل','صيدلية','شخصي','عاجل'];
+
 export function renderTasks(){
   const tasks=L(KEY,[]);
-  return `
-  <div class="card daily-master total" style="padding:0"><div class="daily-master-header total"><b>✅ المهام Pro</b><small>${tasks.filter(x=>!x.done).length} متبقي</small></div>
-    <div style="padding:10px">
-      <div class="inp"><input id="tT" placeholder="مهمة جديدة..."><button class="btn-sm btn-dark" data-action="startVoiceTask">🎙️</button><label class="btn-sm btn-ghost"><input type="file" id="tImg" accept="image/*" hidden>🖼️</label></div>
-      <div class="inp"><select id="tP"><option>عادي</option><option>مهم</option><option>عاجل</option></select><input id="tDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
-      <div id="tPreview"></div>
-      <button class="btn btn-dark" data-action="addTask">+ إضافة مهمة</button>
-    </div>
-  </div>
-  <table class="pro-table" style="margin:8px; width:calc(100% - 16px)"><tr><th>✅</th><th>المهمة</th><th>الأولوية</th><th></th></tr>
-  ${tasks.map(t=>`<tr style="${t.done?'opacity:.5':''}"><td><input type="checkbox" ${t.done?'checked':''} data-action="toggle" data-id="${t.id}"></td><td><b style="font-size:11px">${t.text}</b><br>${t.image?`<img src="${t.image}" style="width:60px; height:40px; object-fit:cover; border-radius:6px; margin-top:4px">`:''}<br><small style="font-size:9px; color:#94a3b8">${(t.date||'').slice(0,10)}</small></td><td><span class="cat" style="background:${t.cat==='عاجل'?'#fff1f2':t.cat==='مهم'?'#fffbeb':'#ecfdf5'}; color:${t.cat==='عاجل'?'#e11d48':t.cat==='مهم'?'#d97706':'#059669'}">${t.cat}</span></td><td><button class="btn-sm btn-del-sm" data-action="del" data-id="${t.id}">✕</button></td></tr>`).join('') || `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:12px">لا مهام</td></tr>`}
-  </table>
-  `;
+  if(openId){
+    const t=tasks.find(x=>x.id===openId); if(!t){ openId=null; } else {
+      const sub=t.subTasks||[]; const done=sub.filter(x=>x.done).length; const pct=sub.length? Math.round(done/sub.length*100):0;
+      return `<div class="card" style="margin:0; border-radius:0; min-height:100vh"><div style="display:flex; justify-content:space-between; padding:10px; background:#0f172a; color:#fff"><button class="btn-sm" style="background:rgba(255,255,255,.15); color:#fff" data-action="back">← رجوع</button><span style="background:${t.done?'#10b981':'#f59e0b'}; padding:4px 8px; border-radius:20px; font-size:9px">${t.done?'مكتملة':'قيد التنفيذ'}</span></div>
+      <div style="padding:14px"><input id="tTitlePage" value="${t.text}" style="width:100%; font-size:15px; font-weight:800; border:0; border-bottom:1.5px solid #f1f5f9; padding:8px 0"><div style="display:flex; gap:6px; margin:10px 0"><select id="tCatPage" style="padding:7px; border-radius:8px; font-size:11px">${CATS.map(c=>`<option ${c===t.cat?'selected':''}>${c}</option>`).join('')}</select><input id="tDatePage" type="date" value="${(t.date||'').slice(0,10)}" style="padding:7px; border-radius:8px; font-size:11px; border:1.2px solid #e2e8f0"></div>
+      <div style="background:#f8fafc; border-radius:10px; padding:10px; margin-top:10px"><b style="font-size:11px">📌 مهام فرعية ${done}/${sub.length} - ${pct}%</b><div style="background:#e2e8f0; height:6px; border-radius:10px; margin:8px 0"><div style="width:${pct}%; height:100%; background:#10b981; border-radius:10px"></div></div><div class="inp"><input id="subT" placeholder="مهمة فرعية..."><button class="btn-sm btn-dark" data-action="addSub" data-id="${t.id}">+</button></div>${sub.map(s=>`<div style="display:flex; justify-content:space-between; background:#fff; padding:7px; border-radius:8px; margin-top:4px"><label style="display:flex; gap:6px; font-size:11px"><input type="checkbox" ${s.done?'checked':''} data-action="toggleSub" data-sid="${s.id}" data-pid="${t.id}"> ${s.text}</label><button class="btn-sm btn-del-sm" data-action="delSub" data-sid="${s.id}" data-pid="${t.id}">✕</button></div>`).join('')}</div>
+      <div style="display:flex; gap:6px; margin-top:12px"><button class="btn-sm btn-dark" data-action="savePage" data-id="${t.id}">💾 حفظ</button><button class="btn-sm ${t.done?'btn-ghost':'btn-income'}" data-action="toggleDone" data-id="${t.id}">${t.done?'إلغاء الإكمال':'✅ إكمال'}</button></div></div></div>`;
+    }
+  }
+  const filtered=tab==='all'? tasks : tasks.filter(x=>x.cat===tab);
+  const doneCount=filtered.filter(x=>x.done).length; const pct=filtered.length? Math.round(doneCount/filtered.length*100):0;
+  return `<div class="card" style="padding:8px"><div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px"><b>${doneCount}/${filtered.length} مكتمل - ${pct}%</b><span style="color:#10b981">${pct}%</span></div><div style="background:#e2e8f0; height:6px; border-radius:10px"><div style="width:${pct}%; height:100%; background:#10b981; border-radius:10px"></div></div><div class="seg" style="grid-template-columns:repeat(5,1fr); margin-top:8px"><button class="${tab==='all'?'active':''}" data-action="setTab" data-tab="all">الكل</button>${CATS.map(c=>`<button class="${tab===c?'active':''}" data-action="setTab" data-tab="${c}">${c}</button>`).join('')}</div><div class="inp" style="margin-top:8px"><input id="tT" placeholder="مهمة جديدة..."><select id="tP" style="max-width:80px">${CATS.map(c=>`<option>${c}</option>`).join('')}</select><button class="btn-sm btn-dark" data-action="addTask">+</button></div></div>
+  <table class="pro-table" style="margin:8px; width:calc(100% - 16px)"><tr><th style="width:36px">✅</th><th>المهمة</th><th>نسبة</th><th></th></tr>${filtered.map(t=>{ const sub=t.subTasks||[]; const d=sub.filter(x=>x.done).length; const p=sub.length? Math.round(d/sub.length*100): (t.done?100:0); return `<tr style="${t.done?'opacity:.5; text-decoration:line-through':''}; cursor:pointer" data-action="open" data-id="${t.id}"><td><input type="checkbox" ${t.done?'checked':''} data-action="toggle" data-id="${t.id}" onclick="event.stopPropagation()"></td><td><b style="font-size:11px">${t.text}</b><br><small style="font-size:9px; color:#94a3b8">${t.cat} • ${(t.date||'').slice(0,10)} ${sub.length?`• ${d}/${sub.length}`:''}</small></td><td style="width:50px"><div style="background:#e2e8f0; height:4px; border-radius:10px"><div style="width:${p}%; height:100%; background:${p===100?'#10b981':'#f59e0b'}; border-radius:10px"></div></div><small style="font-size:8px">${p}%</small></td><td><button class="btn-sm btn-del-sm" data-action="del" data-id="${t.id}" onclick="event.stopPropagation()">✕</button></td></tr>`}).join('') || `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:12px">لا مهام</td></tr>`}</table>`;
 }
 export function handleTasks(btn,e,rerender){
   let tasks=L(KEY,[]);
-  if(btn.dataset.action==='addTask'){ const txt=document.getElementById('tT')?.value.trim(); if(!txt) return; const img=document.getElementById('tPreview')?.dataset.img; tasks.unshift({id:uid(), text:txt, cat:document.getElementById('tP')?.value||'عادي', date:document.getElementById('tDate')?.value, image:img||'', done:false}); S(KEY,tasks); rerender(); return; }
+  if(btn.dataset.action==='setTab'){ tab=btn.dataset.tab; rerender(); return; }
+  if(btn.dataset.action==='open'){ openId=btn.dataset.id; rerender(); return; }
+  if(btn.dataset.action==='back'){ openId=null; rerender(); return; }
+  if(btn.dataset.action==='addTask'){ const txt=document.getElementById('tT')?.value.trim(); if(!txt) return; tasks.unshift({id:uid(), text:txt, cat:document.getElementById('tP')?.value||'عمل', date:new Date().toISOString(), done:false, subTasks:[]}); S(KEY,tasks); rerender(); return; }
   if(btn.dataset.action==='del'){ S(KEY, tasks.filter(x=>x.id!==btn.dataset.id)); rerender(); return; }
   if(btn.dataset.action==='toggle'){ const t=tasks.find(x=>x.id===btn.dataset.id); if(t){ t.done=!t.done; S(KEY,tasks); rerender(); } return; }
-  if(btn.dataset.action==='startVoiceTask'){ const Recog=window.SpeechRecognition||window.webkitSpeechRecognition; if(!Recog){ alert('لا يدعم'); return; } const r=new Recog(); r.lang='ar-EG'; r.onresult=(ev)=>{ document.getElementById('tT').value+=' '+ev.results[0][0].transcript; }; r.start(); return; }
-  if(e.target.id==='tImg' && e.type==='change'){ const file=e.target.files?.[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{ const prev=document.getElementById('tPreview'); prev.dataset.img=reader.result; prev.innerHTML=`<img src="${reader.result}" style="width:100%; border-radius:8px; max-height:120px; object-fit:cover">`; }; reader.readAsDataURL(file); }
+  if(btn.dataset.action==='toggleDone'){ const t=tasks.find(x=>x.id===btn.dataset.id); if(t){ t.done=!t.done; S(KEY,tasks); rerender(); } return; }
+  if(btn.dataset.action==='savePage'){ const t=tasks.find(x=>x.id===btn.dataset.id); if(!t) return; t.text=document.getElementById('tTitlePage')?.value||t.text; t.cat=document.getElementById('tCatPage')?.value||t.cat; t.date=document.getElementById('tDatePage')?.value? new Date(document.getElementById('tDatePage').value).toISOString():t.date; S(KEY,tasks); openId=null; rerender(); return; }
+  if(btn.dataset.action==='addSub'){ const t=tasks.find(x=>x.id===btn.dataset.id); const txt=document.getElementById('subT')?.value.trim(); if(!txt||!t) return; t.subTasks=t.subTasks||[]; t.subTasks.push({id:uid(), text:txt, done:false}); S(KEY,tasks); rerender(); return; }
+  if(btn.dataset.action==='toggleSub'){ const t=tasks.find(x=>x.id===btn.dataset.pid); const s=t?.subTasks?.find(x=>x.id===btn.dataset.sid); if(s){ s.done=!s.done; S(KEY,tasks); rerender(); } return; }
+  if(btn.dataset.action==='delSub'){ const t=tasks.find(x=>x.id===btn.dataset.pid); if(t){ t.subTasks=t.subTasks.filter(x=>x.id!==btn.dataset.sid); S(KEY,tasks); rerender(); } return; }
 }
