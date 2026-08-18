@@ -1,0 +1,20 @@
+{
+  "name": "App-Omar - نظام عمر",
+  "short_name": "App-Omar",
+  "description": "نظام إدارة يومية وحضور ومهام عربي RTL",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FDF6E3",
+  "theme_color": "#D97706",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/906/906175.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
