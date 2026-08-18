@@ -1,6 +1,5 @@
 <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="themes.js"></script>
-<!-- app.js removed -->
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'IBM Plex Sans Arabic',sans-serif}
@@ -11,8 +10,6 @@ body{background:var(--bg);color:var(--text);padding-bottom:16px;transition:.3s}
 .avatar{width:34px;height:34px;background:var(--hero);color:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
 .theme-wrap{margin:0 12px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center}
 .theme-dots{display:flex;gap:7px}
-.theme-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid var(--card);box-shadow:0 0 0 1px var(--card-border);transition:.2s}
-.theme-dot.active{box-shadow:0 0 0 2.5px var(--text);transform:scale(1.15)}
 .hero{margin:0 12px 10px;background:var(--hero);color:#fff;border-radius:16px;padding:14px;position:relative;overflow:hidden}
 .hero::after{content:'';position:absolute;top:-20px;left:-20px;width:80px;height:80px;background:var(--primary);opacity:.2;border-radius:50%;filter:blur(20px)}
 .hero-top{display:flex;justify-content:space-between;position:relative;z-index:2}
@@ -37,14 +34,7 @@ body{background:var(--bg);color:var(--text);padding-bottom:16px;transition:.3s}
 </style><script src="drive-sync.js"></script><style>html,body{max-width:430px;margin:0 auto !important;background:var(--bg);} body{border-left:1px solid var(--card-border);border-right:1px solid var(--card-border); min-height:100dvh;}</style></head><body>
 <div class="top"><div><h1>أهلاً يا <span>عمر</span> ✨</h1><div id="clk" class="time" style="display:inline-block;margin-top:4px">--:--</div></div><div style="display:flex;gap:8px;align-items:center"><div id="date" style="font-size:8px;color:var(--text-soft)"></div><div class="avatar">ع</div></div></div>
 
-<div class="theme-wrap"><span style="font-size:8px;font-weight:700;color:var(--text-soft)">الثيم</span><div class="theme-dots">
-<div class="theme-dot" data-theme="black" style="background:#18181B" onclick="applyTheme('black')"></div>
-<div class="theme-dot" data-theme="red" style="background:#E11D48" onclick="applyTheme('red')"></div>
-<div class="theme-dot" data-theme="purple" style="background:#7C3AED" onclick="applyTheme('purple')"></div>
-<div class="theme-dot" data-theme="green" style="background:#16A34A" onclick="applyTheme('green')"></div>
-<div class="theme-dot" data-theme="blue" style="background:#2563EB" onclick="applyTheme('blue')"></div>
-<div class="theme-dot" data-theme="orange" style="background:#D97706" onclick="applyTheme('orange')"></div>
-</div></div>
+<div class="theme-wrap"><span style="font-size:9px;font-weight:800;color:var(--text-soft)">الثيم</span><div id="themeDots" class="theme-dots"></div></div>
 
 <div class="hero"><div class="hero-top"><span style="font-size:8px;opacity:.7">وردية اليوم • الحضور</span><span class="badge" id="wh">OFF</span></div><div id="att" class="hero-val">لم يبدأ بعد</div><div class="hero-btns"><button class="btn btn-w" onclick="inAtt()">⏱️ حضور</button><button class="btn btn-g" onclick="outAtt()">انصراف ✓</button></div></div>
 
@@ -86,52 +76,27 @@ function R(){
   $('recent').innerHTML=tr.slice(0,5).map(t=>`<div class="row"><div><b style="font-size:10px">${t.item||t.person||'حركة'}</b><div style="font-size:7px;color:var(--text-soft)">${t.date} • ${t.wallet||''}</div></div><b style="font-size:11px;color:${t.type==='income'?'var(--primary)':'var(--text)'}">${t.type==='income'?'+':''}${fmt(t.amount)}</b></div>`).join('')||'<div style="text-align:center;color:var(--text-soft);font-size:9px;padding:12px">لا يوجد حركات بعد</div>';
   let log=GD().lg,rec=log.find(r=>r.date===new Date().toISOString().split('T')[0]); if(rec){$('att').innerText=rec.out?rec.in+' → '+rec.out:rec.in+' • يعمل الآن'; $('wh').innerText=rec.out?'DONE':'LIVE';}
 }
-
-// *** الفانكشنز الجديدة المتصلحة ***
 function inAtt(){
-  let now=new Date();
-  let t=now.toISOString().split('T')[0];
-  let tm=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
-  let hourNum=now.getHours();
-
-  let lg=GD().lg;
-  let r=lg.find(x=>x.date===t);
-  if(!r){r={date:t,in:tm,out:null};lg.push(r)}else r.in=tm;
+  let now=new Date(); let t=now.toISOString().split('T')[0]; let tm=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); let hourNum=now.getHours();
+  let lg=GD().lg; let r=lg.find(x=>x.date===t); if(!r){r={date:t,in:tm,out:null};lg.push(r)}else r.in=tm;
   localStorage.setItem('attendance_log',JSON.stringify(lg));
-
-  // يكتب في تبويب الحضور
-  let key=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-  let data=JSON.parse(localStorage.getItem('att_fixed_final')||'{}');
-  if(!data[key]) data[key]={in:'',out:''};
-  data[key].in=String(hourNum);
+  let key=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`; let data=JSON.parse(localStorage.getItem('att_fixed_final')||'{}'); if(!data[key]) data[key]={in:'',out:''}; data[key].in=String(hourNum);
   localStorage.setItem('att_fixed_final',JSON.stringify(data));
-
-  // يبعت للشيت
-  if(typeof saveAttendance==='function') saveAttendance(String(hourNum), data[key].out||'');
-
+  try{ if(window.syncToABOmar) syncToABOmar(); if(window.parent && window.parent.syncToABOmar) window.parent.syncToABOmar(); }catch(e){}
   R();
 }
 function outAtt(){
-  let now=new Date();
-  let t=now.toISOString().split('T')[0];
-  let tm=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
-  let hourNum=now.getHours();
-
-  let lg=GD().lg;let r=lg.find(x=>x.date===t); if(!r)return; r.out=tm;
-  localStorage.setItem('attendance_log',JSON.stringify(lg));
-
-  let key=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-  let data=JSON.parse(localStorage.getItem('att_fixed_final')||'{}');
-  if(!data[key]) data[key]={in:'',out:''};
-  data[key].out=String(hourNum);
+  let now=new Date(); let t=now.toISOString().split('T')[0]; let tm=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); let hourNum=now.getHours();
+  let lg=GD().lg;let r=lg.find(x=>x.date===t); if(!r)return; r.out=tm; localStorage.setItem('attendance_log',JSON.stringify(lg));
+  let key=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`; let data=JSON.parse(localStorage.getItem('att_fixed_final')||'{}'); if(!data[key]) data[key]={in:'',out:''}; data[key].out=String(hourNum);
   localStorage.setItem('att_fixed_final',JSON.stringify(data));
-
-  if(typeof saveAttendance==='function') saveAttendance(data[key].in||'', String(hourNum));
-
+  try{ if(window.syncToABOmar) syncToABOmar(); if(window.parent && window.parent.syncToABOmar) window.parent.syncToABOmar(); }catch(e){}
   R();
 }
-
 setInterval(()=>{let now=new Date();$('clk').innerText=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});$('date').innerText=now.toLocaleDateString('ar-EG',{weekday:'short',day:'numeric',month:'short'});},1000);
 R(); setInterval(R,2000);
+window.addEventListener('message',e=>{ if(e.data?.type==='omar_data_updated' || e.data?.type==='theme') R(); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) R(); });
+window.addEventListener('storage',()=>{ R(); });
 </script>
 </body></html>
