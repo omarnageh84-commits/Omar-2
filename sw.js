@@ -1,5 +1,5 @@
-const CACHE='app-omar-v3';
-const ASSETS=['./','./index.html','./home.html','./daily.html','./attendance.html','./tasks.html','./tasks-new.html','./important.html','./debts.html','./themes.js','./drive-sync.js','./manifest.json'];
+const CACHE='app-omar-v5-icon';
+const ASSETS=['./','./index.html','./home.html','./daily.html','./attendance.html','./tasks.html','./tasks-new.html','./important.html','./debts.html','./themes.js','./drive-sync.js','./manifest.json','./icon_192.png','./icon_512.png'];
 
 // Install - نزّل ملفات المشروع بس
 self.addEventListener('install',e=>{
