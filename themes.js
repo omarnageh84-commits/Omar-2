@@ -1,9 +1,13 @@
 const themes = {
+  // --- BASIC - الفاتح والغامق والأساسي ---
+  light: { "--bg": "#F8FAFC", "--bg-soft": "#F1F5F9", "--card": "#FFFFFF", "--card-border": "#E2E8F0", "--text": "#0F172A", "--text-soft": "#94A3B8", "--primary": "#0F172A", "--hero": "#0F172A", "--accent": "#334155", "--nav-bg": "rgba(255,255,255,0.92)" },
+  dark: { "--bg": "#0F172A", "--bg-soft": "#1E293B", "--card": "#1E293B", "--card-border": "#334155", "--text": "#F1F5F9", "--text-soft": "#64748B", "--primary": "#22C55E", "--hero": "#020617", "--accent": "#22C55E", "--nav-bg": "rgba(15,23,42,0.92)" },
   black: { "--bg": "#F4F4F5", "--bg-soft": "#E4E4E7", "--card": "#FFFFFF", "--card-border": "#D4D4D8", "--text": "#18181B", "--text-soft": "#71717A", "--primary": "#18181B", "--hero": "#18181B", "--accent": "#18181B", "--nav-bg": "rgba(255,255,255,0.92)" },
-  red: { "--bg": "#FFF1F2", "--bg-soft": "#FFE4E6", "--card": "#FFFFFF", "--card-border": "#FECDD3", "--text": "#881337", "--text-soft": "#FB7185", "--primary": "#E11D48", "--hero": "#E11D48", "--accent": "#F43F5E", "--nav-bg": "rgba(255,241,242,0.92)" },
-  purple: { "--bg": "#F5F3FF", "--bg-soft": "#EDE9FE", "--card": "#FFFFFF", "--card-border": "#DDD6FE", "--text": "#4C1D95", "--text-soft": "#A78BFA", "--primary": "#7C3AED", "--hero": "#7C3AED", "--accent": "#8B5CF6", "--nav-bg": "rgba(245,243,255,0.92)" },
   green: { "--bg": "#F0FDF4", "--bg-soft": "#DCFCE7", "--card": "#FFFFFF", "--card-border": "#BBF7D0", "--text": "#14532D", "--text-soft": "#4ADE80", "--primary": "#16A34A", "--hero": "#16A34A", "--accent": "#22C55E", "--nav-bg": "rgba(240,253,244,0.92)" },
   blue: { "--bg": "#EFF6FF", "--bg-soft": "#DBEAFE", "--card": "#FFFFFF", "--card-border": "#BFDBFE", "--text": "#1E3A8A", "--text-soft": "#60A5FA", "--primary": "#2563EB", "--hero": "#2563EB", "--accent": "#3B82F6", "--nav-bg": "rgba(239,246,255,0.92)" },
+  // --- MORE - باقي الألوان ---
+  red: { "--bg": "#FFF1F2", "--bg-soft": "#FFE4E6", "--card": "#FFFFFF", "--card-border": "#FECDD3", "--text": "#881337", "--text-soft": "#FB7185", "--primary": "#E11D48", "--hero": "#E11D48", "--accent": "#F43F5E", "--nav-bg": "rgba(255,241,242,0.92)" },
+  purple: { "--bg": "#F5F3FF", "--bg-soft": "#EDE9FE", "--card": "#FFFFFF", "--card-border": "#DDD6FE", "--text": "#4C1D95", "--text-soft": "#A78BFA", "--primary": "#7C3AED", "--hero": "#7C3AED", "--accent": "#8B5CF6", "--nav-bg": "rgba(245,243,255,0.92)" },
   orange: { "--bg": "#FFFBEB", "--bg-soft": "#FEF3C7", "--card": "#FFFFFF", "--card-border": "#FDE68A", "--text": "#92400E", "--text-soft": "#FBBF24", "--primary": "#D97706", "--hero": "#D97706", "--accent": "#F59E0B", "--nav-bg": "rgba(255,251,235,0.92)" },
   clay: { "--bg": "#FDF6F3", "--bg-soft": "#F5E6E0", "--card": "#FFFFFF", "--card-border": "#E7D5CC", "--text": "#5D4037", "--text-soft": "#A1887F", "--primary": "#A0522D", "--hero": "#8D4A32", "--accent": "#BC6C4E", "--nav-bg": "rgba(253,246,243,0.92)" },
   teal: { "--bg": "#F0FDFA", "--bg-soft": "#CCFBF1", "--card": "#FFFFFF", "--card-border": "#99F6E4", "--text": "#134E4A", "--text-soft": "#2DD4BF", "--primary": "#0D9488", "--hero": "#0D9488", "--accent": "#14B8A6", "--nav-bg": "rgba(240,253,250,0.92)" },
@@ -12,6 +16,9 @@ const themes = {
   indigo: { "--bg": "#EEF2FF", "--bg-soft": "#E0E7FF", "--card": "#FFFFFF", "--card-border": "#C7D2FE", "--text": "#312E81", "--text-soft": "#818CF8", "--primary": "#4F46E5", "--hero": "#4F46E5", "--accent": "#6366F1", "--nav-bg": "rgba(238,242,255,0.92)" }
 };
 
+const basicThemes = ["light","dark","black","green","blue"];
+const moreThemes = ["red","purple","orange","clay","teal","pink","yellow","indigo"];
+
 function applyTheme(name){
   let t=themes[name]; if(!t) { t=themes['green']; name='green'; }
   try{
@@ -19,6 +26,9 @@ function applyTheme(name){
     localStorage.setItem('omar_theme',name); localStorage.setItem('theme',name);
     let meta=document.querySelector('meta[name="theme-color"]'); if(meta) meta.content=t["--hero"];
     document.querySelectorAll('.theme-dot,.tdot').forEach(d=>{ if(d.dataset) d.classList.toggle('active',d.dataset.theme===name); });
+    const curDot=document.getElementById('currentDot'); const curName=document.getElementById('currentName');
+    if(curDot) curDot.style.background = t["--primary"];
+    if(curName) curName.textContent = name;
     try{
       document.querySelectorAll('.page').forEach(f=>{
         if(f.contentDocument && f.contentDocument.documentElement){
@@ -35,39 +45,82 @@ function applyThemeToDoc(doc, name){
   Object.entries(t).forEach(([k,v])=>{ try{ doc.documentElement.style.setProperty(k,v); }catch(e){} });
 }
 
-// --- الإضافة اللي كانت ناقصة: رسم الدوتس ---
-function renderThemeDots(){
+function renderThemeDropdown(){
+  const menu = document.getElementById('themeMenu');
   const container = document.getElementById('themeDots');
-  if(!container) return; // لو الصفحة مفهاش مكان الثيمات متعملش حاجة
-  if(container.children.length > 0) return; // لو مرسومة قبل كده متعدهاش
-  Object.keys(themes).forEach(name=>{
-    const dot = document.createElement('div');
-    dot.className = 'theme-dot';
-    dot.dataset.theme = name;
-    const color = themes[name]["--primary"] || themes[name]["--hero"];
-    dot.style.cssText = `width:20px;height:20px;border-radius:50%;background:${color};cursor:pointer;border:2px solid var(--card-border);display:inline-block;transition:.2s;`;
-    dot.title = name;
-    dot.onclick = ()=> applyTheme(name);
-    container.appendChild(dot);
-  });
-  // ستايل الـ active
-  const style = document.createElement('style');
-  style.textContent = `.theme-dot.active{transform:scale(1.25);box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--primary);}`;
+  const target = menu || container;
+  if(!target) return;
+  if(target.children.length > 0 && !menu) return;
+
+  const createItem = (name)=>{
+    const t=themes[name];
+    const div=document.createElement('div');
+    div.className='theme-dot';
+    div.dataset.theme=name;
+    div.style.cssText=`display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:.15s;border:1px solid transparent`;
+    div.innerHTML=`
+      <span style="width:18px;height:18px;border-radius:50%;background:${t["--primary"]};display:inline-block;border:2px solid ${t["--card-border"]}"></span>
+      <span style="font-size:9px;font-weight:800;flex:1">${name}</span>
+      <span style="width:8px;height:8px;border-radius:50%;background:${t["--hero"]}"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:${t["--bg-soft"]};border:1px solid ${t["--card-border"]}"></span>
+    `;
+    div.onmouseenter=()=>div.style.background=`var(--bg-soft)`;
+    div.onmouseleave=()=>div.style.background=`transparent`;
+    div.onclick=()=>{ applyTheme(name); if(menu) menu.style.display='none'; };
+    return div;
+  };
+
+  if(menu){
+    menu.innerHTML='';
+    const basicLabel=document.createElement('div');
+    basicLabel.textContent='— أساسي (فاتح/غامق) —';
+    basicLabel.style.cssText='font-size:8px;color:var(--text-soft);font-weight:800;padding:6px 4px;text-align:center';
+    menu.appendChild(basicLabel);
+    basicThemes.forEach(n=>{ if(themes[n]) menu.appendChild(createItem(n)); });
+    const divider=document.createElement('div');
+    divider.style.cssText='height:1px;background:var(--card-border);margin:8px 0';
+    menu.appendChild(divider);
+    const moreLabel=document.createElement('div');
+    moreLabel.textContent='— المزيد —';
+    moreLabel.style.cssText='font-size:8px;color:var(--text-soft);font-weight:800;padding:6px 4px;text-align:center';
+    menu.appendChild(moreLabel);
+    moreThemes.forEach(n=>{ if(themes[n]) menu.appendChild(createItem(n)); });
+  }else{
+    // fallback للطريقة القديمة لو لسه بيستخدم themeDots
+    target.innerHTML='';
+    basicThemes.forEach(n=>{ if(themes[n]) target.appendChild(createItem(n)); });
+  }
+
+  const style=document.createElement('style');
+  style.textContent=`.theme-dot.active{border-color:var(--primary) !important;background:var(--bg-soft) !important;}`;
   document.head.appendChild(style);
+}
+
+function toggleThemeMenu(){
+  const menu=document.getElementById('themeMenu');
+  if(!menu) { renderThemeDropdown(); return; }
+  menu.style.display = menu.style.display==='none' || !menu.style.display ? 'block' : 'none';
+  if(menu.style.display==='block') renderThemeDropdown();
 }
 
 window.applyTheme=applyTheme;
 window.applyThemeToDoc=applyThemeToDoc;
 window.themes=themes;
-window.renderThemeDots=renderThemeDots;
+window.renderThemeDropdown=renderThemeDropdown;
+window.renderThemeDots=renderThemeDropdown;
+window.toggleThemeMenu=toggleThemeMenu;
 
 document.addEventListener('DOMContentLoaded',()=>{
-  renderThemeDots();
-  applyTheme(localStorage.getItem('omar_theme')||'green');
+  renderThemeDropdown();
+  applyTheme(localStorage.getItem('omar_theme')||'light');
 });
-
-// لو الملف اتحمل بعد الـ DOMContentLoaded
 if(document.readyState !== 'loading'){
-  renderThemeDots();
-  applyTheme(localStorage.getItem('omar_theme')||'green');
+  renderThemeDropdown();
+  applyTheme(localStorage.getItem('omar_theme')||'light');
 }
+document.addEventListener('click',(e)=>{
+  const menu=document.getElementById('themeMenu');
+  const btn=document.getElementById('themeBtn');
+  if(!menu || !btn) return;
+  if(!menu.contains(e.target) && !btn.contains(e.target)) menu.style.display='none';
+});
