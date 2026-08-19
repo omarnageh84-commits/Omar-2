@@ -1,27 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style>
+<head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
@@ -364,4 +343,8 @@ function renderManagerLists(){document.getElementById('cat').innerHTML=cats.map(
 function renderQuickColors(){const row=document.getElementById('quickColors');const all=[...standardColors,...themeColors[0]];row.innerHTML=all.slice(0,8).map(c=>`<div onclick="selectColor('${c}')" class="color-dot ${selectedHex===c?'active':''}" style="background:${c}"></div>`).join('')}
 function selectColor(hex){selectedHex=hex;renderQuickColors()}
 function selectModalColor(hex){if(!cur)return;cur.color=hex;document.getElementById('modalCover').style.background=hex;document.getElementById('currentColorPreview').style.background=hex;renderExcelTheme();save()}
-function toggleAllColors(){const box=document.getEleme
+function toggleAllColors(){const box=document.getElementById('allColorsBox');box.style.display=box.style.display==='none'?'block':'none'}
+function openManager(){document.getElementById('managerModal').style.display='flex';mTab('cats')}
+function closeManager(){document.getElementById('managerModal').style.display='none'}
+function mTab(t){document.getElementById('mCats').style.display=t==='cats'?'block':'none';document.getElementById('mColors').style.display=t==='colors'?'block':'none';}
+function addCategory(){const n=document.getElementById('newCatName').value.trim(),e=document.getElementById(
