@@ -1,5 +1,5 @@
 // AB Omar - Drive Sync - نسخة ثابتة بدون رعشة
-const AB_OMAR_APPS_SCRIPT_URL = localStorage.getItem('ab_omar_script_url') || 'https://script.google.com/macros/s/YOUR_ID/exec';
+const AB_OMAR_APPS_SCRIPT_URL = localStorage.getItem('ab_omar_script_url') || 'https://script.google.com/macros/s/AKfycbz4ZIol3pvlR4o0onZ_BVCuFasL4FLEkB5ZYwQXZX7BlbZvV7YgMMLxhXs1A9Au1fea/exec';
 let lastHash=''; let syncTimeout=null; let isSyncing=false;
 function getAllDataForSync(){
   return {
@@ -15,15 +15,11 @@ async function syncToABOmar(force=false){
   let payload = getAllDataForSync();
   let h = hashPayload(payload);
   if(!force && h===lastHash) return false;
-  if(AB_OMAR_APPS_SCRIPT_URL.includes('YOUR_ID')){
-    console.log('Synced to Drive (local): '+ (payload.tasks||[]).length +' tasks | من '+ new Date().toLocaleTimeString('ar-EG'));
-    lastHash=h; localStorage.setItem('ab_omar_last_sync', new Date().toISOString()); return true;
-  }
   isSyncing=true;
   try{
     await fetch(AB_OMAR_APPS_SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload)});
     lastHash=h; localStorage.setItem('ab_omar_last_sync', new Date().toISOString());
-    console.log('Synced to Drive: '+ (payload.tasks||[]).length +' tasks | من '+ new Date().toLocaleTimeString('ar-EG'));
+    console.log('✅ Synced to Drive: '+ (payload.tasks||[]).length +' tasks | من '+ new Date().toLocaleTimeString('ar-EG'));
   }catch(err){ console.warn('Sync failed:', err.message); }finally{ isSyncing=false; }
   return true;
 }
@@ -31,3 +27,4 @@ function debouncedSync(){ clearTimeout(syncTimeout); syncTimeout=setTimeout(()=>
 window.addEventListener('omar_data_updated', ()=> debouncedSync());
 window.syncToABOmar=syncToABOmar;
 setTimeout(()=> syncToABOmar(true), 2000);
+localStorage.setItem('ab_omar_script_url', AB_OMAR_APPS_SCRIPT_URL);
