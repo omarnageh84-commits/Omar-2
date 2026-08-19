@@ -1,126 +1,159 @@
-const themes = {
-  // --- BASIC - الفاتح والغامق والأساسي ---
-  light: { "--bg": "#F8FAFC", "--bg-soft": "#F1F5F9", "--card": "#FFFFFF", "--card-border": "#E2E8F0", "--text": "#0F172A", "--text-soft": "#94A3B8", "--primary": "#0F172A", "--hero": "#0F172A", "--accent": "#334155", "--nav-bg": "rgba(255,255,255,0.92)" },
-  dark: { "--bg": "#0F172A", "--bg-soft": "#1E293B", "--card": "#1E293B", "--card-border": "#334155", "--text": "#F1F5F9", "--text-soft": "#64748B", "--primary": "#22C55E", "--hero": "#020617", "--accent": "#22C55E", "--nav-bg": "rgba(15,23,42,0.92)" },
-  black: { "--bg": "#F4F4F5", "--bg-soft": "#E4E4E7", "--card": "#FFFFFF", "--card-border": "#D4D4D8", "--text": "#18181B", "--text-soft": "#71717A", "--primary": "#18181B", "--hero": "#18181B", "--accent": "#18181B", "--nav-bg": "rgba(255,255,255,0.92)" },
-  green: { "--bg": "#F0FDF4", "--bg-soft": "#DCFCE7", "--card": "#FFFFFF", "--card-border": "#BBF7D0", "--text": "#14532D", "--text-soft": "#4ADE80", "--primary": "#16A34A", "--hero": "#16A34A", "--accent": "#22C55E", "--nav-bg": "rgba(240,253,244,0.92)" },
-  blue: { "--bg": "#EFF6FF", "--bg-soft": "#DBEAFE", "--card": "#FFFFFF", "--card-border": "#BFDBFE", "--text": "#1E3A8A", "--text-soft": "#60A5FA", "--primary": "#2563EB", "--hero": "#2563EB", "--accent": "#3B82F6", "--nav-bg": "rgba(239,246,255,0.92)" },
-  // --- MORE - باقي الألوان ---
-  red: { "--bg": "#FFF1F2", "--bg-soft": "#FFE4E6", "--card": "#FFFFFF", "--card-border": "#FECDD3", "--text": "#881337", "--text-soft": "#FB7185", "--primary": "#E11D48", "--hero": "#E11D48", "--accent": "#F43F5E", "--nav-bg": "rgba(255,241,242,0.92)" },
-  purple: { "--bg": "#F5F3FF", "--bg-soft": "#EDE9FE", "--card": "#FFFFFF", "--card-border": "#DDD6FE", "--text": "#4C1D95", "--text-soft": "#A78BFA", "--primary": "#7C3AED", "--hero": "#7C3AED", "--accent": "#8B5CF6", "--nav-bg": "rgba(245,243,255,0.92)" },
-  orange: { "--bg": "#FFFBEB", "--bg-soft": "#FEF3C7", "--card": "#FFFFFF", "--card-border": "#FDE68A", "--text": "#92400E", "--text-soft": "#FBBF24", "--primary": "#D97706", "--hero": "#D97706", "--accent": "#F59E0B", "--nav-bg": "rgba(255,251,235,0.92)" },
-  clay: { "--bg": "#FDF6F3", "--bg-soft": "#F5E6E0", "--card": "#FFFFFF", "--card-border": "#E7D5CC", "--text": "#5D4037", "--text-soft": "#A1887F", "--primary": "#A0522D", "--hero": "#8D4A32", "--accent": "#BC6C4E", "--nav-bg": "rgba(253,246,243,0.92)" },
-  teal: { "--bg": "#F0FDFA", "--bg-soft": "#CCFBF1", "--card": "#FFFFFF", "--card-border": "#99F6E4", "--text": "#134E4A", "--text-soft": "#2DD4BF", "--primary": "#0D9488", "--hero": "#0D9488", "--accent": "#14B8A6", "--nav-bg": "rgba(240,253,250,0.92)" },
-  pink: { "--bg": "#FDF2F8", "--bg-soft": "#FCE7F3", "--card": "#FFFFFF", "--card-border": "#FBCFE8", "--text": "#831843", "--text-soft": "#F472B6", "--primary": "#DB2777", "--hero": "#DB2777", "--accent": "#EC4899", "--nav-bg": "rgba(253,242,248,0.92)" },
-  yellow: { "--bg": "#FEFCE8", "--bg-soft": "#FEF9C3", "--card": "#FFFFFF", "--card-border": "#FEF08A", "--text": "#713F12", "--text-soft": "#EAB308", "--primary": "#CA8A04", "--hero": "#CA8A04", "--accent": "#EAB308", "--nav-bg": "rgba(254,252,232,0.92)" },
-  indigo: { "--bg": "#EEF2FF", "--bg-soft": "#E0E7FF", "--card": "#FFFFFF", "--card-border": "#C7D2FE", "--text": "#312E81", "--text-soft": "#818CF8", "--primary": "#4F46E5", "--hero": "#4F46E5", "--accent": "#6366F1", "--nav-bg": "rgba(238,242,255,0.92)" }
-};
-
-const basicThemes = ["light","dark","black","green","blue"];
-const moreThemes = ["red","purple","orange","clay","teal","pink","yellow","indigo"];
-
-function applyTheme(name){
-  let t=themes[name]; if(!t) { t=themes['green']; name='green'; }
-  try{
-    Object.entries(t).forEach(([k,v])=>{ if(document.documentElement) document.documentElement.style.setProperty(k,v); });
-    localStorage.setItem('omar_theme',name); localStorage.setItem('theme',name);
-    let meta=document.querySelector('meta[name="theme-color"]'); if(meta) meta.content=t["--hero"];
-    document.querySelectorAll('.theme-dot,.tdot').forEach(d=>{ if(d.dataset) d.classList.toggle('active',d.dataset.theme===name); });
-    const curDot=document.getElementById('currentDot'); const curName=document.getElementById('currentName');
-    if(curDot) curDot.style.background = t["--primary"];
-    if(curName) curName.textContent = name;
-    try{
-      document.querySelectorAll('.page').forEach(f=>{
-        if(f.contentDocument && f.contentDocument.documentElement){
-          Object.entries(t).forEach(([k,v])=>{ try{ f.contentDocument.documentElement.style.setProperty(k,v); }catch(e){} });
-        }
-      });
-    }catch(e){}
-  }catch(e){ console.warn('Theme apply warning:', e.message); }
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
 }
-
-function applyThemeToDoc(doc, name){
-  let t=themes[name]||themes['green'];
-  if(!doc || !doc.documentElement) return;
-  Object.entries(t).forEach(([k,v])=>{ try{ doc.documentElement.style.setProperty(k,v); }catch(e){} });
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
 }
-
-function renderThemeDropdown(){
-  const menu = document.getElementById('themeMenu');
-  const container = document.getElementById('themeDots');
-  const target = menu || container;
-  if(!target) return;
-  if(target.children.length > 0 && !menu) return;
-
-  const createItem = (name)=>{
-    const t=themes[name];
-    const div=document.createElement('div');
-    div.className='theme-dot';
-    div.dataset.theme=name;
-    div.style.cssText=`display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:.15s;border:1px solid transparent`;
-    div.innerHTML=`
-      <span style="width:18px;height:18px;border-radius:50%;background:${t["--primary"]};display:inline-block;border:2px solid ${t["--card-border"]}"></span>
-      <span style="font-size:9px;font-weight:800;flex:1">${name}</span>
-      <span style="width:8px;height:8px;border-radius:50%;background:${t["--hero"]}"></span>
-      <span style="width:8px;height:8px;border-radius:50%;background:${t["--bg-soft"]};border:1px solid ${t["--card-border"]}"></span>
-    `;
-    div.onmouseenter=()=>div.style.background=`var(--bg-soft)`;
-    div.onmouseleave=()=>div.style.background=`transparent`;
-    div.onclick=()=>{ applyTheme(name); if(menu) menu.style.display='none'; };
-    return div;
-  };
-
-  if(menu){
-    menu.innerHTML='';
-    const basicLabel=document.createElement('div');
-    basicLabel.textContent='— أساسي (فاتح/غامق) —';
-    basicLabel.style.cssText='font-size:8px;color:var(--text-soft);font-weight:800;padding:6px 4px;text-align:center';
-    menu.appendChild(basicLabel);
-    basicThemes.forEach(n=>{ if(themes[n]) menu.appendChild(createItem(n)); });
-    const divider=document.createElement('div');
-    divider.style.cssText='height:1px;background:var(--card-border);margin:8px 0';
-    menu.appendChild(divider);
-    const moreLabel=document.createElement('div');
-    moreLabel.textContent='— المزيد —';
-    moreLabel.style.cssText='font-size:8px;color:var(--text-soft);font-weight:800;padding:6px 4px;text-align:center';
-    menu.appendChild(moreLabel);
-    moreThemes.forEach(n=>{ if(themes[n]) menu.appendChild(createItem(n)); });
-  }else{
-    // fallback للطريقة القديمة لو لسه بيستخدم themeDots
-    target.innerHTML='';
-    basicThemes.forEach(n=>{ if(themes[n]) target.appendChild(createItem(n)); });
-  }
-
-  const style=document.createElement('style');
-  style.textContent=`.theme-dot.active{border-color:var(--primary) !important;background:var(--bg-soft) !important;}`;
-  document.head.appendChild(style);
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
 }
-
-function toggleThemeMenu(){
-  const menu=document.getElementById('themeMenu');
-  if(!menu) { renderThemeDropdown(); return; }
-  menu.style.display = menu.style.display==='none' || !menu.style.display ? 'block' : 'none';
-  if(menu.style.display==='block') renderThemeDropdown();
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
 }
-
-window.applyTheme=applyTheme;
-window.applyThemeToDoc=applyThemeToDoc;
-window.themes=themes;
-window.renderThemeDropdown=renderThemeDropdown;
-window.renderThemeDots=renderThemeDropdown;
-window.toggleThemeMenu=toggleThemeMenu;
-
-document.addEventListener('DOMContentLoaded',()=>{
-  renderThemeDropdown();
-  applyTheme(localStorage.getItem('omar_theme')||'light');
-});
-if(document.readyState !== 'loading'){
-  renderThemeDropdown();
-  applyTheme(localStorage.getItem('omar_theme')||'light');
+</style><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
 }
-document.addEventListener('click',(e)=>{
-  const menu=document.getElementById('themeMenu');
-  const btn=document.getElementById('themeBtn');
-  if(!menu || !btn) return;
-  if(!menu.contains(e.target) && !btn.contains(e.target)) menu.style.display='none';
-});
+:where(html){font-family:"Optimistic",system-ui,sans-serif}
+</style>
+<!-- غيرت v=5 ل v=6 عشان المتصفح يجيب الجديد بدون مسح داتا -->
+<script src="themes.js?v=6"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'IBM Plex Sans Arabic',sans-serif}
+body{background:var(--bg);color:var(--text);padding-bottom:16px;transition:.3s}
+.top{padding:14px 14px 8px;display:flex;justify-content:space-between;align-items:center}
+.top h1{font-size:15px;font-weight:800}.top h1 span{color:var(--primary)}
+.time{font-size:9px;color:var(--text-soft);background:var(--card);border:1px solid var(--card-border);padding:4px 8px;border-radius:99px}
+.avatar{width:34px;height:34px;background:var(--hero);color:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.theme-wrap{margin:0 12px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center}
+.theme-dots{display:flex;gap:7px;flex-wrap:wrap}
+.hero{margin:0 12px 10px;background:var(--hero);color:#fff;border-radius:16px;padding:14px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-20px;left:-20px;width:80px;height:80px;background:var(--primary);opacity:.2;border-radius:50%;filter:blur(20px)}
+.hero-top{display:flex;justify-content:space-between;position:relative;z-index:2}
+.badge{font-size:7px;background:var(--primary);color:#fff;padding:4px 8px;border-radius:99px;font-weight:800}
+.hero-val{font-size:18px;font-weight:800;margin-top:8px;position:relative;z-index:2}
+.hero-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;position:relative;z-index:2}
+.btn{padding:10px;border-radius:10px;border:none;font-size:10px;font-weight:800;cursor:pointer}.btn-w{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)}.btn-g{background:var(--primary);color:#fff}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 12px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:10px;transition:.2s}
+.card:active{transform:scale(.97)}
+.lb{font-size:7px;color:var(--text-soft);font-weight:700}.v{font-size:13px;font-weight:800;margin-top:3px}
+.v.sm{font-size:11px}
+.quick{margin:0 12px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:10px}
+.quick-title{font-size:10px;font-weight:800;margin-bottom:8px}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.quick-grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
+.qb{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:.2s}
+.qb:active{transform:scale(.95);background:var(--card)}
+.qb span:first-child{font-size:16px;display:block}.qb span:last-child{font-size:7.5px;font-weight:700;margin-top:3px;display:block;color:var(--text-soft)}
+.recent{margin:0 12px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:10px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--bg-soft)}
+.row:first-child{border:none}
+</style>
+<script src="drive-sync.js?v=6"></script>
+<style>html,body{max-width:430px;margin:0 auto !important;background:var(--bg);} body{border-left:1px solid var(--card-border);border-right:1px solid var(--card-border); min-height:100dvh;}</style>
+</head><body>
+<div class="top"><div><h1>أهلاً يا <span>عمر</span> ✨</h1><div id="clk" class="time" style="display:inline-block;margin-top:4px">--:--</div></div><div style="display:flex;gap:8px;align-items:center"><div id="date" style="font-size:8px;color:var(--text-soft)"></div><div class="avatar">ع</div></div></div>
+
+<!-- تم التعديل: ستايل Excel للثيمز - Basic + More -->
+<div class="theme-wrap" style="position:relative">
+  <span style="font-size:9px;font-weight:800;color:var(--text-soft)">الثيم</span>
+  <div id="themePicker" style="position:relative">
+    <button id="themeBtn" onclick="toggleThemeMenu()" style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;border:1px solid var(--card-border);background:var(--bg-soft);cursor:pointer;font-size:8px;font-weight:800">
+      <span id="currentDot" style="width:12px;height:12px;border-radius:50%;background:var(--primary);display:inline-block"></span>
+      <span id="currentName">light</span>
+      <span style="font-size:10px">▼</span>
+    </button>
+    <div id="themeMenu" style="display:none;position:absolute;top:34px;left:0;width:220px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:8px;z-index:9999;max-height:320px;overflow:auto"></div>
+  </div>
+</div>
+
+<div class="hero"><div class="hero-top"><span style="font-size:8px;opacity:.7">وردية اليوم • الحضور</span><span class="badge" id="wh">OFF</span></div><div id="att" class="hero-val">لم يبدأ بعد</div><div class="hero-btns"><button class="btn btn-w" onclick="inAtt()">⏱ حضور</button><button class="btn btn-g" onclick="outAtt()">انصراف ✓</button></div></div>
+
+<div class="grid4">
+  <div class="card" onclick="go('daily.html',1)"><div class="lb">💰 الرصيد الكلي</div><div id="cash" class="v">0</div><div style="font-size:7px;color:var(--primary);margin-top:4px">اضغط للتفاصيل →</div></div>
+  <div class="card" onclick="go('daily.html',1)"><div class="lb">📈 دخل الشهر</div><div id="mI" class="v" style="color:var(--primary)">0</div><div id="mI2" style="font-size:7px;color:var(--text-soft)">0 عملية</div></div>
+  <div class="card" onclick="go('daily.html',1)"><div class="lb">📉 مصروف الشهر</div><div id="mE" class="v">0</div><div id="net" style="font-size:7px;color:var(--text-soft)">الصافي 0</div></div>
+  <div class="card" onclick="go('daily.html',1)"><div class="lb">📋 الديون</div><div id="db" class="v">0</div><div id="dbC" style="font-size:7px;color:var(--text-soft)">0 شخص</div></div>
+  <div class="card" onclick="go('tasks.html',3)"><div class="lb">✅ المهام</div><div id="tc" class="v sm">0 مهمة</div><div style="height:4px;background:var(--bg-soft);border-radius:99px;margin-top:6px"><div id="tprog" style="height:100%;width:0%;background:var(--primary);border-radius:99px"></div></div></div>
+  <div class="card" onclick="go('attendance.html',2)"><div class="lb">⏱ الحضور</div><div id="attC" class="v sm">--</div><div style="font-size:7px;color:var(--text-soft)">الشهر الحالي</div></div>
+</div>
+
+<div class="quick"><div class="quick-title">دخول سريع</div><div class="quick-grid four">
+  <div class="qb" onclick="go('daily.html',1)"><span>💸</span><span>المصروفات</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>📋</span><span>الديون</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>🔐</span><span>الأمانات</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>📊</span><span>الإجمالي</span></div>
+  <div class="qb" onclick="go('attendance.html',2)"><span>⏱</span><span>الحضور والانصراف</span></div>
+  <div class="qb" onclick="go('tasks.html',3)"><span>⚡</span><span>مهام سريعة</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>💵</span><span>إضافة دخل</span></div>
+  <div class="qb" onclick="go('tasks.html',3)"><span>⭐</span><span>المهم</span></div>
+</div></div>
+
+<div class="quick" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+  <div class="qb" onclick="backupToDrive(true)" style="background:var(--hero);border-color:var(--hero)"><span style="color:#fff">☁️</span><span style="color:#fff">نسخ للدرايف</span></div>
+  <div class="qb" onclick="exportToExcel()" style="background:var(--card)"><span>📊</span><span>تصدير اكسيل</span></div>
+  <div class="qb" onclick="exportFullJSON()" style="background:var(--card)"><span>📦</span><span>نسخة كاملة</span></div>
+</div>
+
+<div class="recent"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:11px">آخر الحركات</b><span style="font-size:8px;background:var(--bg-soft);border:1px solid var(--card-border);padding:4px 8px;border-radius:99px;cursor:pointer" onclick="go('daily.html',1)">عرض الكل →</span></div><div id="recent" style="margin-top:6px"></div></div>
+
+<script>
+let $=id=>document.getElementById(id),fmt=n=>Math.round(n||0).toLocaleString('en-US');
+const GD=()=>({tr:JSON.parse(localStorage.getItem('omar_tx_v3')||'[]'),db:JSON.parse(localStorage.getItem('debts_pro_v2')||'[]'),ta:JSON.parse(localStorage.getItem('tasks_v6')||'[]'),lg:JSON.parse(localStorage.getItem('attendance_log')||'[]')});
+function go(page, idx){ try{ parent.switchPage(page, parent.document.querySelectorAll('.nav button')[idx]); }catch(e){ location.href=page; } }
+function R(){
+  let {tr,db,ta}=GD();
+  $('cash').innerText=fmt(tr.reduce((s,t)=>s+(t.type==='income'?t.amount:-t.amount),0));
+  let y=new Date().getFullYear(),m=new Date().getMonth()+1;
+  let mTr=tr.filter(t=>{try{let d=new Date(t.date);return d.getMonth()+1===m&&d.getFullYear()===y}catch{return false}});
+  let mInc=mTr.filter(t=>t.type==='income'); let mExp=mTr.filter(t=>t.type==='expense');
+  $('mI').innerText=fmt(mInc.reduce((a,b)=>a+(b.amount||0),0)); $('mI2').innerText=mInc.length+' عملية';
+  $('mE').innerText=fmt(mExp.reduce((a,b)=>a+(b.amount||0),0));
+  let incVal=mInc.reduce((a,b)=>a+(b.amount||0),0), expVal=mExp.reduce((a,b)=>a+(b.amount||0),0);
+  $('net').innerText='الصافي '+fmt(incVal-expVal);
+  $('db').innerText=fmt(db.reduce((a,b)=>a+(b.remaining||0),0)); $('dbC').innerText=db.length+' شخص';
+  $('tc').innerText=ta.length+' مهمة'; $('tprog').style.width=(ta.length?ta.filter(t=>t.done).length/ta.length*100:0)+'%';
+  let attData=JSON.parse(localStorage.getItem('att_fixed_final')||'{}'); let count=Object.keys(attData).filter(k=>{let [yy,mm]=k.split('-').map(Number); return yy===y&&mm===m;}).length; $('attC').innerText=count+' يوم';
+  $('recent').innerHTML=tr.slice(0,5).map(t=>`<div class="row"><div><b style="font-size:10px">${t.item||t.person||'حركة'}</b><div style="font-size:7px;color:var(--text-soft)">${t.date} • ${t.wallet||''}</div></div><b style="font-size:11px;color:${t.type==='income'?'var(--primary)':'var(--text)'}">${t.type==='income'?'+':''}${fmt(t.amount)}</b></div>`).join('')||'<div style="text-align:center;color:var(--text-soft);font-size:9px;padding:12px">لا يوجد حركات بعد</div>';
+  let log=GD().lg,rec=log.find(r=>r.date===new Date().toISOString().split('T')[0]); if(rec){$('att').innerText=rec.out?rec.in+' → '+rec.out:rec.in+' • يعمل الآن'; $('wh').innerText=rec.out?'DONE':'LIVE';}
+}
+function inAtt(){
+  let now=new Date(); let t=now.toISOString().split('T')[0]; let tm=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); let hourNum=now.getHours();
+  let lg=GD().lg; let r=lg.find(x=>x.date===t); if(!r){r={date:t,in:tm,out:null};lg.push(r)}else r.in=tm;
+  localStorage.setItem('attendance_log',JSON.stringify(lg));
+  let key=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`; let data=JSON.parse(localStorage.getItem('att_fixed_final')||'{}'); if(!data[key]) data[key]={in:'',out:''}; data[key].in=String(hourNum);
+  localStorage.setItem('att_fixed_final',JSON.stringify(data));
+  try{ if(window.syncToABOmar) syncToABOmar(); if(window.parent && window.parent.syncToABOmar) window.parent.syncToABOmar(); }catch(e){}
+  R();
+}
+function outAtt(){
+  let now=new Date(); let t=now.toISOString().split('T')[0]; let tm=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); let hourNum=now.getHours();
+  let lg=GD().lg;let r=lg.find(x=>x.date===t); if(!r)return; r.out=tm; localStorage.setItem('attendance_log',JSON.stringify(lg));
+  let key=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`; let data=JSON.parse(localStorage.getItem('att_fixed_final')||'{}'); if(!data[key]) data[key]={in:'',out:''}; data[key].out=String(hourNum);
+  localStorage.setItem('att_fixed_final',JSON.stringify(data));
+  try{ if(window.syncToABOmar) syncToABOmar(); if(window.parent && window.parent.syncToABOmar) window.parent.syncToABOmar(); }catch(e){}
+  R();
+}
+setInterval(()=>{let now=new Date();$('clk').innerText=now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});$('date').innerText=now.toLocaleDateString('ar-EG',{weekday:'short',day:'numeric',month:'short'});},1000);
+R(); setInterval(R,2000);
+window.addEventListener('message',e=>{ if(e.data?.type==='omar_data_updated' || e.data?.type==='theme') R(); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) R(); });
+window.addEventListener('storage',()=>{ R(); });
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body></html>
