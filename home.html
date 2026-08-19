@@ -19,6 +19,27 @@
 :where(code, pre, kbd, samp) {
   font-family: "Optimistic Mono", ui-monospace, monospace;
 }
+</style><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
 </style><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="themes.js?v=5"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@600;700;800&display=swap" rel="stylesheet">
@@ -46,6 +67,7 @@ body{background:var(--bg);color:var(--text);padding-bottom:16px;transition:.3s}
 .quick{margin:0 12px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:10px}
 .quick-title{font-size:10px;font-weight:800;margin-bottom:8px}
 .quick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.quick-grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
 .qb{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:.2s}
 .qb:active{transform:scale(.95);background:var(--card)}
 .qb span:first-child{font-size:16px;display:block}.qb span:last-child{font-size:7.5px;font-weight:700;margin-top:3px;display:block;color:var(--text-soft)}
@@ -68,10 +90,16 @@ body{background:var(--bg);color:var(--text);padding-bottom:16px;transition:.3s}
   <div class="card" onclick="go('attendance.html',2)"><div class="lb">⏱ الحضور</div><div id="attC" class="v sm">--</div><div style="font-size:7px;color:var(--text-soft)">الشهر الحالي</div></div>
 </div>
 
-<div class="quick"><div class="quick-title">دخول سريع</div><div class="quick-grid">
-  <div class="qb" onclick="go('daily.html',1)"><span>💸</span><span>مصروف</span></div>
-  <div class="qb" onclick="go('daily.html',1)"><span>💵</span><span>دخل</span></div>
-  <div class="qb" onclick="go('tasks.html',3)"><span>✓</span><span>مهمة</span></div>
+<!-- تم التعديل: دخول سريع شامل لكل المشروع بخانات صغيرة 4x2 -->
+<div class="quick"><div class="quick-title">دخول سريع</div><div class="quick-grid four">
+  <div class="qb" onclick="go('daily.html',1)"><span>💸</span><span>المصروفات</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>📋</span><span>الديون</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>🔐</span><span>الأمانات</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>📊</span><span>الإجمالي</span></div>
+  <div class="qb" onclick="go('attendance.html',2)"><span>⏱</span><span>الحضور والانصراف</span></div>
+  <div class="qb" onclick="go('tasks.html',3)"><span>⚡</span><span>مهام سريعة</span></div>
+  <div class="qb" onclick="go('daily.html',1)"><span>💵</span><span>إضافة دخل</span></div>
+  <div class="qb" onclick="go('tasks.html',3)"><span>⭐</span><span>المهم</span></div>
 </div></div>
 
 <div class="quick" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
