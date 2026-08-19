@@ -1,28 +1,33 @@
-// AB Omar - Drive Sync Layer - 4 sheets - Arabic RTL - Live
-const AB_OMAR_SHEET_ID = '12KpLcWLt7Xzb09A6D8qErKOvEhZvqX9-AUTn5052RdQ';
-const AB_OMAR_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxnCT0rkaR__Y5Abp0LzxiLM-FCe1KSCkt_Ef3itfFkwnAHbnCNt-qamBQW6Rugt8K/exec';
-const AB_OMAR_CONFIG = { sheets: { daily: 'اليومية', attendance: 'الحضور', tasks: 'المهام', home_stats: 'الرئيسية' } };
+// AB Omar - Drive Sync - نسخة ثابتة بدون رعشة
+const AB_OMAR_APPS_SCRIPT_URL = localStorage.getItem('ab_omar_script_url') || 'https://script.google.com/macros/s/YOUR_ID/exec';
+let lastHash=''; let syncTimeout=null; let isSyncing=false;
 function getAllDataForSync(){
   return {
     daily: JSON.parse(localStorage.getItem('omar_tx_v3')||'[]'),
     attendance: JSON.parse(localStorage.getItem('att_fixed_final')||'{}'),
-    attendance_log: JSON.parse(localStorage.getItem('attendance_log')||'[]'),
     tasks: JSON.parse(localStorage.getItem('tasks_v6')||'[]')
   };
 }
-async function syncToABOmar(){
-  let data = getAllDataForSync();
-  if(AB_OMAR_APPS_SCRIPT_URL){
-    try{
-      await fetch(AB_OMAR_APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(data) });
-      console.log('✅ Synced to Drive:', data.tasks.length, 'tasks |', new Date().toLocaleTimeString('ar-EG'));
-    }catch(e){ console.error('❌ Sync failed', e); }
-  } else {
-    console.log('App-Omar ready:', data.tasks);
+function hashPayload(o){ try{ return JSON.stringify(o).length+'_'+(o.tasks?.length||0); }catch(e){ return Date.now()+''; } }
+async function syncToABOmar(force=false){
+  if(window.parent !== window){ try{ if(window.parent.syncToABOmar){ window.parent.syncToABOmar(force); return true; } }catch(e){} }
+  if(isSyncing && !force) return false;
+  let payload = getAllDataForSync();
+  let h = hashPayload(payload);
+  if(!force && h===lastHash) return false;
+  if(AB_OMAR_APPS_SCRIPT_URL.includes('YOUR_ID')){
+    console.log('Synced to Drive (local): '+ (payload.tasks||[]).length +' tasks | من '+ new Date().toLocaleTimeString('ar-EG'));
+    lastHash=h; localStorage.setItem('ab_omar_last_sync', new Date().toISOString()); return true;
   }
-  localStorage.setItem('ab_omar_last_sync', new Date().toISOString());
-  return data;
+  isSyncing=true;
+  try{
+    await fetch(AB_OMAR_APPS_SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload)});
+    lastHash=h; localStorage.setItem('ab_omar_last_sync', new Date().toISOString());
+    console.log('Synced to Drive: '+ (payload.tasks||[]).length +' tasks | من '+ new Date().toLocaleTimeString('ar-EG'));
+  }catch(err){ console.warn('Sync failed:', err.message); }finally{ isSyncing=false; }
+  return true;
 }
-setInterval(()=>{ syncToABOmar(); }, 10000);
-window.syncToABOmar = syncToABOmar;
-window.AB_OMAR_CONFIG = AB_OMAR_CONFIG;
+function debouncedSync(){ clearTimeout(syncTimeout); syncTimeout=setTimeout(()=> syncToABOmar(true), 1500); }
+window.addEventListener('omar_data_updated', ()=> debouncedSync());
+window.syncToABOmar=syncToABOmar;
+setTimeout(()=> syncToABOmar(true), 2000);
