@@ -30,8 +30,30 @@ body{background:var(--bg);height:100dvh;overflow:hidden;display:flex;flex-direct
 .rich-editor{flex:1;min-height:30vh;border:1px solid var(--card-border);border-radius:9px;padding:11px;outline:none;background:var(--card);line-height:1.8;overflow:auto;direction:rtl;text-align:right;white-space:pre-wrap;word-break:break-word;color:var(--text);font-size:12.6px}
 .rich-editor ul,.rich-editor ol{list-style-position:inside;padding:0;padding-right:20px;margin:9px 0;direction:rtl;text-align:right}
 #board{flex:1;overflow:auto;padding:7px;display:flex;flex-direction:column;gap:7px;background:var(--bg)}
+
+.inner-tab{padding:6px 10px;border-radius:99px;border:1px solid var(--card-border);background:var(--card);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--text-soft);display:flex;align-items:center;gap:4px}
+.inner-tab.active{background:var(--hero);color:#fff;border-color:var(--hero)}
+.inner-tab-content{display:none}
+.inner-tab-content.active{display:flex;flex-direction:column}
+
+.hidden-chip{display:none!important}
+.hidden-chip.revealed{display:inline-flex!important;background:var(--hero)!important;color:#fff!important;border-color:var(--hero)!important;animation:slideUp .25s ease}
+
+.modal-cat-select{flex:1;background:var(--bg-soft);border:1px solid var(--card-border);border-radius:8px;padding:7px;font-weight:700;color:var(--text);font-size:10.3px}
+
 </style>
-<script src="drive-sync.js"></script><style>html,body{max-width:430px;margin:0 auto !important;background:var(--bg);} body{border-left:1px solid var(--card-border);border-right:1px solid var(--card-border); min-height:100dvh;}</style></head>
+<script src="drive-sync.js"></script><style>html,body{max-width:430px;margin:0 auto !important;background:var(--bg);} body{border-left:1px solid var(--card-border);border-right:1px solid var(--card-border); min-height:100dvh;}
+.inner-tab{padding:6px 10px;border-radius:99px;border:1px solid var(--card-border);background:var(--card);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--text-soft);display:flex;align-items:center;gap:4px}
+.inner-tab.active{background:var(--hero);color:#fff;border-color:var(--hero)}
+.inner-tab-content{display:none}
+.inner-tab-content.active{display:flex;flex-direction:column}
+
+.hidden-chip{display:none!important}
+.hidden-chip.revealed{display:inline-flex!important;background:var(--hero)!important;color:#fff!important;border-color:var(--hero)!important;animation:slideUp .25s ease}
+
+.modal-cat-select{flex:1;background:var(--bg-soft);border:1px solid var(--card-border);border-radius:8px;padding:7px;font-weight:700;color:var(--text);font-size:10.3px}
+
+</style></head>
 <body>
 <div id="app">
 <div style="padding:9px 11px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;background:var(--card);position:sticky;top:0;z-index:5">
@@ -39,25 +61,83 @@ body{background:var(--bg);height:100dvh;overflow:hidden;display:flex;flex-direct
 <div style="display:flex;gap:5px;"><button onclick="openManager()" style="background:var(--bg-soft);border:1px solid var(--card-border);padding:7px 9px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--text);font-size:9.2px">⚙ إدارة</button><button onclick="addQuick()" style="background:var(--hero);color:#fff;border:none;padding:7px 11px;border-radius:8px;font-weight:800;cursor:pointer;font-size:9.2px">+ جديد</button></div>
 </div>
 <div style="padding:7px;background:var(--bg-soft);border-bottom:1px solid var(--card-border);">
-<input id="mainInput" placeholder="ابحث أو أضف مهمة..." style="width:100%;background:var(--card);border:1px solid var(--card-border);padding:8px 9px;border-radius:9px;outline:none;font-weight:700;color:var(--text);font-size:11.5px">
+<input id="mainInput" placeholder="ابحث في كل المهام (اسم، نوت، تبويبات داخلية...)" style="width:100%;background:var(--card);border:1px solid var(--card-border);padding:8px 9px;border-radius:9px;outline:none;font-weight:700;color:var(--text);font-size:11.5px">
 <div style="display:flex;gap:5px;margin-top:7px;align-items:center;"><select id="cat" style="flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:7px;font-weight:700;color:var(--text);font-size:10.3px"></select><div id="quickColors" style="display:flex;gap:5px;flex:1;overflow:auto" class="nu-scroll"></div><button onclick="doAdd()" style="background:var(--hero);color:#fff;border:none;border-radius:8px;padding:7px 11px;font-weight:900;cursor:pointer;font-size:10.3px">إضافة</button></div>
 </div>
 <div style="background:var(--card);border-bottom:1px solid var(--card-border);padding:7px 9px;"><div id="taskTabsFilter" style="display:flex;gap:5px;overflow:auto" class="nu-scroll">
 <button onclick="filterTasksTab('all')" id="tt_all" class="filter-chip active">الكل</button>
-<button onclick="filterTasksTab('صيدلية')" id="tt_صيدلية" class="filter-chip">💊 صيدلية</button>
-<button onclick="filterTasksTab('شغل')" id="tt_شغل" class="filter-chip">💻 شغل</button>
-<button onclick="filterTasksTab('شخصي')" id="tt_شخصي" class="filter-chip">🏠 شخصي</button>
+<div id="dynamicCatsChips" style="display:contents"></div>
 <button onclick="filterTasksTab('done')" id="tt_done" class="filter-chip">✓ منجز</button>
+<button onclick="filterTasksTab('مخفي')" id="tt_مخفي" class="filter-chip hidden-chip" style="display:none">🔒 مخفي</button>
 </div></div>
+<div id="hiddenBar" style="display:none;background:var(--hero);color:#fff;padding:8px 12px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-border)">
+<div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px">🔒</span><div><div style="font-size:11px;font-weight:800">وضع مخفي نشط</div><div style="font-size:8.5px;opacity:.9">دوس خروج هيختفي تاني</div></div></div>
+<div style="display:flex;gap:6px"><button onclick="openSecretModal()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 10px;border-radius:8px;font-size:9px;font-weight:700">تغيير الكود 🔑</button><button onclick="hideHiddenTabNow()" style="background:#fff;color:var(--hero);border:none;padding:6px 10px;border-radius:8px;font-size:9px;font-weight:800">خروج ✕</button></div>
+</div>
 <div id="board" class="nu-scroll"></div>
 </div>
-<div id="secretCodeModal" onclick="if(event.target==this)closeSecretModal()"><div style="background:var(--card);color:var(--text);width:100%;max-width:345px;border-radius:18px;padding:16px;border:1px solid var(--card-border)"><div style="text-align:center"><div style="width:40px;height:40px;background:var(--bg-soft);border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 7px;font-size:18px">✦</div><div style="font-weight:800;font-size:12.6px">الرقم التعريفي السري</div></div><input id="secretInput" type="tel" inputmode="numeric" placeholder="279" style="width:100%;background:var(--bg-soft);border:1px solid var(--card-border);padding:9px;border-radius:9px;color:var(--text);text-align:center;margin-top:11px;font-size:16px;font-weight:800"><div style="display:flex;gap:7px;margin-top:11px"><button onclick="closeSecretModal()" style="flex:1;background:var(--bg-soft);border:1px solid var(--card-border);padding:9px;border-radius:9px;font-size:10.3px">إلغاء</button><button onclick="saveSecretCode()" style="flex:1;background:var(--hero);color:#fff;border:none;padding:9px;border-radius:9px;font-size:10.3px">حفظ</button></div><div id="currentCodeHint" style="font-size:9.2px;color:var(--text-soft);text-align:center;margin-top:9px"></div></div></div>
+<div id="secretCodeModal" onclick="if(event.target==this)closeSecretModal()"><div style="background:var(--card);color:var(--text);width:100%;max-width:360px;border-radius:18px;padding:0;overflow:hidden;border:1px solid var(--card-border);box-shadow:0 25px 50px -12px rgba(0,0,0,.3)">
+<div style="background:var(--bg-soft);padding:16px;text-align:center;border-bottom:1px solid var(--card-border)">
+<div style="width:48px;height:48px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px">🔐</div>
+<div style="font-weight:800;font-size:13px">الرقم السري للمخفي</div>
+<div style="font-size:9.5px;color:var(--text-soft);margin-top:3px">اللي بتكتبه في البحث عشان تفتح 🔒 مخفي</div>
+</div>
+<div style="padding:16px">
+<div id="currentCodeDisplay" style="background:var(--bg-soft);border:1px dashed var(--card-border);border-radius:10px;padding:10px;text-align:center;margin-bottom:12px">
+<div style="font-size:9px;color:var(--text-soft)">الكود الحالي</div>
+<div id="currentCodeBig" style="font-size:20px;font-weight:900;letter-spacing:3px;color:var(--hero);margin-top:2px">279</div>
+</div>
+<input id="secretInput" type="tel" inputmode="numeric" placeholder="اكتب كود جديد..." style="width:100%;background:var(--bg-soft);border:1.5px solid var(--card-border);padding:12px;border-radius:12px;color:var(--text);text-align:center;font-size:18px;font-weight:800;letter-spacing:4px;outline:none">
+<div id="currentCodeHint" style="font-size:9.5px;color:var(--text-soft);text-align:center;margin-top:8px"></div>
+<div id="secretError" style="font-size:9.5px;color:#ef4444;text-align:center;margin-top:6px;display:none"></div>
+</div>
+<div style="padding:0 16px 16px 16px;display:flex;gap:8px">
+<button onclick="closeSecretModal()" style="flex:1;background:var(--bg-soft);border:1px solid var(--card-border);padding:11px;border-radius:12px;font-weight:700;font-size:11px">إلغاء</button>
+<button onclick="saveSecretCode()" style="flex:1.5;background:var(--hero);color:#fff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:11px">حفظ الكود الجديد ✓</button>
+</div>
+</div></div>
 <div id="deleteWarningModal" onclick="if(event.target==this)closeDeleteWarning()"><div style="background:var(--card);width:100%;max-width:345px;border-radius:18px;overflow:hidden;border:1px solid var(--card-border)"><div style="background:#FEF2F2;padding:14px;text-align:center"><div style="font-size:28px">⚠️</div><div style="font-weight:900;color:#991B1B;font-size:12.6px">هتحذف؟</div></div><div style="padding:11px"><div id="delTaskPreview" style="background:var(--bg-soft);border:1px solid var(--card-border);border-radius:9px;padding:9px;margin-bottom:9px;font-size:11.5px"></div><label style="display:flex;gap:7px;align-items:center;background:var(--bg-soft);border:1px solid var(--card-border);border-radius:9px;padding:8px"><input type="checkbox" id="delConfirmCheck" onchange="toggleDelBtn()"><span style="font-size:10.3px;font-weight:700">أنا متأكد</span></label><div style="display:flex;gap:9px;margin-top:9px"><button onclick="closeDeleteWarning()" style="flex:1;background:var(--bg-soft);border:1px solid var(--card-border);padding:9px;border-radius:9px;font-size:10.3px">إلغاء</button><button id="finalDelBtn" onclick="confirmDelete()" disabled style="flex:1;background:#E5E7EB;color:#9CA3AF;border:none;padding:9px;border-radius:9px;font-weight:800;font-size:10.3px">حذف</button></div></div></div></div>
 <div id="managerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;padding:11px"><div style="background:var(--card);width:100%;max-width:437px;border-radius:16px;overflow:hidden;max-height:85vh;display:flex;flex-direction:column;border:1px solid var(--card-border)"><div style="display:flex;gap:4px;background:var(--bg-soft);margin:9px;padding:4px;border-radius:9px"><button onclick="mTab('cats')" id="mTabCats" style="flex:1;padding:7px;border:none;border-radius:7px;background:var(--card);font-weight:700;color:var(--text);font-size:10.3px">📁 التصنيفات</button><button onclick="mTab('colors')" id="mTabColors" style="flex:1;padding:7px;border:none;border-radius:7px;background:transparent;color:var(--text-soft);font-size:10.3px">🎨 الألوان</button></div><div style="flex:1;overflow:auto;padding:0 11px 11px" class="nu-scroll"><div id="mCats"><div style="display:flex;gap:5px;margin-bottom:11px"><input id="newCatEmoji" placeholder="💊" style="width:41px;text-align:center;border:1px solid var(--card-border);border-radius:8px;padding:7px;background:var(--card);color:var(--text);font-size:11.5px"><input id="newCatName" placeholder="اسم التصنيف" style="flex:1;border:1px solid var(--card-border);border-radius:8px;padding:7px;background:var(--card);color:var(--text);font-size:11.5px"><button onclick="addCategory()" style="background:var(--hero);color:#fff;border:none;padding:7px 11px;border-radius:8px;font-size:11.5px">+</button></div><div id="catList"></div></div><div id="mColors" style="display:none"><div id="excelTheme" class="excel-grid"></div><div id="excelStandard" class="excel-grid" style="margin-top:9px"></div></div></div><div style="padding:9px 11px;border-top:1px solid var(--card-border)"><button onclick="closeManager()" style="width:100%;background:var(--bg-soft);border:1px solid var(--card-border);padding:8px;border-radius:9px;color:var(--text);font-size:10.3px">إغلاق</button></div></div></div>
 <div id="modal" style="display:none;position:fixed;inset:0;background:var(--card);z-index:9999;flex-direction:column;max-width:600px;margin:0 auto">
 <div id="modalCover" style="height:69px;position:relative;flex-shrink:0;background:var(--bg-soft);border-bottom:1px solid var(--card-border)"><button onclick="closeModal()" style="position:absolute;top:9px;left:9px;background:rgba(0,0,0,.15);border:none;width:32px;height:32px;border-radius:50%;color:#000;font-weight:800;cursor:pointer;font-size:14px">✕</button></div>
 <div style="padding:9px;flex:1;overflow:auto;display:flex;flex-direction:column;background:var(--bg)" class="nu-scroll">
 <h2 id="modalTitle" contenteditable="true" style="font-size:13.8px;font-weight:800;outline:none;border-bottom:1px dashed var(--card-border);padding-bottom:7px;margin-bottom:9px;color:var(--text)"></h2>
+<div style="display:flex;gap:6px;align-items:center;background:var(--bg-soft);border:1px solid var(--card-border);border-radius:10px;padding:7px;margin-bottom:9px">
+<span style="font-size:9.5px;font-weight:800;color:var(--text-soft)">التصنيف:</span>
+<select id="modalCat" onchange="changeModalCat()" class="modal-cat-select"></select>
+<span style="font-size:9px;color:var(--text-soft)">💊 صيدلية / 💻 شغل / 🏠 شخصي</span>
+</div>
+
+<div style="background:var(--card);border:1px solid var(--card-border);border-radius:11px;padding:8px;margin-bottom:9px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+<b style="font-size:10.5px">📑 تبويبات داخلية</b>
+<button onclick="addInnerTab()" style="background:var(--hero);color:#fff;border:none;padding:5px 10px;border-radius:7px;font-size:9.5px;font-weight:800">+ تبويب</button>
+</div>
+<div id="innerTabsBar" style="display:flex;gap:5px;overflow:auto;padding:2px 0" class="nu-scroll"></div>
+<div id="innerTabEmpty" style="text-align:center;padding:12px;color:var(--text-soft);font-size:9.5px;display:none">مفيش تبويبات - دوس + تبويب (مثال: شغله، مشاكله، مميزاته، ملاحظات)</div>
+<div id="innerTabEditorBox" style="display:none;margin-top:8px">
+<div class="rich-toolbar" id="innerToolbar">
+<button onmousedown="event.preventDefault()" onclick="formatInner('bold')"><b>B</b></button>
+<button onmousedown="event.preventDefault()" onclick="changeInnerFontSize(2)">A+</button>
+<button onmousedown="event.preventDefault()" onclick="changeInnerFontSize(-2)">A-</button>
+<button onmousedown="event.preventDefault()" onclick="formatInner('insertUnorderedList')">• نقط</button>
+<button onmousedown="event.preventDefault()" onclick="formatInner('insertOrderedList')">1. ترقيم</button>
+<div class="dot" style="background:#ef4444" onmousedown="event.preventDefault();applyInnerColor('#ef4444')"></div>
+<div class="dot" style="background:#22c55e" onmousedown="event.preventDefault();applyInnerColor('#22c55e')"></div>
+<div class="dot" style="background:#3b82f6" onmousedown="event.preventDefault();applyInnerColor('#3b82f6')"></div>
+<div class="dot" style="background:#f59e0b" onmousedown="event.preventDefault();applyInnerColor('#f59e0b')"></div>
+<div class="dot" style="background:#8b5cf6" onmousedown="event.preventDefault();applyInnerColor('#8b5cf6')"></div>
+</div>
+<div style="display:flex;gap:5px;margin-bottom:6px">
+<input id="innerTabTitleInput" placeholder="اسم التبويب (مثال: شغله)" style="flex:1;background:var(--bg-soft);border:1px solid var(--card-border);border-radius:7px;padding:7px;font-size:10.5px;font-weight:700">
+<button onclick="saveInnerTabTitle()" style="background:var(--bg-soft);border:1px solid var(--card-border);padding:7px 10px;border-radius:7px;font-size:10px">✓</button>
+<button onclick="deleteInnerTab(curInnerTabId)" style="background:#FFF1F2;border:1px solid #FECDD3;padding:7px 10px;border-radius:7px;font-size:10px;color:#ef4444">🗑</button>
+</div>
+<div id="innerTabEditor" class="rich-editor" contenteditable="true" style="min-height:20vh"></div>
+<button onclick="saveInnerTabContent()" style="width:100%;margin-top:7px;background:var(--hero);color:#fff;border:none;padding:8px;border-radius:8px;font-weight:800;font-size:10.5px">حفظ التبويب</button>
+</div>
+</div>
+
 <div style="background:var(--card);border:1px solid var(--card-border);border-radius:11px;padding:8px;margin-bottom:9px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><b style="font-size:10.3px">✔ مهام فرعية</b><span id="subProgress" style="font-size:9.2px;background:var(--bg-soft);padding:3px 7px;border-radius:99px">0/0</span></div><div id="subList" style="display:flex;flex-direction:column;gap:5px;margin-bottom:7px"></div><div style="display:flex;gap:5px"><input id="subInput" placeholder="مهمة فرعية + Enter" style="flex:1;border:1px solid var(--card-border);border-radius:7px;padding:7px;background:var(--card);color:var(--text);font-size:10.3px"><button onclick="addSub()" style="background:var(--hero);color:#fff;border:none;padding:7px 11px;border-radius:7px;font-weight:800;font-size:10.3px">+</button></div><div style="height:5px;background:var(--bg-soft);border-radius:10px;margin-top:7px;overflow:hidden"><div id="subBar" style="height:100%;width:0%;background:var(--hero)"></div></div></div>
 <div style="display:flex;gap:4px;background:var(--bg-soft);padding:4px;border-radius:9px;margin-bottom:9px;overflow:auto" class="nu-scroll">
 <button onclick="tab('colors')" id="tColors" class="tab">🎨 ألوان</button><button onclick="tab('camera')" id="tCamera" class="tab">📷 كاميرا</button><button onclick="tab('draw')" id="tDraw" class="tab">✏ رسم</button><button onclick="tab('voice')" id="tVoice" class="tab">🎙 فويس</button><button onclick="tab('note')" id="tNote" class="tab active">📝 نوت</button><button onclick="tab('rem')" id="tRem" class="tab">⏰ منبه</button><button onclick="tab('hidden')" id="tHidden" class="tab" style="display:none;background:var(--hero);color:#fff">🔒 الخاص</button>
@@ -137,13 +217,127 @@ function mTab(t){document.getElementById('mCats').style.display=t==='cats'?'bloc
 function addCategory(){const n=document.getElementById('newCatName').value.trim(),e=document.getElementById('newCatEmoji').value.trim()||'📌';if(!n)return;cats.push({id:Date.now(),emoji:e,name:n});document.getElementById('newCatName').value='';renderManagerLists();save();}
 function delCat(id){cats=cats.filter(c=>c.id!==id);renderManagerLists();save();}
 function addQuick(){document.getElementById('mainInput').focus()}
-function filterTasksTab(cat){activeTaskTab=cat;document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));document.getElementById('tt_'+cat)?.classList.add('active');render();}
+function filterTasksTab(cat){
+  // if leaving hidden tab, hide it again
+  if(activeTaskTab==='مخفي' && cat!=='مخفي'){
+    hiddenCatRevealed=false;
+    const hid=document.getElementById('tt_مخفي');
+    if(hid){ hid.classList.remove('revealed'); hid.style.display='none'; hid.classList.remove('active'); }
+  }
+  activeTaskTab=cat;
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  const target=document.getElementById('tt_'+cat) || document.getElementById('tt_'+cat.replace(/[^\w]/g,''));
+  if(target) target.classList.add('active');
+  else {
+    // dynamic cats
+    document.querySelectorAll('#dynamicCatsChips .filter-chip').forEach(ch=>{
+      if(ch.textContent.includes(cat) || ch.getAttribute('onclick')?.includes(cat)) ch.classList.add('active');
+    });
+  }
+  document.getElementById('tt_'+cat)?.classList.add('active');
+  render();
+}
+function hideHiddenTabNow(){
+  hiddenCatRevealed=false;
+  activeTaskTab='all';
+  const hid=document.getElementById('tt_مخفي');
+  if(hid){ hid.classList.remove('revealed'); hid.style.display='none'; }
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tt_all')?.classList.add('active');
+  render();
+}
+
 function getSecretCode(){try{const v=localStorage.getItem('__my_secret_num__');if(!v) return '279';return atob(v);}catch{return '279'}}
-function doAdd(){const inp=document.getElementById('mainInput');const val=inp.value.trim();if(!val) return;const secret=getSecretCode();if(val===secret){inp.value='';boardSearch='';revealHiddenTab();return;}tasks.unshift({id:Date.now(),text:val,cat:document.getElementById('cat').value||cats[0].name,color:selectedHex||'#ffffff',done:false,drawings:[],photos:[],voices:[],note:'',subtasks:[],reminder:null});inp.value='';boardSearch='';save();}
-document.getElementById('mainInput').addEventListener('input',e=>{const v=e.target.value.trim();const secret=getSecretCode();if(v===secret){revealHiddenTab();return;}boardSearch=v.toLowerCase();render();});
+let hiddenCatRevealed=false;
+function doAdd(){
+  const inp=document.getElementById('mainInput');
+  const val=inp.value.trim();
+  if(!val) return;
+  const secret=getSecretCode();
+  if(val===secret){
+    inp.value=''; boardSearch='';
+    hiddenCatRevealed=true;
+    document.querySelectorAll('.hidden-chip').forEach(el=>el.classList.add('revealed'));
+    // create hidden category if not exists
+    if(!cats.find(c=>c.name==='مخفي')){
+      cats.push({id:Date.now(), emoji:'🔒', name:'مخفي', hidden:true});
+      localStorage.setItem('cats_v5', JSON.stringify(cats));
+    }
+    activeTaskTab='مخفي';
+    document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+    const hidBtn=document.getElementById('tt_مخفي');
+    if(hidBtn){ hidBtn.classList.add('active'); hidBtn.style.display='inline-flex'; }
+    render();
+    return;
+  }
+  tasks.unshift({id:Date.now(),text:val,cat:document.getElementById('cat').value||cats[0].name,color:selectedHex||'#ffffff',done:false,drawings:[],photos:[],voices:[],note:'',subtasks:[],reminder:null, innerTabs:[]});
+  inp.value=''; boardSearch=''; save();
+}
+document.getElementById('mainInput').addEventListener('input',e=>{
+  const v=e.target.value.trim();
+  const secret=getSecretCode();
+  if(v===secret){
+    // secret code entered - reveal hidden category, don't filter
+    e.target.value='';
+    hiddenCatRevealed=true;
+    document.querySelectorAll('.hidden-chip').forEach(el=>el.classList.add('revealed'));
+    if(!cats.find(c=>c.name==='مخفي')){
+      cats.push({id:Date.now(), emoji:'🔒', name:'مخفي', hidden:true});
+      localStorage.setItem('cats_v5', JSON.stringify(cats));
+    }
+    activeTaskTab='مخفي';
+    document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+    document.getElementById('tt_مخفي')?.classList.add('active');
+    render();
+    return;
+  }
+  boardSearch=v.toLowerCase();
+  render();
+});
 document.getElementById('mainInput').addEventListener('keydown',e=>{if(e.key==='Enter')doAdd()});
 document.getElementById('subInput').addEventListener('keydown',e=>{if(e.key==='Enter')addSub()});
-function render(){renderManagerLists();let filtered=tasks;if(activeTaskTab!=='all'){if(activeTaskTab==='done')filtered=filtered.filter(t=>t.done);else filtered=filtered.filter(t=>t.cat===activeTaskTab);}if(boardSearch)filtered=filtered.filter(t=>t.text.toLowerCase().includes(boardSearch));document.getElementById('stats').innerText=`${fmt(filtered.length)}/${fmt(tasks.length)} • ${activeTaskTab}`;const board=document.getElementById('board');if(!filtered.length){board.innerHTML=`<div style="text-align:center;padding:23px 11px;color:var(--text-soft)"><div style="font-size:28px">📭</div><div style="margin-top:7px;font-size:10.3px">مفيش مهام</div></div>`;return}board.innerHTML=filtered.map(t=>{const catObj=cats.find(c=>c.name===t.cat)||{emoji:'📌'};const total=t.subtasks?.length||0,done=t.subtasks?.filter(s=>s.done).length||0;const hasRem=t.reminder&&t.reminder.enabled? '⏰':'';return `<div onclick="openCard(${t.id})" style="background:${t.color==='white'||t.color==='#ffffff'? 'var(--card)' : t.color};border:1px solid var(--card-border);border-radius:11px;padding:8px 9px;cursor:pointer"><div style="display:flex;justify-content:space-between;gap:7px"><div style="font-size:11.5px;font-weight:700;flex:1;color:var(--text)">${hasRem} ${formatTextNumbers(t.text)}</div><div style="width:9px;height:9px;border-radius:50%;background:${t.done?'#22c55e':'var(--hero)'};flex-shrink:0;margin-top:4px"></div></div><div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap"><span style="font-size:9.2px;background:var(--card);padding:4px 7px;border-radius:99px;font-weight:700;border:1px solid var(--card-border);color:var(--text-soft)">${catObj.emoji} ${t.cat}</span>${total?`<span style="font-size:9.2px;background:var(--card);padding:4px 7px;border-radius:99px;font-weight:700;border:1px solid var(--card-border);color:var(--text-soft)">✔ ${fmt(done)}/${fmt(total)}</span>`:''}${hasRem?`<span style="font-size:9.2px;background:#DBEAFE;padding:4px 7px;border-radius:99px;font-weight:700;color:#2563EB">${t.reminder.repeat}</span>`:''}</div></div>`;}).join('');}
+function render(){
+  renderManagerLists();
+  const hBar=document.getElementById('hiddenBar');
+  if(hBar) hBar.style.display = (hiddenCatRevealed && activeTaskTab==='مخفي') ? 'flex' : 'none';
+  let filtered=tasks;
+  // hide hidden category tasks unless revealed
+  if(!hiddenCatRevealed){
+    filtered=filtered.filter(t=>t.cat!=='مخفي' && !cats.find(c=>c.name===t.cat && c.hidden));
+  }
+  if(activeTaskTab!=='all'){
+    if(activeTaskTab==='done') filtered=filtered.filter(t=>t.done);
+    else filtered=filtered.filter(t=>t.cat===activeTaskTab);
+  }
+  
+  if(boardSearch){
+    const q=boardSearch.toLowerCase();
+    filtered=filtered.filter(t=>{
+      // build searchable blob
+      let blob='';
+      try{
+        blob+= (t.text||'') + ' ' + (t.cat||'') + ' ';
+        // note - strip html tags
+        if(t.note){ blob+= t.note.replace(/<[^>]*>/g,' ') + ' '; }
+        // subtasks
+        if(t.subtasks && t.subtasks.length){
+          t.subtasks.forEach(s=>{ blob+= (s.text||'') + ' '; });
+        }
+        // inner tabs - titles + content
+        if(t.innerTabs && t.innerTabs.length){
+          t.innerTabs.forEach(it=>{
+            blob+= (it.title||'') + ' ';
+            if(it.content) blob+= it.content.replace(/<[^>]*>/g,' ') + ' ';
+          });
+        }
+        // drawings/photos/voices count not searchable but add type
+        // also search by id? no
+      }catch(e){}
+      return blob.toLowerCase().includes(q);
+    });
+  }
+
+document.getElementById('stats').innerText= boardSearch ? `🔍 ${fmt(filtered.length)} نتيجة لـ "${boardSearch}" • ${activeTaskTab}` : `${fmt(filtered.length)}/${fmt(tasks.length)} • ${activeTaskTab}`;const board=document.getElementById('board');if(!filtered.length){board.innerHTML=`<div style="text-align:center;padding:23px 11px;color:var(--text-soft)"><div style="font-size:28px">📭</div><div style="margin-top:7px;font-size:10.3px">مفيش مهام</div></div>`;return}board.innerHTML=filtered.map(t=>{const catObj=cats.find(c=>c.name===t.cat)||{emoji:'📌'};const total=t.subtasks?.length||0,done=t.subtasks?.filter(s=>s.done).length||0;const hasRem=t.reminder&&t.reminder.enabled? '⏰':'';return `<div onclick="openCard(${t.id})" style="background:${t.color==='white'||t.color==='#ffffff'? 'var(--card)' : t.color};border:1px solid var(--card-border);border-radius:11px;padding:8px 9px;cursor:pointer"><div style="display:flex;justify-content:space-between;gap:7px"><div style="font-size:11.5px;font-weight:700;flex:1;color:var(--text)">${hasRem} ${formatTextNumbers(t.text)}</div><div style="width:9px;height:9px;border-radius:50%;background:${t.done?'#22c55e':'var(--hero)'};flex-shrink:0;margin-top:4px"></div></div><div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap"><span style="font-size:9.2px;background:var(--card);padding:4px 7px;border-radius:99px;font-weight:700;border:1px solid var(--card-border);color:var(--text-soft)">${catObj.emoji} ${t.cat}</span>${total?`<span style="font-size:9.2px;background:var(--card);padding:4px 7px;border-radius:99px;font-weight:700;border:1px solid var(--card-border);color:var(--text-soft)">✔ ${fmt(done)}/${fmt(total)}</span>`:''}${hasRem?`<span style="font-size:9.2px;background:#DBEAFE;padding:4px 7px;border-radius:99px;font-weight:700;color:#2563EB">${t.reminder.repeat}</span>`:''}</div></div>`;}).join('');}
 async function openCamera(){const box=document.getElementById('cameraBox');box.style.display='block';try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});document.getElementById('cameraVideo').srcObject=cameraStream;}catch(e){alert('الكاميرا غير مسموحة');}}
 function closeCamera(){document.getElementById('cameraBox').style.display='none';if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}}
 function takePhoto(){const v=document.getElementById('cameraVideo');const c=document.getElementById('cameraCanvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);const d=c.toDataURL('image/jpeg',0.8);if(!cur.photos)cur.photos=[];cur.photos.unshift(d);refreshPhotos();closeCamera();save();}
@@ -187,10 +381,175 @@ function deleteCurrent(){if(!cur)return;document.getElementById('delTaskPreview'
 function closeDeleteWarning(){document.getElementById('deleteWarningModal').classList.remove('show')}
 function toggleDelBtn(){const c=document.getElementById('delConfirmCheck').checked;const b=document.getElementById('finalDelBtn');b.disabled=!c;b.style.background=c?'#ef4444':'#E5E7EB';b.style.color=c?'#fff':'#9CA3AF';}
 function confirmDelete(){if(!cur)return;tasks=tasks.filter(x=>x.id!==cur.id);closeDeleteWarning();closeModal();save();}
+
+let curInnerTabId=null;
+function ensureInnerTabs(){ if(!cur) return; if(!cur.innerTabs) cur.innerTabs=[]; if(!Array.isArray(cur.innerTabs)) cur.innerTabs=[]; }
+
+function renderInnerTabs(){
+  ensureInnerTabs();
+  const bar=document.getElementById('innerTabsBar');
+  const empty=document.getElementById('innerTabsEmpty')||document.getElementById('innerTabEmpty');
+  const box=document.getElementById('innerTabEditorBox');
+  if(!bar) return;
+  if(!cur.innerTabs.length){
+    bar.innerHTML=''; if(empty) empty.style.display='block'; if(box) box.style.display='none'; return;
+  }
+  if(empty) empty.style.display='none';
+  bar.innerHTML=cur.innerTabs.map(t=>`<div onclick="switchInnerTab(${t.id})" class="inner-tab ${curInnerTabId===t.id?'active':''}"><span>${(t.title||'بدون عنوان').replace(/</g,'&lt;')}</span><span onclick="event.stopPropagation();deleteInnerTab(${t.id})" style="font-size:10px;opacity:.7">✕</span></div>`).join('');
+  if(curInnerTabId && !cur.innerTabs.find(x=>x.id===curInnerTabId)){
+    curInnerTabId=cur.innerTabs[0]?.id||null;
+  }
+  if(!curInnerTabId && cur.innerTabs.length){ curInnerTabId=cur.innerTabs[0].id; }
+  if(curInnerTabId){
+    const active=cur.innerTabs.find(x=>x.id===curInnerTabId);
+    if(active){
+      if(box) box.style.display='block';
+      document.getElementById('innerTabTitleInput').value=active.title||'';
+      document.getElementById('innerTabEditor').innerHTML=active.content||'';
+    }
+  }
+}
+
+function addInnerTab(){
+  ensureInnerTabs();
+  document.getElementById('innerTabNameInput').value='';
+  document.getElementById('innerTabNameError').style.display='none';
+  document.getElementById('innerTabModal').style.display='flex';
+  setTimeout(()=>{ document.getElementById('innerTabNameInput').focus(); }, 100);
+}
+function closeInnerTabModal(){
+  document.getElementById('innerTabModal').style.display='none';
+}
+function setInnerTabQuick(name){
+  document.getElementById('innerTabNameInput').value=name;
+  document.getElementById('innerTabNameInput').focus();
+}
+function confirmAddInnerTab(){
+  const input=document.getElementById('innerTabNameInput');
+  const title=input.value.trim();
+  const err=document.getElementById('innerTabNameError');
+  if(!title){ err.style.display='block'; input.style.borderColor='#ef4444'; input.focus(); return; }
+  err.style.display='none';
+  const nt={id:Date.now(), title:title, content:''};
+  cur.innerTabs.push(nt);
+  curInnerTabId=nt.id;
+  closeInnerTabModal();
+  renderInnerTabs();
+  save();
+  setTimeout(()=>{ const ed=document.getElementById('innerTabEditor'); if(ed) ed.focus(); }, 200);
+}
+// close on backdrop click
+document.getElementById('innerTabModal')?.addEventListener('click', (e)=>{ if(e.target.id==='innerTabModal') closeInnerTabModal(); });
+
+
+function switchInnerTab(id){
+  // save current before switch
+  saveInnerTabContent(false);
+  curInnerTabId=id;
+  renderInnerTabs();
+}
+
+function saveInnerTabTitle(){
+  ensureInnerTabs();
+  const t=cur.innerTabs.find(x=>x.id===curInnerTabId);
+  if(!t) return;
+  t.title=document.getElementById('innerTabTitleInput').value.trim()||'بدون عنوان';
+  renderInnerTabs(); save();
+}
+
+function saveInnerTabContent(doSave=true){
+  ensureInnerTabs();
+  const t=cur.innerTabs.find(x=>x.id===curInnerTabId);
+  if(!t) return;
+  t.content=document.getElementById('innerTabEditor').innerHTML;
+  if(doSave) save();
+}
+
+let pendingDeleteInnerId=null;
+function deleteInnerTab(id){
+  const tab = cur.innerTabs.find(x=>x.id===id);
+  if(!tab) return;
+  pendingDeleteInnerId=id;
+  document.getElementById('innerTabDeleteName').innerText=`"${tab.title}"`;
+  document.getElementById('innerTabDeleteModal').style.display='flex';
+}
+function closeInnerTabDeleteModal(){
+  document.getElementById('innerTabDeleteModal').style.display='none';
+  pendingDeleteInnerId=null;
+}
+function confirmDeleteInnerTab(){
+  if(!pendingDeleteInnerId) return;
+  cur.innerTabs=cur.innerTabs.filter(x=>x.id!==pendingDeleteInnerId);
+  if(curInnerTabId===pendingDeleteInnerId) curInnerTabId=cur.innerTabs[0]?.id||null;
+  closeInnerTabDeleteModal();
+  renderInnerTabs(); save();
+}
+
+
+function formatInner(cmd){ document.execCommand(cmd,false,null); document.getElementById('innerTabEditor').focus(); }
+function changeInnerFontSize(delta){ let curSize=12; try{ const sel=window.getSelection(); if(sel.rangeCount){ const node=sel.getRangeAt(0).commonAncestorContainer; let el=node.nodeType===3?node.parentElement:node; while(el && el!==document.getElementById('innerTabEditor')){ if(el.style.fontSize){ curSize=parseInt(el.style.fontSize)||12; break;} el=el.parentElement; } } }catch(e){} const newSize=Math.max(10, Math.min(22, curSize+delta)); document.execCommand('fontSize',false,'7'); const fonts=document.getElementsByTagName('font'); for(let i=0;i<fonts.length;i++){ if(fonts[i].size=='7'){ fonts[i].removeAttribute('size'); fonts[i].style.fontSize=newSize+'px'; } } }
+function applyInnerColor(color){ document.execCommand('foreColor',false,color); }
+
+function changeModalCat(){
+  if(!cur) return;
+  const sel=document.getElementById('modalCat');
+  if(!sel) return;
+  cur.cat=sel.value;
+  save();
+  // update filter chips if needed
+}
+
+// patch openCard to populate modalCat and innerTabs
+const _origOpenCard = openCard;
+openCard = function(id){
+  _origOpenCard(id);
+  // populate cat selector
+  const sel=document.getElementById('modalCat');
+  if(sel){
+    sel.innerHTML=cats.map(c=>`<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('');
+    sel.value=cur.cat||cats[0].name;
+  }
+  curInnerTabId=cur.innerTabs && cur.innerTabs[0] ? cur.innerTabs[0].id : null;
+  renderInnerTabs();
+  try{ if(window.syncToABOmar) syncToABOmar(); }catch(e){}
+}
+
+// patch save to include sync fix for hanging issue
+const _origSave = save;
+save = function(){
+  try{ if(window.syncToABOmar) syncToABOmar(); if(window.parent && window.parent.syncToABOmar) window.parent.syncToABOmar(); }catch(e){}
+  _origSave();
+  try{ window.dispatchEvent(new Event('omar_data_updated')); if(window.parent) window.parent.postMessage({type:'omar_data_updated'}, '*'); }catch(e){}
+}
+
+
 render(); startReminderChecker();
-function openSecretModal(){document.getElementById('secretCodeModal').classList.add('show');const s=getSecretCode();document.getElementById('secretInput').value=s;document.getElementById('currentCodeHint').innerText=`رقمك الحالي: ${s}`;}
+function openSecretModal(){
+  document.getElementById('secretCodeModal').classList.add('show');
+  const s=getSecretCode();
+  document.getElementById('secretInput').value='';
+  document.getElementById('secretInput').placeholder=`الحالي: ${s} - اكتب جديد`;
+  document.getElementById('currentCodeBig').innerText=s;
+  document.getElementById('currentCodeHint').innerText=`اكتب كود جديد من 2 لـ 8 أرقام`;
+  document.getElementById('secretError').style.display='none';
+  setTimeout(()=>document.getElementById('secretInput').focus(), 100);
+}
 function closeSecretModal(){document.getElementById('secretCodeModal').classList.remove('show')}
-function saveSecretCode(){const v=document.getElementById('secretInput').value.trim();if(!v||v.length<2){alert('اكتب رقم');return}localStorage.setItem('__my_secret_num__',btoa(v));closeSecretModal();}
+function saveSecretCode(){
+  const v=document.getElementById('secretInput').value.trim();
+  const err=document.getElementById('secretError');
+  if(!v||v.length<2){ err.innerText='اكتب رقم من رقمين على الأقل'; err.style.display='block'; return; }
+  if(v.length>8){ err.innerText='الكود كبير أوي - خليه 8 أرقام max'; err.style.display='block'; return; }
+  localStorage.setItem('__my_secret_num__',btoa(v));
+  err.style.display='none';
+  document.getElementById('currentCodeBig').innerText=v;
+  // update hint
+  document.getElementById('currentCodeHint').innerText=`✅ اتغير لـ ${v} - اكتب ${v} في البحث عشان تفتح المخفي`;
+  setTimeout(()=>{ closeSecretModal(); }, 800);
+  // hide hidden if currently shown
+  hideHiddenTabNow();
+}
+
 let hKey=null,hNotes=[];const H_CFG='__sys_pref_cache__',H_DATA='__sys_pref_data__';
 async function deriveKey(p,s){const e=new TextEncoder();const km=await crypto.subtle.importKey('raw',e.encode(p),{name:'PBKDF2'},false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:s,iterations:120000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
 async function hEnc(d,k){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},k,new TextEncoder().encode(JSON.stringify(d)));return{iv:Array.from(iv),ct:Array.from(new Uint8Array(ct))}}
@@ -210,5 +569,55 @@ function delHidden(id){if(!confirm('تحذف؟'))return;hNotes=hNotes.filter(x=>
 async function openChangePassword(){const newPass=prompt('الرقم الجديد:');if(!newPass||newPass.length<2){alert('قصير');return;}const confirmPass=prompt('أكد الرقم:');if(newPass!==confirmPass){alert('مش زي بعض');return;}try{const salt=crypto.getRandomValues(new Uint8Array(16));const newKey=await deriveKey(newPass,salt);const enc=await hEnc(hNotes,newKey);localStorage.setItem(H_CFG,JSON.stringify({salt:Array.from(salt)}));localStorage.setItem(H_DATA,JSON.stringify(enc));localStorage.setItem('__my_secret_num__',btoa(newPass));hKey=newKey;alert(`تم تغيير الرقم لـ ${newPass}`);}catch(err){alert('فشل');}}
 let pressTimer=null;const vaultEl=document.getElementById('vaultTrigger');vaultEl.addEventListener('mousedown',()=>{pressTimer=setTimeout(openSecretModal,2500)});vaultEl.addEventListener('mouseup',()=>clearTimeout(pressTimer));vaultEl.addEventListener('mouseleave',()=>clearTimeout(pressTimer));vaultEl.addEventListener('touchstart',()=>{pressTimer=setTimeout(openSecretModal,2500)},{passive:true});vaultEl.addEventListener('touchend',()=>clearTimeout(pressTimer));
 </script>
+
+<div id="innerTabModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:12000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px)">
+  <div style="background:var(--card);width:100%;max-width:360px;border-radius:18px;overflow:hidden;border:1px solid var(--card-border);box-shadow:0 25px 50px -12px rgba(0,0,0,.3);animation:slideUp .25s ease">
+    <div style="padding:14px 16px 0 16px;display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="width:36px;height:36px;background:var(--bg-soft);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">📑</div>
+        <div><div style="font-weight:800;font-size:12px;color:var(--text)">تبويب جديد</div><div style="font-size:9px;color:var(--text-soft)">مثال: شغله، مشاكله، مميزاته، ملاحظات</div></div>
+      </div>
+      <button onclick="closeInnerTabModal()" style="width:28px;height:28px;border-radius:8px;border:1px solid var(--card-border);background:var(--bg-soft);font-size:14px">✕</button>
+    </div>
+    <div style="padding:16px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+        <button onclick="setInnerTabQuick('شغله')" class="quick-tab-btn">💼 شغله</button>
+        <button onclick="setInnerTabQuick('مشاكله')" class="quick-tab-btn">⚠️ مشاكله</button>
+        <button onclick="setInnerTabQuick('مميزاته')" class="quick-tab-btn">⭐ مميزاته</button>
+        <button onclick="setInnerTabQuick('ملاحظات')" class="quick-tab-btn">📝 ملاحظات</button>
+      </div>
+      <input id="innerTabNameInput" placeholder="اسم التبويب..." style="width:100%;background:var(--bg-soft);border:1.5px solid var(--card-border);padding:12px 14px;border-radius:12px;font-weight:700;font-size:13px;color:var(--text);outline:none;transition:.2s" onfocus="this.style.borderColor='var(--hero)'" onblur="this.style.borderColor='var(--card-border)'" onkeydown="if(event.key==='Enter')confirmAddInnerTab()">
+      <div id="innerTabNameError" style="font-size:9.5px;color:#ef4444;margin-top:6px;display:none">اكتب اسم التبويب</div>
+    </div>
+    <div style="padding:0 16px 16px 16px;display:flex;gap:8px">
+      <button onclick="closeInnerTabModal()" style="flex:1;background:var(--bg-soft);border:1px solid var(--card-border);padding:11px;border-radius:12px;font-weight:700;font-size:11px;color:var(--text)">إلغاء</button>
+      <button onclick="confirmAddInnerTab()" style="flex:1.5;background:var(--hero);color:#fff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:11px;box-shadow:0 4px 12px color-mix(in srgb, var(--hero) 30%, transparent)">إضافة +</button>
+    </div>
+  </div>
+</div>
+<style>
+.quick-tab-btn{padding:6px 10px;border-radius:99px;border:1px solid var(--card-border);background:var(--card);font-size:9.5px;font-weight:700;cursor:pointer;color:var(--text-soft);transition:.15s}
+.quick-tab-btn:hover{background:var(--bg-soft);color:var(--text);transform:scale(1.03)}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+
+
+<div id="innerTabDeleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:13000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px)">
+  <div style="background:var(--card);width:100%;max-width:320px;border-radius:18px;overflow:hidden;border:1px solid var(--card-border);box-shadow:0 25px 50px -12px rgba(0,0,0,.3)">
+    <div style="background:#FEF2F2;padding:16px;text-align:center">
+      <div style="width:48px;height:48px;background:#FEE2E2;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:24px">🗑️</div>
+      <div style="font-weight:900;color:#991B1B;font-size:13px">تحذف التبويب؟</div>
+      <div id="innerTabDeleteName" style="font-size:11px;color:#7F1D1D;margin-top:4px;font-weight:700"></div>
+    </div>
+    <div style="padding:16px">
+      <div style="background:var(--bg-soft);border:1px solid var(--card-border);border-radius:10px;padding:10px;margin-bottom:12px;font-size:10px;color:var(--text-soft);text-align:center">⚠️ المحتوى اللي جواه هيتمسح نهائي</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeInnerTabDeleteModal()" style="flex:1;background:var(--bg-soft);border:1px solid var(--card-border);padding:11px;border-radius:12px;font-weight:700;font-size:11px">إلغاء</button>
+        <button onclick="confirmDeleteInnerTab()" style="flex:1;background:#ef4444;color:#fff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:11px">حذف نهائي</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
