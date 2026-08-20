@@ -6,6 +6,19 @@
 @font-face { font-family: "Optimistic Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2"); }
 :where(html) { font-family: "Optimistic", system-ui, sans-serif; }
 :where(code, pre, kbd, samp) { font-family: "Optimistic Mono", ui-monospace, monospace; }
+
+/* زرار فتح/قفل شيك صغير */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.switch{position:relative;display:inline-block;width:38px;height:22px;flex:0 0 38px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#e2e8f0;transition:.25s;border-radius:20px;border:1px solid var(--card-border)}
+.slider:before{position:absolute;content:'';height:16px;width:16px;left:2px;bottom:2px;background:#fff;transition:.25s;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input:checked + .slider{background:#16a34a;border-color:#16a34a}
+input:checked + .slider:before{transform:translateX(16px)}
+.switch-label{font-size:8px;font-weight:900;color:var(--text-soft)}
+.switch-label.on{color:#16a34a}
+.switch-label.off{color:#ef4444}
+
 </style>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>اليومية</title>
@@ -55,7 +68,7 @@ body{padding-bottom:94px}
 .stat b{font-size:12px}
 .stat.def{cursor:pointer;transition:.2s; border-width:2px}
 .stat.def.active{border-color:#16a34a; background:#f0fdf4; box-shadow:0 0 0 2px #bbf7d0}
-.stat.def.inactive{opacity:.85;border-style:dashed;border-color:#cbd5e1}
+.stat.def.inactive{opacity:.9;border-style:dashed;border-color:#fecaca;background:#fef2f2}
 .stat.def.large{ min-height:76px; border:1.8px solid #16a34a; background:#f0fdf4; }
 .stat .hint{font-size:6px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;padding:1px 6px;border-radius:20px;font-weight:900;margin-bottom:4px;display:inline-block}
 
@@ -188,7 +201,7 @@ td{padding:7px 3px;border-bottom:1px solid var(--bg-soft);text-align:center;font
 <div class="group" style="background:var(--hero);border-color:var(--hero)"><label style="color:#fff">قيمة</label><input id="a-amount" type="number" placeholder="0"></div>
 <div class="row"><div class="group"><label>محفظة</label><select id="a-wallet"></select></div><div class="group"><label>بند</label><select id="a-item"></select></div></div>
 <div class="row"><div class="group"><label>تاريخ</label><input id="a-date" type="date"></div><div class="group"><label>ملاحظة</label><input id="a-note"></div></div>
-<div class="group" style="justify-content:space-between;background:var(--card)"><label>الرصيد</label><button id="a-exclude-toggle" type="button" onclick="toggleExclude()" style="padding:6px 12px;border-radius:20px;border:1.5px solid var(--card-border);font-weight:900;font-size:9.3px;cursor:pointer">يؤثر على الرصيد</button></div>
+<div class="group toggle-row" style="background:var(--card);margin-top:4px"><div style="display:flex;align-items:center;gap:6px"><label>الرصيد</label><span id="a-exclude-lbl" class="switch-label on">يؤثر على الرصيد</span></div><label class="switch"><input id="a-exclude-chk" type="checkbox" onchange="toggleExclude()"><span class="slider"></span></label></div>
 </div>
 <div id="form-debt" style="display:none">
 <div class="group" style="background:var(--hero);border-color:var(--hero)"><label style="color:#fff">قيمة</label><input id="a-amount-debt" type="number" placeholder="0"></div>
@@ -196,6 +209,7 @@ td{padding:7px 3px;border-bottom:1px solid var(--bg-soft);text-align:center;font
 <div class="row"><div class="group"><label>عليا/ليا</label><select id="a-direction"><option value="عليا">عليا</option><option value="ليا">ليا</option></select></div><div class="group"><label>شخص</label><select id="a-person-debt"></select></div></div>
 <div class="row"><div class="group"><label>سحب</label><input id="a-date" type="date"></div><div class="group"><label>سداد</label><input id="a-date-repay" type="date"></div></div>
 <div class="group"><label>ملاحظة</label><input id="a-note-debt"></div>
+<div class="group toggle-row" style="background:var(--card);margin-top:4px"><div style="display:flex;align-items:center;gap:6px"><label>الرصيد</label><span id="a-exclude-lbl-debt" class="switch-label on">يؤثر على الرصيد</span></div><label class="switch"><input id="a-exclude-chk-debt" type="checkbox" onchange="toggleExclude()"><span class="slider"></span></label></div>
 </div>
 <div id="form-amanat" style="display:none">
 <div class="group" style="background:var(--hero);border-color:var(--hero)"><label style="color:#fff">قيمة</label><input id="a-amount-ama" type="number" placeholder="0"></div>
@@ -267,7 +281,7 @@ function sumFor(filterFn){ return transactions.filter(filterFn).reduce((a,b)=>a+
 
 function toggleDeferredInclude(){ includeDeferredInBalance=!includeDeferredInBalance; persist(); refreshCurrent(); }
 function toggleExclude(){ excludeFromBalanceCurrent=!excludeFromBalanceCurrent; updateExcludeBtn(); }
-function updateExcludeBtn(){ const btn=document.getElementById('a-exclude-toggle'); if(!btn) return; btn.textContent=excludeFromBalanceCurrent?'لا يؤثر على الرصيد ✓':'يؤثر على الرصيد'; btn.style.background=excludeFromBalanceCurrent?'#fef2f2':'#f0fdf4'; btn.style.color=excludeFromBalanceCurrent?'#ef4444':'#16a34a'; btn.style.borderColor=excludeFromBalanceCurrent?'#fecaca':'#bbf7d0'; }
+function updateExcludeBtn(){ const chk=document.getElementById('a-exclude-chk'); const lbl=document.getElementById('a-exclude-lbl'); const chk2=document.getElementById('a-exclude-chk-debt'); const lbl2=document.getElementById('a-exclude-lbl-debt'); const chk3=document.getElementById('a-exclude-chk-ama'); const lbl3=document.getElementById('a-exclude-lbl-ama'); [[chk,lbl],[chk2,lbl2],[chk3,lbl3]].forEach(pair=>{const [c,l]=pair; if(!c) return; c.checked=!excludeFromBalanceCurrent; if(l){ if(excludeFromBalanceCurrent){l.textContent='لا يؤثر ✓'; l.className='switch-label off';} else {l.textContent='يؤثر على الرصيد'; l.className='switch-label on';}}});}
 function renderStats(type){
   const allMonth=transactions.filter(t=>t.date&&t.date.startsWith(curYM));
   const monthList=allMonth.filter(t=>{ if(t.excludeFromBalance) return false; const isDef=t.subType==='debt_def'||t.status==='def'; if(isDef && !includeDeferredInBalance) return false; return true; });
@@ -285,13 +299,16 @@ function renderStats(type){
   const defCls=includeDeferredInBalance?'active large':'inactive large';
   const defHint=includeDeferredInBalance?'مفعلة في الرصيد':'لا تؤثر - دوس للتفعيل';
 
-  // 5 مربعات قد بعض جنب بعض - الترتيب اللي طلبته: الدخل - المصروف - المستحقة - الصافي هناك - المؤجلة
+  // 5 مربعات جنب بعض - الصافي يتأثر بالمؤجلة عند التفعيل
+  const safiHanakActive = incomeMonth - expenseMonth + debtDefNetAll;
+  const safiHanakInactive = incomeMonth - expenseMonth;
+  const safiHanak = includeDeferredInBalance ? safiHanakActive : safiHanakInactive;
   const top5=`<div class="kpi-grid-5">
     <div class="stat pos"><small>إجمالي الدخل</small><b>${incomeMonth.toLocaleString()}</b></div>
     <div class="stat neg"><small>إجمالي المصروف</small><b>${expenseMonth.toLocaleString()}</b></div>
     <div class="stat neu"><small>إجمالي المستحقة</small><b>${debtDueNet.toLocaleString()}</b></div>
-    <div class="stat neu"><small>الصافي هناك</small><b>${(incomeMonth-expenseMonth).toLocaleString()}</b></div>
-    <div class="stat def ${defCls}" onclick="toggleDeferredInclude()"><span class="hint">${defHint}</span><small>الديون المؤجلة ⏳</small><b>${debtDefNetAll.toLocaleString()}</b></div>
+    <div class="stat ${includeDeferredInBalance ? 'pos' : 'neu'}" style="${includeDeferredInBalance ? 'border-color:#16a34a' : ''}"><small>الصافي هناك ${includeDeferredInBalance ? '(مؤجل محسوب)' : ''}</small><b>${safiHanak.toLocaleString()}</b></div>
+    <div class="stat def ${defCls}" onclick="toggleDeferredInclude()"><span class="hint" style="${includeDeferredInBalance ? 'background:#dcfce7;color:#16a34a;border-color:#bbf7d0' : 'background:#fee2e2;color:#ef4444;border-color:#fecaca'}">${defHint}</span><small>الديون المؤجلة ⏳</small><b>${debtDefNetAll.toLocaleString()}</b></div>
   </div>`;
 
   const fullHtml = top5;
@@ -418,7 +435,7 @@ function openAdd(){
   // setIfExists('a-date-repay', todayISO);
   document.getElementById('addModal').classList.add('open');
 }
-function openEdit(id){ const t=transactions.find(x=>x.id===id); if(!t) return; editingId=id; excludeFromBalanceCurrent=!!t.excludeFromBalance; cardTab=t.type==='debt'?'debt':t.type; switchCardTab(cardTab); if(cardTab==='expense'||cardTab==='income'){ document.getElementById('a-wallet').value=t.wallet; document.getElementById('a-item').value=t.item; document.getElementById('a-amount').value=t.amount; document.getElementById('a-date').value=t.date; document.getElementById('a-note').value=t.note||''; } else if(cardTab==='debt'){ document.getElementById('a-wallet-debt').value=t.wallet; document.getElementById('a-person-debt').value=t.person||t.item; document.getElementById('a-amount-debt').value=t.amount; document.getElementById('a-status').value=t.status||'due'; document.getElementById('a-direction').value=t.direction||'عليا'; document.getElementById('a-date').value=t.date; document.getElementById('a-note-debt').value=t.note||''; } else if(cardTab==='amanat'){ document.getElementById('a-person-ama').value=t.person||t.item; document.getElementById('a-amount-ama').value=t.amount; document.getElementById('a-date-ama').value=t.date; document.getElementById('a-note-ama').value=t.note||''; } document.getElementById('btnDelete').style.display='block'; try{updateExcludeBtn();}catch(e){} document.getElementById('addModal').classList.add('open'); }
+function openEdit(id){ const t=transactions.find(x=>x.id===id); if(!t) return; editingId=id; excludeFromBalanceCurrent=!!t.excludeFromBalance; cardTab=t.type==='debt'?'debt':t.type; switchCardTab(cardTab); if(cardTab==='expense'||cardTab==='income'){ document.getElementById('a-wallet').value=t.wallet; document.getElementById('a-item').value=t.item; document.getElementById('a-amount').value=t.amount; document.getElementById('a-date').value=t.date; document.getElementById('a-note').value=t.note||''; } else if(cardTab==='debt'){ document.getElementById('a-wallet-debt').value=t.wallet; document.getElementById('a-person-debt').value=t.person||t.item; document.getElementById('a-amount-debt').value=t.amount; document.getElementById('a-status').value=t.status||'due'; document.getElementById('a-direction').value=t.direction||'عليا'; document.getElementById('a-date').value=t.date; document.getElementById('a-note-debt').value=t.note||''; } else if(cardTab==='amanat'){ document.getElementById('a-person-ama').value=t.person||t.item; document.getElementById('a-amount-ama').value=t.amount; document.getElementById('a-date-ama').value=t.date; document.getElementById('a-note-ama').value=t.note||''; } document.getElementById('btnDelete').style.display='block'; document.getElementById('addModal').classList.add('open'); }
 function closeAdd(){document.getElementById('addModal').classList.remove('open'); editingId=null;}
 function saveTx(){
   let type=cardTab; let item,person,wallet,amount,date,note,direction,status;
