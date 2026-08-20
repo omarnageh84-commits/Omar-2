@@ -1,27 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style>
+<head>
 <style>
 @font-face { font-family: "Optimistic"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2"); }
 @font-face { font-family: "Optimistic Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2"); }
@@ -49,22 +28,14 @@ body{padding-bottom:94px}
 .month-label{font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:center;line-height:1.1}
 .month-label small{font-size:8px;color:var(--text-soft);font-weight:700}
 
-/* الجديد: كروت الملخص - 5 مربعات في صف واحد بس */
+/* الجديد: كروت الملخص */
 .stats{display:block;margin-bottom:8px}
-.kpi-grid-5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.kpi-grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.kpi-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.kpi-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .kpi-grid-1{display:grid;grid-template-columns:1fr;gap:6px;margin-top:6px}
-/* ثابت 5 في صف واحد حتى على الموبايل - مربعات جنب بعض */
-@media(max-width:780px){
-  .kpi-grid-5{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
-  .kpi-grid-5 .stat{min-width:0;padding:6px 2px;min-height:62px}
-  .kpi-grid-5 .stat small{font-size:6px}
-  .kpi-grid-5 .stat b{font-size:10.5px}
-}
-@media(max-width:400px){
-  .kpi-grid-5{gap:3px}
-  .kpi-grid-5 .stat{padding:5px 1px;min-height:58px}
-}
+@media(max-width:900px){.kpi-grid-5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.kpi-grid-5{grid-template-columns:repeat(2,1fr)}.kpi-grid-5 .stat:last-child{grid-column:1/-1}}
+@media(max-width:600px){.kpi-grid-4{grid-template-columns:repeat(2,1fr)}}
 
 .stat{background:var(--card);border:1.5px solid var(--card-border);border-radius:11px;padding:8px 9px;position:relative;overflow:hidden}
 .stat::after{content:'';position:absolute;top:0;right:0;width:100%;height:3px;background:var(--hero);opacity:.8}
@@ -209,6 +180,7 @@ td{padding:7px 3px;border-bottom:1px solid var(--bg-soft);text-align:center;font
 <div class="group" style="background:var(--hero);border-color:var(--hero)"><label style="color:#fff">قيمة</label><input id="a-amount" type="number" placeholder="0"></div>
 <div class="row"><div class="group"><label>محفظة</label><select id="a-wallet"></select></div><div class="group"><label>بند</label><select id="a-item"></select></div></div>
 <div class="row"><div class="group"><label>تاريخ</label><input id="a-date" type="date"></div><div class="group"><label>ملاحظة</label><input id="a-note"></div></div>
+<div class="group" style="justify-content:space-between;background:var(--card)"><label>الرصيد</label><button id="a-exclude-toggle" type="button" onclick="toggleExclude()" style="padding:6px 12px;border-radius:20px;border:1.5px solid var(--card-border);font-weight:900;font-size:9.3px;cursor:pointer">يؤثر على الرصيد</button></div>
 </div>
 <div id="form-debt" style="display:none">
 <div class="group" style="background:var(--hero);border-color:var(--hero)"><label style="color:#fff">قيمة</label><input id="a-amount-debt" type="number" placeholder="0"></div>
@@ -239,6 +211,7 @@ let masterBands=JSON.parse(localStorage.getItem('omar_master_bands')||'[]');
 let includeDeferredInBalance=JSON.parse(localStorage.getItem('omar_include_def')||'false');
 let wallets=JSON.parse(localStorage.getItem('omar_wallets_v3')||'["كاش","محفظة بنكية","فودافون كاش","الخزنة","الأمانات"]');
 let curTab='expense',curDebtSub='due',editingId=null,cardTab='expense';
+let excludeFromBalanceCurrent=false;
 let currentBand=null,currentSection=null,promptCallback=null;
 const YEAR=2026;
 // === الجديد: شهر العرض ===
@@ -285,6 +258,8 @@ function sumFor(filterFn){ return transactions.filter(filterFn).reduce((a,b)=>a+
 
 
 function toggleDeferredInclude(){ includeDeferredInBalance=!includeDeferredInBalance; persist(); refreshCurrent(); }
+function toggleExclude(){ excludeFromBalanceCurrent=!excludeFromBalanceCurrent; updateExcludeBtn(); }
+function updateExcludeBtn(){ const btn=document.getElementById('a-exclude-toggle'); if(!btn) return; btn.textContent=excludeFromBalanceCurrent?'لا يؤثر على الرصيد ✓':'يؤثر على الرصيد'; btn.style.background=excludeFromBalanceCurrent?'#fef2f2':'#f0fdf4'; btn.style.color=excludeFromBalanceCurrent?'#ef4444':'#16a34a'; btn.style.borderColor=excludeFromBalanceCurrent?'#fecaca':'#bbf7d0'; }
 function renderStats(type){
   const allMonth=transactions.filter(t=>t.date&&t.date.startsWith(curYM));
   const monthList=allMonth.filter(t=>{ if(t.excludeFromBalance) return false; const isDef=t.subType==='debt_def'||t.status==='def'; if(isDef && !includeDeferredInBalance) return false; return true; });
@@ -299,8 +274,8 @@ function renderStats(type){
   let defOC=0,defLC=0; monthList.filter(t=>t.type==='debt'&&(t.subType==='debt_def'||t.status==='def')).forEach(t=>{ if(t.direction==='عليا') defOC+=Number(t.amount); else defLC+=Number(t.amount); });
   const debtDefNetCounted=defLC-defOC;
   const safi= safiAll + debtDefNetCounted;
-  const defCls=includeDeferredInBalance?'active':'inactive';
-  const defHint=includeDeferredInBalance?'مفعلة':'لا تؤثر - دوس';
+  const defCls=includeDeferredInBalance?'active large':'inactive large';
+  const defHint=includeDeferredInBalance?'مفعلة في الرصيد':'لا تؤثر - دوس للتفعيل';
 
   // 5 مربعات قد بعض جنب بعض - الترتيب اللي طلبته: الدخل - المصروف - المستحقة - الصافي هناك - المؤجلة
   const top5=`<div class="kpi-grid-5">
@@ -419,6 +394,7 @@ function confirmDeleteDaily(id){ showConfirm('مسح؟', ()=>{ transactions=tran
 function deleteTx(){ if(!editingId) return; showConfirm('مسح؟', ()=>{ transactions=transactions.filter(t=>t.id!==editingId); persist(); closeAdd(); if(curTab==='debt') renderDebt(); else if(curTab==='total') renderTotal(); else renderSimple(curTab); renderTotal(); }, true); }
 function openAdd(){
   editingId=null;
+  excludeFromBalanceCurrent=false; try{updateExcludeBtn();}catch(e){}
   cardTab=curTab==='total'?'expense':curTab;
   switchCardTab(cardTab);
   document.getElementById('btnDelete').style.display='none';
@@ -434,7 +410,7 @@ function openAdd(){
   // setIfExists('a-date-repay', todayISO);
   document.getElementById('addModal').classList.add('open');
 }
-function openEdit(id){ const t=transactions.find(x=>x.id===id); if(!t) return; editingId=id; cardTab=t.type==='debt'?'debt':t.type; switchCardTab(cardTab); if(cardTab==='expense'||cardTab==='income'){ document.getElementById('a-wallet').value=t.wallet; document.getElementById('a-item').value=t.item; document.getElementById('a-amount').value=t.amount; document.getElementById('a-date').value=t.date; document.getElementById('a-note').value=t.note||''; } else if(cardTab==='debt'){ document.getElementById('a-wallet-debt').value=t.wallet; document.getElementById('a-person-debt').value=t.person||t.item; document.getElementById('a-amount-debt').value=t.amount; document.getElementById('a-status').value=t.status||'due'; document.getElementById('a-direction').value=t.direction||'عليا'; document.getElementById('a-date').value=t.date; document.getElementById('a-note-debt').value=t.note||''; } else if(cardTab==='amanat'){ document.getElementById('a-person-ama').value=t.person||t.item; document.getElementById('a-amount-ama').value=t.amount; document.getElementById('a-date-ama').value=t.date; document.getElementById('a-note-ama').value=t.note||''; } document.getElementById('btnDelete').style.display='block'; document.getElementById('addModal').classList.add('open'); }
+function openEdit(id){ const t=transactions.find(x=>x.id===id); if(!t) return; editingId=id; excludeFromBalanceCurrent=!!t.excludeFromBalance; cardTab=t.type==='debt'?'debt':t.type; switchCardTab(cardTab); if(cardTab==='expense'||cardTab==='income'){ document.getElementById('a-wallet').value=t.wallet; document.getElementById('a-item').value=t.item; document.getElementById('a-amount').value=t.amount; document.getElementById('a-date').value=t.date; document.getElementById('a-note').value=t.note||''; } else if(cardTab==='debt'){ document.getElementById('a-wallet-debt').value=t.wallet; document.getElementById('a-person-debt').value=t.person||t.item; document.getElementById('a-amount-debt').value=t.amount; document.getElementById('a-status').value=t.status||'due'; document.getElementById('a-direction').value=t.direction||'عليا'; document.getElementById('a-date').value=t.date; document.getElementById('a-note-debt').value=t.note||''; } else if(cardTab==='amanat'){ document.getElementById('a-person-ama').value=t.person||t.item; document.getElementById('a-amount-ama').value=t.amount; document.getElementById('a-date-ama').value=t.date; document.getElementById('a-note-ama').value=t.note||''; } document.getElementById('btnDelete').style.display='block'; try{updateExcludeBtn();}catch(e){} document.getElementById('addModal').classList.add('open'); }
 function closeAdd(){document.getElementById('addModal').classList.remove('open'); editingId=null;}
 function saveTx(){
   let type=cardTab; let item,person,wallet,amount,date,note,direction,status;
@@ -442,7 +418,7 @@ function saveTx(){
   else if(type==='debt'){ item=document.getElementById('a-person-debt').value; person=item; wallet=document.getElementById('a-wallet-debt').value; amount=document.getElementById('a-amount-debt').value; date=document.getElementById('a-date').value; note=document.getElementById('a-note-debt').value; direction=document.getElementById('a-direction').value; status=document.getElementById('a-status').value; if(item==='__new__'){ const newName=prompt('اسم الشخص:'); if(newName){ const sec=status==='due'?'debt_due':'debt_def'; masterBands.push({id:Date.now(),name:newName,section:sec}); item=newName; person=newName; } } }
   else if(type==='amanat'){ item=document.getElementById('a-person-ama').value; person=item; wallet='الأمانات'; amount=document.getElementById('a-amount-ama').value; date=document.getElementById('a-date-ama').value; note=document.getElementById('a-note-ama').value; if(item==='__new__'){ const newName=prompt('اسم الشخص:'); if(newName){ masterBands.push({id:Date.now(),name:newName,section:'amanat'}); item=newName; person=newName; } } }
   if(!amount||Number(amount)===0){ alert('قيمة'); return; }
-  const payload={id:editingId||Date.now().toString(),type:type,subType:type==='debt'?(status==='due'?'debt_due':'debt_def'):type,item,person,wallet,amount:Number(amount)||0,date:date||new Date().toISOString().slice(0,10),note,direction:direction||'عليا',status:status||''};
+  const payload={id:editingId||Date.now().toString(),type:type,subType:type==='debt'?(status==='due'?'debt_due':'debt_def'):type,item,person,wallet,amount:Number(amount)||0,date:date||new Date().toISOString().slice(0,10),note,direction:direction||'عليا',status:status||'',excludeFromBalance:excludeFromBalanceCurrent};
   if(editingId){ const idx=transactions.findIndex(t=>t.id===editingId); if(idx>=0) transactions[idx]={...transactions[idx],...payload}; } else transactions.push(payload);
   persist(); closeAdd(); refreshCurrent(); renderTotal();
 }
@@ -454,5 +430,5 @@ function saveTx(){
   switchTab('expense'); 
 })();
 </script>
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</body>
 </html>
