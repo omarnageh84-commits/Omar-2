@@ -65,7 +65,7 @@ body{border-left:1px solid var(--card-border);border-right:1px solid var(--card-
 </style><script src="drive-sync.js?v=15"></script></head><body>
 <div id="app">
 <div style="padding:9px 11px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;background:var(--card);position:sticky;top:0;z-index:5">
-<div style="display:flex;gap:9px;align-items:center;"><div style="width:36px;height:36px;background:var(--hero);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">✦</div><div><div style="font-weight:800;font-size:12.6px;color:var(--text)">مساحة العمل</div><div id="stats" style="font-size:9.2px;color:var(--text-soft);">0 مهام</div></div></div>
+<div style="display:flex;gap:9px;align-items:center;"><div id="vaultTrigger" onclick="openSecretModal()" style="width:36px;height:36px;background:var(--hero);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;cursor:pointer">✦</div><div><div style="font-weight:800;font-size:12.6px;color:var(--text)">مساحة العمل</div><div id="stats" style="font-size:9.2px;color:var(--text-soft);">0 مهام</div></div></div>
 <div style="display:flex;gap:5px;"><button onclick="openManager()" style="background:var(--bg-soft);border:1px solid var(--card-border);padding:7px 9px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--text);font-size:9.2px">⚙ إدارة</button><button onclick="addQuick()" style="background:var(--hero);color:#fff;border:none;padding:7px 11px;border-radius:8px;font-weight:800;cursor:pointer;font-size:9.2px">+ جديد</button></div>
 </div>
 <div style="padding:7px;background:var(--bg-soft);border-bottom:1px solid var(--card-border);">
