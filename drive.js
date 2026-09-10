@@ -1,11 +1,93 @@
-// drive.js - Omar v10-9 - GitHub + Drive unified
-window.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvLEAvt8OL3Sqn6NccHdBOJQLZSO1sw9a9S5La6rs-yspchl25jG8C27aWhrPVzcRz/exec';
-const KEYS=['omar_tx_v3','omar_master_bands','omar_wallets_v3','omar_fixed_by_month','omar_fixed_templates','omar_fixed_saved','omar_include_def','omar_def_inc','omar_tasks_v1','omar_cats_v1','omar_hidden_code_v1','att_fixed_final','att_hols_fixed','att_notes','att_v1','att_v2','att_v3','att_v4','omar_theme'];
-let _t=null;
-function collect(){const o={}; KEYS.forEach(k=>{try{const v=localStorage.getItem(k); if(v) o[k]=v}catch(e){}}); o._ts=new Date().toISOString(); return o;}
-function setStatus(s,e=''){const txt=document.getElementById('syncText'); const dot=document.getElementById('syncDot'); const el=document.getElementById('syncStatus'); if(!txt) return; const m={synced:{t:'🟢 متزامن '+e, bg:'#CCFBF1', c:'#0F766E', d:'#10B981'}, syncing:{t:'🟡 جاري الحفظ...', bg:'#FEF3C7', c:'#92400E', d:'#F59E0B'}, offline:{t:'📴 محلي - محفوظ', bg:'#F1F5F9', c:'#64748B', d:'#94A3B8'}}[s]||{t:'📴 محلي', bg:'#F1F5F9', c:'#64748B', d:'#94A3B8'}; txt.textContent=m.t; el.style.background=m.bg; el.style.color=m.c; dot.style.background=m.d; dot.classList.toggle('pulse', s==='syncing');}
-window.saveToDrive=function(){const d=collect(); if(Object.keys(d).length<=1) return; setStatus('syncing'); try{fetch(window.SCRIPT_URL,{method:'POST', body:JSON.stringify(d), mode:'no-cors'}).then(()=>{setStatus('synced', new Date().toLocaleTimeString('ar-EG')); localStorage.removeItem('omar_pending');}).catch(()=>{setStatus('offline'); localStorage.setItem('omar_pending','1');});}catch(e){setStatus('offline');}};
-window.queueSave=function(){setStatus('syncing'); clearTimeout(_t); _t=setTimeout(()=>window.saveToDrive(), 800);};
-window.loadFromDrive=function(){if(!navigator.onLine){setStatus('offline'); return;} const hasLocal=localStorage.getItem('omar_tx_v3')||localStorage.getItem('omar_tasks_v1')||localStorage.getItem('att_fixed_final'); if(hasLocal){setStatus('offline'); return;} setStatus('syncing'); fetch(window.SCRIPT_URL+'?t='+Date.now()).then(r=>r.text()).then(tx=>{let j; try{j=JSON.parse(tx)}catch(e){throw new Error('not json');} const d=j.data||j; if(!d||Object.keys(d).length===0) throw new Error('empty'); Object.keys(d).forEach(k=>{if(KEYS.includes(k)||k.startsWith('omar_')||k.startsWith('att_')){try{const v=typeof d[k]==='string'?d[k]:JSON.stringify(d[k]); if(v&&v.length>2) localStorage.setItem(k,v);}catch(e){}}}); setStatus('synced', new Date().toLocaleTimeString('ar-EG')); location.reload();}).catch(e=>{setStatus('offline');});};
-(function(){const orig=localStorage.setItem.bind(localStorage); localStorage.setItem=function(k,v){orig(k,v); if(KEYS.includes(k)) window.queueSave();}; window.addEventListener('online',()=>{if(localStorage.getItem('omar_pending')) window.saveToDrive();}); setTimeout(()=>{const hasLocal=localStorage.getItem('omar_tx_v3')||localStorage.getItem('omar_tasks_v1')||localStorage.getItem('att_fixed_final'); if(hasLocal) setStatus('offline'); else window.loadFromDrive();},500);})();
-console.log('✅ drive.js v10-9 loaded', window.SCRIPT_URL);
+// drive.js - محرك المزامنة المستقل والآمن
+window.SCRIPT_URL = window.SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxbH5SKWiK66ddjeLegvSff42vwg-QoBRBk4GotPGs7TPM0lx84kuus9vDzhP-kcVNF/exec';
+
+window.db = window.db || { lastSync: null };
+let _saveTimer = null;
+let _isSaving = false;
+
+function updateSyncStatus(txt){
+  let dot = document.getElementById('syncDot');
+  let txtEl = document.getElementById('syncText');
+  if(!dot || !txtEl) return;
+  if(txt.includes('رفع') || txt.includes('تحميل') || txt.includes('عمل')){ dot.textContent = '⏳'; txtEl.textContent = txt; }
+  else if(txt.includes('متزامن') || txt.includes('تخزين')){ dot.textContent = '🟢'; txtEl.textContent = 'تم التخزين'; }
+  else { dot.textContent = '⚠️'; txtEl.textContent = 'أوفلاين'; }
+}
+
+window.saveToLocal = function(){
+  try{
+    localStorage.setItem('app-omar-db', JSON.stringify(window.db));
+  }catch(e){}
+};
+
+window.saveToDrive = function(){
+  window.saveToLocal();
+  if(_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(_doSaveToDrive, 800);
+};
+
+async function _doSaveToDrive(){
+  if(_isSaving){
+    _saveTimer = setTimeout(_doSaveToDrive, 1200);
+    return;
+  }
+  _isSaving = true;
+  updateSyncStatus('جاري العمل...');
+  try{
+    let allData = {
+      daily: JSON.parse(localStorage.getItem('omar_tx_v3') || '[]'),
+      tasks: JSON.parse(localStorage.getItem('omar_tasks_v1') || '[]'),
+      cats: JSON.parse(localStorage.getItem('omar_cats_v1') || '[]'),
+      attendance: JSON.parse(localStorage.getItem('att_fixed_final') || '{}'),
+      hols: JSON.parse(localStorage.getItem('att_hols_fixed') || '{}'),
+      notes: JSON.parse(localStorage.getItem('att_notes') || '{}'),
+      timestamp: new Date().toISOString()
+    };
+    let payload = { fileName: "all_project_data.json", content: allData };
+    await fetch(window.SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify(payload)
+    });
+    window.db.lastSync = new Date().toISOString();
+    window.saveToLocal();
+    updateSyncStatus('تم التخزين');
+  }catch(err){
+    updateSyncStatus('أوفلاين');
+  }finally{
+    _isSaving = false;
+  }
+}
+
+window.saveToDriveNow = _doSaveToDrive;
+
+window.loadFromDrive = async function(){
+  updateSyncStatus('تم التنزيل');
+  try{
+    let res = await fetch(window.SCRIPT_URL + '?fileName=all_project_data.json&t=' + Date.now());
+    let json = await res.json();
+    let payload = json.data || json;
+    let content = payload.content || payload;
+    if(content){
+      if(content.daily) localStorage.setItem('omar_tx_v3', JSON.stringify(content.daily));
+      if(content.tasks) localStorage.setItem('omar_tasks_v1', JSON.stringify(content.tasks));
+      if(content.cats) localStorage.setItem('omar_cats_v1', JSON.stringify(content.cats));
+      if(content.attendance) localStorage.setItem('att_fixed_final', JSON.stringify(content.attendance));
+      if(content.hols) localStorage.setItem('att_hols_fixed', JSON.stringify(content.hols));
+      if(content.notes) localStorage.setItem('att_notes', JSON.stringify(content.notes));
+      window.saveToLocal();
+      updateSyncStatus('تم التخزين');
+    }
+  }catch(err){
+    updateSyncStatus('أوفلاين');
+  }
+  if(window.renderAll) try{ window.renderAll(); }catch(e){}
+};
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  window.loadFromDrive();
+});
+
+window.syncToABOmar = function(){ window.saveToDrive(); };
+window.syncToABOmarNow = function(){ window.saveToDriveNow(); };
