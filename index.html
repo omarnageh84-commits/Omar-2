@@ -26,7 +26,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;background:var(--bg);color:va
 #syncText{font-size:9px;font-weight:900}
 .sync-badge{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;border:1.5px solid var(--card-border);cursor:pointer;background:var(--card)}
 
-/* تنسيقات اليومية */
+/* تنسيقات اليومية بالعرض الكامل للشاشة */
 .app{width:100%;max-width:100%;margin:0 auto;padding:4px}
 .top{position:sticky;top:0;z-index:20;background:var(--card);border:1.5px solid var(--card-border);border-radius:13px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .main-tabs{display:flex;gap:4px;background:var(--card);padding:4px;border-radius:12px;border:1.5px solid var(--card-border);margin:4px 0 8px 0;overflow:auto;scrollbar-width:none}
@@ -99,7 +99,6 @@ td{padding:6px 2px;border-bottom:1px solid var(--bg-soft);text-align:center;font
   <div class="header">
     <div style="display:flex;gap:6px;align-items:center">
       <b style="font-size:11px">نظام عمر الشامل 🚀</b>
-      <!-- خانة الحالة المرتبطة بـ drive.js -->
       <div class="sync-badge" onclick="if(window.loadFromDrive) window.loadFromDrive()" title="اضغط للتنزيل">
         <span id="syncDot">🟢</span>
         <span id="syncText">متزامن</span>
@@ -109,7 +108,7 @@ td{padding:6px 2px;border-bottom:1px solid var(--bg-soft);text-align:center;font
   </div>
 
   <div class="content">
-    <!-- 1. تبويب اليومية (كامل بمعادلاته) -->
+    <!-- 1. تبويب اليومية -->
     <div id="view-daily" class="view active">
       <div class="app">
         <div class="top"><h3 style="font-weight:900;font-size:10.5px">اليومية</h3><div id="today" style="font-size:8px;background:var(--hero);color:#fff;padding:2px 6px;border-radius:20px"></div></div>
@@ -235,10 +234,8 @@ td{padding:6px 2px;border-bottom:1px solid var(--bg-soft);text-align:center;font
 
 <div id="toastBox"></div>
 
-<!-- ربط ملف drive.js المستقل تماماً للمزامنة -->
 <script src="drive.js"></script>
 <script>
-// --- تبديل الشاشات الرئيسية ---
 function switchView(name, btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
@@ -253,7 +250,6 @@ function toggleTheme(){
 }
 document.body.dataset.theme = localStorage.getItem('omar_theme') || 'teal';
 
-// --- منطق اليومية الكامل من الملف الأصلي ---
 function safeParse(k,f){try{let v=localStorage.getItem(k);if(!v||v==='undefined'||v==='null')return f;let p=JSON.parse(v);return p==null?f:p;}catch(e){return f;}}
 function toast(m){showToast(m);}
 function showToast(m){let b=document.getElementById('toastBox');if(!b)return;let el=document.createElement('div');el.className='toast';el.textContent=m;b.appendChild(el);setTimeout(()=>el.remove(),2000);}
@@ -416,7 +412,6 @@ initDailyApp();
 renderAttendance();
 renderTasks();
 
-// دالة اعادة العرض بعد ما drive.js ينزل البيانات
 window.renderAll = function(){
   transactions = safeParse('omar_tx_v3', []);
   masterBands = safeParse('omar_master_bands', []);
