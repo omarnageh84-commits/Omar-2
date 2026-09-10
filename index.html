@@ -528,7 +528,7 @@ window.switchPage=switchPage;
 </script>
 <script>
 // DRIVE v23 - NO FORBIDDEN - LOCAL FIRST LIKE Masareef
-window.SCRIPT_URL='https://script.google.com/macros/s/AKfycbz3TyAm_BWEzlgEcqjqYA6SaBMjoLzN3j51Ewb9vp6UZNL8yJespFDUKQxWA5IOvrvW/exec';
+window.SCRIPT_URL='https://script.google.com/macros/s/AKfycbzvLEAvt8OL3Sqn6NccHdBOJQLZSO1sw9a9S5La6rs-yspchl25jG8C27aWhrPVzcRz/exec';
 const KEYS=['omar_tx_v3','omar_master_bands','omar_wallets_v3','omar_fixed_by_month','omar_fixed_templates','omar_fixed_saved','omar_include_def','omar_def_inc','omar_tasks_v1','omar_cats_v1','omar_hidden_code_v1','att_fixed_final','att_hols_fixed','att_notes','att_v1','att_v2','att_v3','att_v4','omar_theme'];
 let saveTimer=null;
 function setStatus(s,extra=''){const txt=document.getElementById('syncText'); const dot=document.getElementById('syncDot'); const el=document.getElementById('syncStatus'); if(!txt) return; const map={synced:{t:'🟢 متزامن '+extra, bg:'#CCFBF1', c:'#0F766E', d:'#10B981'}, syncing:{t:'🟡 جاري الحفظ...', bg:'#FEF3C7', c:'#92400E', d:'#F59E0B'}, offline:{t:'📴 محلي - محفوظ', bg:'#F1F5F9', c:'#64748B', d:'#94A3B8'}}; const m=map[s]||map.offline; txt.textContent=m.t; el.style.background=m.bg; el.style.color=m.c; dot.style.background=m.d; dot.classList.toggle('pulse', s==='syncing');}
