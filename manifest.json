@@ -1,16 +1,39 @@
 {
-  "name": "Omar - v10-9",
-  "short_name": "Omar v10-9",
-  "description": "Omar Unified v10-9 - Daily + Attendance + Tasks",
-  "start_url": "./index.html?v=10-9",
+  "name": "نظام عمر الشامل",
+  "short_name": "Omar",
+  "description": "نظام عمر الشامل",
+  "start_url": "./index.html",
+  "scope": ".",
   "display": "standalone",
-  "background_color": "#F0FDFA",
+  "background_color": "#0F766E",
   "theme_color": "#0F766E",
   "orientation": "portrait",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
-    {"src": "icon_192.png","sizes": "192x192","type": "image/png","purpose": "any maskable"},
-    {"src": "icon_512.png","sizes": "512x512","type": "image/png","purpose": "any maskable"}
+    {
+      "src": "./icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
